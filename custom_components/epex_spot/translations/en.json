@@ -1,0 +1,20 @@
+{
+    "config": {
+      "abort": {
+        "already_configured": "This market area is already configured.",
+        "fetch_failed": "Failed to fetch data."
+      },
+      "step": {
+        "source": {
+          "data": {
+            "source": "Select data source"
+          }
+        },
+        "market_area": {
+          "data": {
+            "market_area": "Select market area"
+          }
+        }
+      }
+    }
+  }
