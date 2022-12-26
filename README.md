@@ -2,7 +2,7 @@
 
 This component adds electricity prices from stock exchange [EPEX Spot](https://www.epexspot.com) to Home Assistant. [EPEX Spot](https://www.epexspot.com) does not provide free access to the data, so this component uses different ways to retrieve the data.
 
-You can chose between multiple sources:
+You can choose between multiple sources:
 
 1. Awattar
 
