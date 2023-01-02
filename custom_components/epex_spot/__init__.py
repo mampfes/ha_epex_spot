@@ -1,4 +1,4 @@
-"""Component for wiffi support."""
+"""Component for EPEX Spot support."""
 import logging
 from datetime import timedelta
 
@@ -60,7 +60,7 @@ class EpexSpotShell:
         if self.is_idle():
             # This is the first entry, therefore start the timer
             self._fetch_callback_listener = async_track_time_interval(
-                self._hass, self._fetch_callback, timedelta(hours=1)
+                self._hass, self._fetch_callback, timedelta(hour=1)
             )
 
             # async_track_time_change(hass, action, hour=None, minute=None, second=None):
@@ -96,7 +96,6 @@ class EpexSpotShell:
     def _fetch(self, *_):
         for source in self._sources:
             try:
-                print("fetch source")
-                source.fetch()
+                self.get_source(source).fetch()
             except Exception as error:
                 _LOGGER.error(f"fetch failed : {error}")
