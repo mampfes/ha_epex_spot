@@ -54,3 +54,21 @@ data:
     end_time: '2022-12-16T02:00:00+00:00'
     price_eur_per_mwh: 280.19
 ```
+
+## FAQ
+
+### 1. How can I show the prices in ct/kWh?
+
+Add a template sensor like this:
+
+```yaml
+template:
+  - sensor:
+    - name: epex_spot_price_ct_per_kWh
+      unit_of_measurement: "ct/kWh"
+      state: >
+        {% set price = states('sensor.epex_spot_de_price') %}
+        {{ price | float / 10 if is_number(price) else state }}
+```
+
+Don't forget to replace `de` epex_spot_**de**_price if necessary!
