@@ -71,3 +71,32 @@ template:
 ```
 
 Don't forget to replace `de` epex_spot_**de**_price if necessary!
+
+### 2. How can I show a chart of the next hours?
+
+With [ApexCharts](https://github.com/RomRider/apexcharts-card), you can easily show a chart like this:
+
+![apexchart](/images/apexcharts.png)
+
+You just have to install [ApexCharts](https://github.com/RomRider/apexcharts-card) (via HACS) and enter the following data in the card configuration:
+
+```yaml
+type: custom:apexcharts-card
+header:
+  show: true
+  title: Electricity Prices
+graph_span: 48h
+span:
+  start: day
+now:
+  show: true
+  label: Now
+series:
+  - entity: sensor.epex_spot_de_price
+    name: Electricity Price
+    type: column
+    extend_to: end
+    data_generator: >
+      return entity.attributes.data.map((entry, index) => { return [new
+      Date(entry.start_time).getTime(), entry.price_eur_per_mwh]; });
+```
