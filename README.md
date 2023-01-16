@@ -66,9 +66,8 @@ template:
   - sensor:
     - name: epex_spot_price_ct_per_kWh
       unit_of_measurement: "ct/kWh"
-      state: >
-        {% set price = states('sensor.epex_spot_de_price') %}
-        {{ price | float / 10 if is_number(price) else state }}
+      availability: '{{ states("sensor.epex_spot_de_price") != "unavailable" }}'
+      state: '{{ states("sensor.epex_spot_de_price") | float / 10 }}'
 ```
 
 Don't forget to replace `de` epex_spot_**de**_price if necessary!
