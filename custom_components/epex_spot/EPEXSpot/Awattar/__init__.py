@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta, timezone
+from homeassistant.util import dt
 
 import requests
 
@@ -67,7 +68,7 @@ class Awattar:
         self._marketprices = self._extract_marketprices(data["data"])
 
     def _fetch_data(self, url):
-        start = datetime.now(tz=timezone.utc).replace(
+        start = dt.now().replace(
             hour=0, minute=0, second=0, microsecond=0
         )
         end = start + timedelta(days=2)
