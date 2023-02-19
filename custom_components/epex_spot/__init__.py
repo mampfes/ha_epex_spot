@@ -4,8 +4,8 @@ from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.event import async_track_time_interval, async_track_time_change
 from homeassistant.helpers.dispatcher import dispatcher_send
+from homeassistant.helpers.event import async_track_time_change
 from homeassistant.util import dt
 
 from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
@@ -44,6 +44,7 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             del hass.data[DOMAIN]
 
     return unload_ok
+
 
 class SourceDecorator:
     def __init__(self, unique_id, source):
@@ -90,14 +91,21 @@ class SourceDecorator:
         now = dt.now()
 
         # find current entry in marketdata list
-        self._marketdata_now = next(filter(lambda e: e.start_time <= now and e.end_time > now, self.marketdata))
+        self._marketdata_now = next(
+            filter(lambda e: e.start_time <= now and e.end_time > now, self.marketdata)
+        )
 
         # get list of entries for today
         start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
         end_of_day = start_of_day + timedelta(days=1)
 
-        sorted_marketdata_today = filter(lambda e: e.start_time >= start_of_day and e.end_time <= end_of_day, self.marketdata)
-        sorted_sorted_marketdata_today = sorted(sorted_marketdata_today, key=lambda e: e.price_eur_per_mwh)
+        sorted_marketdata_today = filter(
+            lambda e: e.start_time >= start_of_day and e.end_time <= end_of_day,
+            self.marketdata,
+        )
+        sorted_sorted_marketdata_today = sorted(
+            sorted_marketdata_today, key=lambda e: e.price_eur_per_mwh
+        )
         self._sorted_marketdata_today = sorted_sorted_marketdata_today
 
 
@@ -137,8 +145,12 @@ class EpexSpotShell:
 
         if is_idle:
             # This is the first entry, therefore start the timers
-            self._timer_listener_hour_change = async_track_time_change(self._hass, self._on_hour_change, hour=None, minute=0, second=0)
-            self._timer_listener_fetch = async_track_time_change(self._hass, self._on_fetch_sources, hour=None, minute=58, second=0)
+            self._timer_listener_hour_change = async_track_time_change(
+                self._hass, self._on_hour_change, hour=None, minute=0, second=0
+            )
+            self._timer_listener_fetch = async_track_time_change(
+                self._hass, self._on_fetch_sources, hour=None, minute=58, second=0
+            )
 
     def remove_entry(self, config_entry: ConfigEntry):
         """Remove entry."""
@@ -168,7 +180,7 @@ class EpexSpotShell:
     @callback
     def _on_fetch_sources(self, *_):
         for source in self._sources.values():
-           self._hass.add_job(lambda: self._fetch_source(source))
+            self._hass.add_job(lambda: self._fetch_source(source))
 
     @callback
     def _on_hour_change(self, *_):

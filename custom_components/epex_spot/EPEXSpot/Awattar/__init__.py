@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timedelta, timezone
-from homeassistant.util import dt
 
 import requests
+from homeassistant.util import dt
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,9 +68,7 @@ class Awattar:
         self._marketdata = self._extract_marketdata(data["data"])
 
     def _fetch_data(self, url):
-        start = dt.now().replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        start = dt.now().replace(hour=0, minute=0, second=0, microsecond=0)
         end = start + timedelta(days=2)
         r = requests.get(url, params={"start": start, "end": end})
         r.raise_for_status()

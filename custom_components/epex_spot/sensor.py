@@ -1,14 +1,14 @@
 import logging
 
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.core import callback
 from homeassistant.const import (ATTR_IDENTIFIERS, ATTR_MANUFACTURER,
                                  ATTR_MODEL, ATTR_NAME)
+from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceEntryType
-from homeassistant.util import dt
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
-from .const import CONF_SOURCE, CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN, UPDATE_SENSORS_SIGNAL
+from .const import (CONF_SOURCE, CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN,
+                    UPDATE_SENSORS_SIGNAL)
 
 ATTR_DATA = "data"
 ATTR_PRICE_EUR_PER_MWH = "price_eur_per_mwh"
@@ -38,11 +38,13 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     ]
 
     if config_entry.data[CONF_SOURCE] == CONF_SOURCE_EPEX_SPOT_WEB:
-        entities.extend([
-            EpexSpotBuyVolumeSensorEntity(hass, shell.get_source(unique_id)),
-            EpexSpotSellVolumeSensorEntity(hass, shell.get_source(unique_id)),
-            EpexSpotVolumeSensorEntity(hass, shell.get_source(unique_id)),
-        ])
+        entities.extend(
+            [
+                EpexSpotBuyVolumeSensorEntity(hass, shell.get_source(unique_id)),
+                EpexSpotSellVolumeSensorEntity(hass, shell.get_source(unique_id)),
+                EpexSpotVolumeSensorEntity(hass, shell.get_source(unique_id)),
+            ]
+        )
 
     async_add_entities(entities)
 
@@ -64,7 +66,10 @@ class EpexSpotSensorEntity(SensorEntity):
 
     async def async_added_to_hass(self) -> None:
         self.async_on_remove(
-            async_dispatcher_connect(self.hass, UPDATE_SENSORS_SIGNAL, self._on_update_sensor_x))
+            async_dispatcher_connect(
+                self.hass, UPDATE_SENSORS_SIGNAL, self._on_update_sensor_x
+            )
+        )
 
         self._on_update_sensor_x()
 
@@ -79,7 +84,6 @@ class EpexSpotSensorEntity(SensorEntity):
             self._attr_extra_state_attributes = None
 
         self.async_write_ha_state()
-
 
 
 def to_ct_per_kwh(price_eur_per_mwh):
@@ -100,11 +104,15 @@ class EpexSpotPriceSensorEntity(EpexSpotSensorEntity):
         """Update the value of the entity."""
         self._attr_native_value = self._source.marketdata_now.price_eur_per_mwh
 
-        data = [{ATTR_START_TIME: e.start_time.isoformat(),
+        data = [
+            {
+                ATTR_START_TIME: e.start_time.isoformat(),
                 ATTR_END_TIME: e.end_time.isoformat(),
                 ATTR_PRICE_EUR_PER_MWH: e.price_eur_per_mwh,
                 ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(e.price_eur_per_mwh),
-                } for e in self._source.marketdata]
+            }
+            for e in self._source.marketdata
+        ]
 
         self._attr_extra_state_attributes = {
             ATTR_DATA: data,
@@ -126,9 +134,14 @@ class EpexSpotBuyVolumeSensorEntity(EpexSpotSensorEntity):
         """Update the value of the entity."""
         self._attr_native_value = self._source.marketdata_now.buy_volume_mwh
 
-        data = [{ATTR_START_TIME: e.start_time.isoformat(),
+        data = [
+            {
+                ATTR_START_TIME: e.start_time.isoformat(),
                 ATTR_END_TIME: e.end_time.isoformat(),
-                "buy_volume_mwh": e.buy_volume_mwh} for e in self._source.marketdata]
+                "buy_volume_mwh": e.buy_volume_mwh,
+            }
+            for e in self._source.marketdata
+        ]
 
         self._attr_extra_state_attributes = {
             ATTR_DATA: data,
@@ -149,9 +162,14 @@ class EpexSpotSellVolumeSensorEntity(EpexSpotSensorEntity):
         """Update the value of the entity."""
         self._attr_native_value = self._source.marketdata_now.sell_volume_mwh
 
-        data = [{ATTR_START_TIME: e.start_time.isoformat(),
+        data = [
+            {
+                ATTR_START_TIME: e.start_time.isoformat(),
                 ATTR_END_TIME: e.end_time.isoformat(),
-                "sell_volume_mwh": e.sell_volume_mwh} for e in self._source.marketdata]
+                "sell_volume_mwh": e.sell_volume_mwh,
+            }
+            for e in self._source.marketdata
+        ]
 
         self._attr_extra_state_attributes = {
             ATTR_DATA: data,
@@ -172,9 +190,14 @@ class EpexSpotVolumeSensorEntity(EpexSpotSensorEntity):
         """Update the value of the entity."""
         self._attr_native_value = self._source.marketdata_now.volume_mwh
 
-        data = [{ATTR_START_TIME: e.start_time.isoformat(),
+        data = [
+            {
+                ATTR_START_TIME: e.start_time.isoformat(),
                 ATTR_END_TIME: e.end_time.isoformat(),
-                "volume_mwh": e.volume_mwh} for e in self._source.marketdata]
+                "volume_mwh": e.volume_mwh,
+            }
+            for e in self._source.marketdata
+        ]
 
         self._attr_extra_state_attributes = {
             ATTR_DATA: data,
@@ -191,9 +214,11 @@ class EpexSpotRankSensorEntity(EpexSpotSensorEntity):
 
     def _on_update_sensor(self):
         """Update the value of the entity."""
-        self._attr_native_value = [e.price_eur_per_mwh for e in self._source.sorted_marketdata_today].index(self._source.marketdata_now.price_eur_per_mwh)
+        self._attr_native_value = [
+            e.price_eur_per_mwh for e in self._source.sorted_marketdata_today
+        ].index(self._source.marketdata_now.price_eur_per_mwh)
 
-        
+
 class EpexSpotQuantileSensorEntity(EpexSpotSensorEntity):
     """Home Assistant sensor containing all EPEX spot data."""
 
@@ -227,9 +252,9 @@ class EpexSpotLowestPriceSensorEntity(EpexSpotSensorEntity):
         self._attr_native_value = min.price_eur_per_mwh
 
         attributes = {
-                ATTR_START_TIME: min.start_time.isoformat(),
-                ATTR_END_TIME: min.end_time.isoformat(),
-                ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
+            ATTR_START_TIME: min.start_time.isoformat(),
+            ATTR_END_TIME: min.end_time.isoformat(),
+            ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
         }
         self._attr_extra_state_attributes = attributes
 
@@ -250,9 +275,9 @@ class EpexSpotHighestPriceSensorEntity(EpexSpotSensorEntity):
         self._attr_native_value = max.price_eur_per_mwh
 
         attributes = {
-                ATTR_START_TIME: max.start_time.isoformat(),
-                ATTR_END_TIME: max.end_time.isoformat(),
-                ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
+            ATTR_START_TIME: max.start_time.isoformat(),
+            ATTR_END_TIME: max.end_time.isoformat(),
+            ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
         }
         self._attr_extra_state_attributes = attributes
 
@@ -270,10 +295,10 @@ class EpexSpotAveragePriceSensorEntity(EpexSpotSensorEntity):
 
     def _on_update_sensor(self):
         """Update the value of the entity."""
-        s = sum([e.price_eur_per_mwh for e in self._source.sorted_marketdata_today])
+        s = sum(e.price_eur_per_mwh for e in self._source.sorted_marketdata_today)
         self._attr_native_value = s / len(self._source.sorted_marketdata_today)
 
         attributes = {
-                ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
+            ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
         }
         self._attr_extra_state_attributes = attributes
