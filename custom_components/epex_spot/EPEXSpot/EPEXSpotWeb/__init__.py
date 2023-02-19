@@ -92,7 +92,7 @@ class EPEXSpotWeb:
     def __init__(self, market_area):
         self._market_area = market_area
         self._duration = timedelta(minutes=60)
-        self._marketprices = []
+        self._marketdata = []
 
     @property
     def name(self):
@@ -103,14 +103,14 @@ class EPEXSpotWeb:
         return self._market_area
 
     @property
-    def marketprices(self):
-        return self._marketprices
+    def marketdata(self):
+        return self._marketdata
 
     def fetch(self):
         delivery_date = datetime.now(ZoneInfo("Europe/Berlin"))
         # get data for remaining day and upcoming day
         # Data for the upcoming day is typically available at 12:45
-        self._marketprices = self._fetch_day(delivery_date) + self._fetch_day(
+        self._marketdata = self._fetch_day(delivery_date) + self._fetch_day(
             delivery_date + timedelta(days=1)
         )
 
@@ -205,14 +205,14 @@ class EPEXSpotWeb:
         # convert timezone to UTC (and adjust timestamp)
         start_time = start_time.astimezone(timezone.utc)
 
-        marketprices = []
+        marketdata = []
         for row in rows:
             end_time = start_time + self._duration
             buy_volume_col = row.td
             sell_volume_col = buy_volume_col.find_next_sibling("td")
             volume_col = sell_volume_col.find_next_sibling("td")
             price_col = volume_col.find_next_sibling("td")
-            marketprices.append(
+            marketdata.append(
                 Marketprice(
                     start_time=start_time,
                     end_time=end_time,
@@ -224,4 +224,4 @@ class EPEXSpotWeb:
             )
             start_time = end_time
 
-        return marketprices
+        return marketdata

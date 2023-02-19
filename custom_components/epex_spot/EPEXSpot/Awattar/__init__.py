@@ -49,7 +49,7 @@ class Awattar:
     def __init__(self, market_area):
         self._market_area = market_area
         self._url = self.URL.format(market_area=market_area)
-        self._marketprices = []
+        self._marketdata = []
 
     @property
     def name(self):
@@ -60,12 +60,12 @@ class Awattar:
         return self._market_area
 
     @property
-    def marketprices(self):
-        return self._marketprices
+    def marketdata(self):
+        return self._marketdata
 
     def fetch(self):
         data = self._fetch_data(self._url)
-        self._marketprices = self._extract_marketprices(data["data"])
+        self._marketdata = self._extract_marketdata(data["data"])
 
     def _fetch_data(self, url):
         start = dt.now().replace(
@@ -76,7 +76,7 @@ class Awattar:
         r.raise_for_status()
         return r.json()
 
-    def _extract_marketprices(self, data):
+    def _extract_marketdata(self, data):
         entries = []
         for entry in data:
             entries.append(Marketprice(entry))

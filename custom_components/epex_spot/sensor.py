@@ -1,14 +1,20 @@
 import logging
 
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.core import callback
 from homeassistant.const import (ATTR_IDENTIFIERS, ATTR_MANUFACTURER,
                                  ATTR_MODEL, ATTR_NAME)
 from homeassistant.helpers.device_registry import DeviceEntryType
-from homeassistant.util.dt import utcnow
+from homeassistant.util import dt
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
-from .const import CONF_SOURCE, CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN
+from .const import CONF_SOURCE, CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN, UPDATE_SENSORS_SIGNAL
 
 ATTR_DATA = "data"
+ATTR_PRICE_EUR_PER_MWH = "price_eur_per_mwh"
+ATTR_PRICE_CT_PER_KWH = "price_ct_per_kwh"
+ATTR_START_TIME = "start_time"
+ATTR_END_TIME = "end_time"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,21 +28,21 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     shell = hass.data[DOMAIN]
     unique_id = config_entry.unique_id
 
-    entities = []
+    entities = [
+        EpexSpotPriceSensorEntity(hass, shell.get_source(unique_id)),
+        EpexSpotRankSensorEntity(hass, shell.get_source(unique_id)),
+        EpexSpotQuantileSensorEntity(hass, shell.get_source(unique_id)),
+        EpexSpotLowestPriceSensorEntity(hass, shell.get_source(unique_id)),
+        EpexSpotHighestPriceSensorEntity(hass, shell.get_source(unique_id)),
+        EpexSpotAveragePriceSensorEntity(hass, shell.get_source(unique_id)),
+    ]
 
-    entities.append(
-        EpexSpotPriceSensorEntity(hass, shell.get_source(unique_id), unique_id)
-    )
     if config_entry.data[CONF_SOURCE] == CONF_SOURCE_EPEX_SPOT_WEB:
-        entities.append(
-            EpexSpotBuyVolumeSensorEntity(hass, shell.get_source(unique_id), unique_id)
-        )
-        entities.append(
-            EpexSpotSellVolumeSensorEntity(hass, shell.get_source(unique_id), unique_id)
-        )
-        entities.append(
-            EpexSpotVolumeSensorEntity(hass, shell.get_source(unique_id), unique_id)
-        )
+        entities.extend([
+            EpexSpotBuyVolumeSensorEntity(hass, shell.get_source(unique_id)),
+            EpexSpotSellVolumeSensorEntity(hass, shell.get_source(unique_id)),
+            EpexSpotVolumeSensorEntity(hass, shell.get_source(unique_id)),
+        ])
 
     async_add_entities(entities)
 
@@ -46,8 +52,8 @@ class EpexSpotSensorEntity(SensorEntity):
 
     def __init__(self, hass, source):
         self._source = source
-        self._value = None
 
+        self._attr_should_poll = False
         self._attr_device_info = {
             ATTR_IDENTIFIERS: {(DOMAIN, f"{source.name} {source.market_area}")},
             ATTR_NAME: "EPEX Spot Data",
@@ -56,177 +62,218 @@ class EpexSpotSensorEntity(SensorEntity):
             "entry_type": DeviceEntryType.SERVICE,
         }
 
-    @property
-    def available(self):
-        """Return true if value is valid."""
-        return self._value is not None
+    async def async_added_to_hass(self) -> None:
+        self.async_on_remove(
+            async_dispatcher_connect(self.hass, UPDATE_SENSORS_SIGNAL, self._on_update_sensor_x))
 
-    @property
-    def native_value(self):
-        """Return the value of the entity."""
-        return self._value
+        self._on_update_sensor_x()
 
-    @property
-    def native_unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return "EUR/MWh"
+    @callback
+    def _on_update_sensor_x(self):
+        try:
+            self._on_update_sensor()
+            self._attr_available = True
+        except:
+            self._attr_available = False
+            self._attr_native_value = None
+            self._attr_extra_state_attributes = None
+
+        self.async_write_ha_state()
+
+
+
+def to_ct_per_kwh(price_eur_per_mwh):
+    return price_eur_per_mwh / 10
 
 
 class EpexSpotPriceSensorEntity(EpexSpotSensorEntity):
     """Home Assistant sensor containing all EPEX spot data."""
 
-    def __init__(self, hass, source, unique_id):
+    def __init__(self, hass, source):
         EpexSpotSensorEntity.__init__(self, hass, source)
-        self._attr_unique_id = f"{unique_id} Price"
+        self._attr_unique_id = f"{source.unique_id} Price"
         self._attr_name = f"EPEX Spot {source.market_area} Price"
         self._attr_icon = "mdi:currency-eur"
+        self._attr_native_unit_of_measurement = "EUR/MWh"
 
-    async def async_update(self):
+    def _on_update_sensor(self):
         """Update the value of the entity."""
-        now = utcnow()
+        self._attr_native_value = self._source.marketdata_now.price_eur_per_mwh
 
-        self._value = None
+        data = [{ATTR_START_TIME: e.start_time.isoformat(),
+                ATTR_END_TIME: e.end_time.isoformat(),
+                ATTR_PRICE_EUR_PER_MWH: e.price_eur_per_mwh,
+                ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(e.price_eur_per_mwh),
+                } for e in self._source.marketdata]
 
-        data = []
-
-        for e in self._source.marketprices:
-            # find current value
-            if e.start_time <= now and e.end_time > now:
-                self._value = e.price_eur_per_mwh
-
-            info = {
-                "start_time": e.start_time.isoformat(),
-                "end_time": e.end_time.isoformat(),
-                "price_eur_per_mwh": e.price_eur_per_mwh,
-            }
-            data.append(info)
-
-        attributes = {
+        self._attr_extra_state_attributes = {
             ATTR_DATA: data,
+            ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
         }
-        self._attr_extra_state_attributes = attributes
-
-    @property
-    def native_unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return "EUR/MWh"
 
 
 class EpexSpotBuyVolumeSensorEntity(EpexSpotSensorEntity):
     """Home Assistant sensor containing all EPEX spot data."""
 
-    def __init__(self, hass, source, unique_id):
+    def __init__(self, hass, source):
         EpexSpotSensorEntity.__init__(self, hass, source)
-        self._attr_unique_id = f"{unique_id} Buy Volume"
+        self._attr_unique_id = f"{source.unique_id} Buy Volume"
         self._attr_name = f"EPEX Spot {source.market_area} Buy Volume"
         self._attr_icon = "mdi:lightning-bolt"
+        self._attr_native_unit_of_measurement = "MWh"
 
-    async def async_update(self):
+    def _on_update_sensor(self):
         """Update the value of the entity."""
-        now = utcnow()
+        self._attr_native_value = self._source.marketdata_now.buy_volume_mwh
 
-        self._value = None
+        data = [{ATTR_START_TIME: e.start_time.isoformat(),
+                ATTR_END_TIME: e.end_time.isoformat(),
+                "buy_volume_mwh": e.buy_volume_mwh} for e in self._source.marketdata]
 
-        data = []
-
-        for e in self._source.marketprices:
-            # find current value
-            if e.start_time <= now and e.end_time > now:
-                self._value = e.buy_volume_mwh
-
-            info = {
-                "start_time": e.start_time.isoformat(),
-                "end_time": e.end_time.isoformat(),
-                "buy_volume_mwh": e.buy_volume_mwh,
-            }
-            data.append(info)
-
-        attributes = {
+        self._attr_extra_state_attributes = {
             ATTR_DATA: data,
         }
-        self._attr_extra_state_attributes = attributes
-
-    @property
-    def native_unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return "MWh"
 
 
 class EpexSpotSellVolumeSensorEntity(EpexSpotSensorEntity):
     """Home Assistant sensor containing all EPEX spot data."""
 
-    def __init__(self, hass, source, unique_id):
+    def __init__(self, hass, source):
         EpexSpotSensorEntity.__init__(self, hass, source)
-        self._attr_unique_id = f"{unique_id} Sell Volume"
+        self._attr_unique_id = f"{source.unique_id} Sell Volume"
         self._attr_name = f"EPEX Spot {source.market_area} Sell Volume"
         self._attr_icon = "mdi:lightning-bolt"
+        self._attr_native_unit_of_measurement = "MWh"
 
-    async def async_update(self):
+    def _on_update_sensor(self):
         """Update the value of the entity."""
-        now = utcnow()
+        self._attr_native_value = self._source.marketdata_now.sell_volume_mwh
 
-        self._value = None
+        data = [{ATTR_START_TIME: e.start_time.isoformat(),
+                ATTR_END_TIME: e.end_time.isoformat(),
+                "sell_volume_mwh": e.sell_volume_mwh} for e in self._source.marketdata]
 
-        data = []
-
-        for e in self._source.marketprices:
-            # find current value
-            if e.start_time <= now and e.end_time > now:
-                self._value = e.sell_volume_mwh
-
-            info = {
-                "start_time": e.start_time.isoformat(),
-                "end_time": e.end_time.isoformat(),
-                "sell_volume_mwh": e.sell_volume_mwh,
-            }
-            data.append(info)
-
-        attributes = {
+        self._attr_extra_state_attributes = {
             ATTR_DATA: data,
         }
-        self._attr_extra_state_attributes = attributes
-
-    @property
-    def native_unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return "MWh"
 
 
 class EpexSpotVolumeSensorEntity(EpexSpotSensorEntity):
     """Home Assistant sensor containing all EPEX spot data."""
 
-    def __init__(self, hass, source, unique_id):
+    def __init__(self, hass, source):
         EpexSpotSensorEntity.__init__(self, hass, source)
-        self._attr_unique_id = f"{unique_id} Volume"
+        self._attr_unique_id = f"{source.unique_id} Volume"
         self._attr_name = f"EPEX Spot {source.market_area} Volume"
         self._attr_icon = "mdi:lightning-bolt"
+        self._attr_native_unit_of_measurement = "MWh"
 
-    async def async_update(self):
+    def _on_update_sensor(self):
         """Update the value of the entity."""
-        now = utcnow()
+        self._attr_native_value = self._source.marketdata_now.volume_mwh
 
-        self._value = None
+        data = [{ATTR_START_TIME: e.start_time.isoformat(),
+                ATTR_END_TIME: e.end_time.isoformat(),
+                "volume_mwh": e.volume_mwh} for e in self._source.marketdata]
 
-        data = []
+        self._attr_extra_state_attributes = {
+            ATTR_DATA: data,
+        }
 
-        for e in self._source.marketprices:
-            # find current value
-            if e.start_time <= now and e.end_time > now:
-                self._value = e.volume_mwh
 
-            info = {
-                "start_time": e.start_time.isoformat(),
-                "end_time": e.end_time.isoformat(),
-                "volume_mwh": e.volume_mwh,
-            }
-            data.append(info)
+class EpexSpotRankSensorEntity(EpexSpotSensorEntity):
+    """Home Assistant sensor containing all EPEX spot data."""
+
+    def __init__(self, hass, source):
+        EpexSpotSensorEntity.__init__(self, hass, source)
+        self._attr_unique_id = f"{source.unique_id} Rank"
+        self._attr_name = f"EPEX Spot {source.market_area} Rank"
+
+    def _on_update_sensor(self):
+        """Update the value of the entity."""
+        self._attr_native_value = [e.price_eur_per_mwh for e in self._source.sorted_marketdata_today].index(self._source.marketdata_now.price_eur_per_mwh)
+
+        
+class EpexSpotQuantileSensorEntity(EpexSpotSensorEntity):
+    """Home Assistant sensor containing all EPEX spot data."""
+
+    def __init__(self, hass, source):
+        EpexSpotSensorEntity.__init__(self, hass, source)
+        self._attr_unique_id = f"{source.unique_id} Quantile"
+        self._attr_name = f"EPEX Spot {source.market_area} Quantile"
+        self._attr_suggested_display_precision = 2
+
+    def _on_update_sensor(self):
+        """Update the value of the entity."""
+        current_price = self._source.marketdata_now.price_eur_per_mwh
+        min_price = self._source.sorted_marketdata_today[0].price_eur_per_mwh
+        max_price = self._source.sorted_marketdata_today[-1].price_eur_per_mwh
+        self._attr_native_value = (current_price - min_price) / (max_price - min_price)
+
+
+class EpexSpotLowestPriceSensorEntity(EpexSpotSensorEntity):
+    """Home Assistant sensor containing all EPEX spot data."""
+
+    def __init__(self, hass, source):
+        EpexSpotSensorEntity.__init__(self, hass, source)
+        self._attr_unique_id = f"{source.unique_id} Lowest Price"
+        self._attr_name = f"EPEX Spot {source.market_area} Lowest Price"
+        self._attr_icon = "mdi:currency-eur"
+        self._attr_native_unit_of_measurement = "EUR/MWh"
+
+    def _on_update_sensor(self):
+        """Update the value of the entity."""
+        min = self._source.sorted_marketdata_today[0]
+        self._attr_native_value = min.price_eur_per_mwh
 
         attributes = {
-            ATTR_DATA: data,
+                ATTR_START_TIME: min.start_time.isoformat(),
+                ATTR_END_TIME: min.end_time.isoformat(),
+                ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
         }
         self._attr_extra_state_attributes = attributes
 
-    @property
-    def native_unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return "MWh"
+
+class EpexSpotHighestPriceSensorEntity(EpexSpotSensorEntity):
+    """Home Assistant sensor containing all EPEX spot data."""
+
+    def __init__(self, hass, source):
+        EpexSpotSensorEntity.__init__(self, hass, source)
+        self._attr_unique_id = f"{source.unique_id} Highest Price"
+        self._attr_name = f"EPEX Spot {source.market_area} Highest Price"
+        self._attr_icon = "mdi:currency-eur"
+        self._attr_native_unit_of_measurement = "EUR/MWh"
+
+    def _on_update_sensor(self):
+        """Update the value of the entity."""
+        max = self._source.sorted_marketdata_today[-1]
+        self._attr_native_value = max.price_eur_per_mwh
+
+        attributes = {
+                ATTR_START_TIME: max.start_time.isoformat(),
+                ATTR_END_TIME: max.end_time.isoformat(),
+                ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
+        }
+        self._attr_extra_state_attributes = attributes
+
+
+class EpexSpotAveragePriceSensorEntity(EpexSpotSensorEntity):
+    """Home Assistant sensor containing all EPEX spot data."""
+
+    def __init__(self, hass, source):
+        EpexSpotSensorEntity.__init__(self, hass, source)
+        self._attr_unique_id = f"{source.unique_id} Average Price"
+        self._attr_name = f"EPEX Spot {source.market_area} Average Price"
+        self._attr_icon = "mdi:currency-eur"
+        self._attr_native_unit_of_measurement = "EUR/MWh"
+        self._attr_suggested_display_precision = 2
+
+    def _on_update_sensor(self):
+        """Update the value of the entity."""
+        s = sum([e.price_eur_per_mwh for e in self._source.sorted_marketdata_today])
+        self._attr_native_value = s / len(self._source.sorted_marketdata_today)
+
+        attributes = {
+                ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
+        }
+        self._attr_extra_state_attributes = attributes
