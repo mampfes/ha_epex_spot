@@ -7,6 +7,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import dispatcher_send
 from homeassistant.helpers.event import async_track_time_change
 from homeassistant.util import dt
+import sys
 
 from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
                     CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN, UPDATE_SENSORS_SIGNAL)
@@ -177,8 +178,10 @@ class EpexSpotShell:
     def _fetch_source(self, source):
         try:
             source.fetch()
-        except Exception as error:
+        except BaseException as error:
             _LOGGER.error(f"fetch failed : {error}")
+        except:
+            _LOGGER.error(f"Unexpected exception {sys.exc_info()[0]}")
 
     @callback
     def _on_fetch_sources(self, *_):
