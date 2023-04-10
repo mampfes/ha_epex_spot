@@ -1,5 +1,6 @@
 """Component for EPEX Spot support."""
 import logging
+import sys
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
@@ -7,7 +8,6 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import dispatcher_send
 from homeassistant.helpers.event import async_track_time_change
 from homeassistant.util import dt
-import sys
 
 from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
                     CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN, UPDATE_SENSORS_SIGNAL)
@@ -94,10 +94,12 @@ class SourceDecorator:
         # find current entry in marketdata list
         try:
             self._marketdata_now = next(
-                filter(lambda e: e.start_time <= now and e.end_time > now, self.marketdata)
+                filter(
+                    lambda e: e.start_time <= now and e.end_time > now, self.marketdata
+                )
             )
         except StopIteration as e:
-            _LOGGER.error(f"now={now}, marketdata={self.marketdata}")
+            _LOGGER.error(f"StopIteration, now={now}, marketdata={self.marketdata}, error={e}")
 
         # get list of entries for today
         start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
