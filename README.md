@@ -199,6 +199,8 @@ Here's an other [ApexCharts](https://github.com/RomRider/apexcharts-card) exampl
 It shows the price for the current day, the next day and the `min/max` value for each day.
 Furthermore, it also fills the hours during which prices are lowest (see 3.)
 
+![apexchart](/images/apex_advanced.png)
+
 ```
 type: custom:apexcharts-card
 header:
@@ -288,7 +290,7 @@ yaxis:
     decimals: 2
     apex_config:
       title:
-        text: €/kWh
+        text: €/MWh
       tickAmount: 4
 apex_config:
   legend:
