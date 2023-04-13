@@ -159,3 +159,35 @@ series:
       return entity.attributes.data.map((entry, index) => { return [new
       Date(entry.start_time).getTime(), entry.price_eur_per_mwh]; });
 ```
+### 3. How can I determine the best moment to start appliances?
+
+It might be an interesting use case to know what the consecutive prices during the day are. This might be of value when looking for the most optimum time to start your washing machine, dishwasher, dryer, etc.
+The template below determines when the 3 hours with lowest consecutive prices start, between 06:00 and 22:00.
+You can change these hours in the template below, if you want hours before 06:00 and after 22:00 also to be considered.
+Remove `{%- set ns.combo = ns.combo[6:22] %}` do disable this filtering completely.
+
+```
+template:
+  - sensor:    
+    - name: start_low_period
+      state: >- 
+        {% set ns = namespace(attr_dict=[]) %}
+        {% for item in (state_attr('sensor.epex_spot_be_price', 'data'))[0:24] %}
+            {%- set ns.attr_dict = ns.attr_dict + [(loop.index-1,item["price_eur_per_mwh"])] %}
+        {% endfor %}
+        {%- set price_map = dict(ns.attr_dict) %}
+        {%- set price_sort = price_map.values()|list %}
+        {%- set keys_list = price_map.keys()|list %}
+        {%- set ns = namespace(combo=[]) %}
+        {%- for p in keys_list %}
+          {%- set p = p|int %}
+          {%- if p < 22 %}
+            {%- set ns.combo = ns.combo + [(p, ((price_sort)[p] + (price_sort)[p+1] + (price_sort)[p+2])|round(2))] %}
+          {%- endif %}
+        {%- endfor %}
+        {%- set ns.combo = ns.combo[6:22] %}
+        {%- set mapper = dict(ns.combo) %}
+        {%- set key = mapper.keys()|list %}
+        {%- set val = mapper.values()|list %}
+        {%- set val_min = mapper.values()|min %}
+        {{ key[val.index(val_min)]|string + ":00" }}```
