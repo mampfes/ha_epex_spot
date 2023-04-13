@@ -161,7 +161,7 @@ series:
 ```
 ### 3. How can I determine the best moment to start appliances?
 
-It might be an interesting use case to know what the consecutive prices during the day are. This might be of value when looking for the most optimum time to start your washing machine, dishwasher, dryer, etc.
+It might be an interesting use case to know what the hours with lowest consecutive prices during the day are. This might be of value when looking for the most optimum time to start your washing machine, dishwasher, dryer, etc.
 The template below determines when the 3 hours with lowest consecutive prices start, between 06:00 and 22:00.
 You can change these hours in the template below, if you want hours before 06:00 and after 22:00 also to be considered.
 Remove `{%- set ns.combo = ns.combo[6:22] %}` do disable this filtering completely.
@@ -190,4 +190,111 @@ template:
         {%- set key = mapper.keys()|list %}
         {%- set val = mapper.values()|list %}
         {%- set val_min = mapper.values()|min %}
-        {{ key[val.index(val_min)]|string + ":00" }}```
+        {{ key[val.index(val_min)]|string + ":00" }}
+```
+
+### 4. I want to combine and view everyting
+
+Here's an other [ApexCharts](https://github.com/RomRider/apexcharts-card) example.
+It shows the price for the current day, the next day and the `min/max` value for each day.
+Furthermore, it also fills the hours during which prices are lowest (see 3.)
+
+```
+type: custom:apexcharts-card
+header:
+  show: false
+graph_span: 48h
+span:
+  start: day
+now:
+  show: true
+  label: Now
+color_list:
+  - var(--primary-color)
+series:
+  - entity: sensor.epex_spot_be_price
+    yaxis_id: uurprijs
+    float_precision: 2
+    type: line
+    curve: stepline
+    extend_to: false
+    show:
+      extremas: true
+    data_generator: >
+      return entity.attributes.data.map((entry, index) => { return [new
+      Date(entry.start_time).getTime(), entry.price_eur_per_mwh; }).slice(0,24); 
+    color_threshold:
+      - value: 0
+        color: '#186ddc'
+      - value: 0.155
+        color: '#04822e'
+      - value: 0.2
+        color: '#12A141'
+      - value: 0.25
+        color: '#79B92C'
+      - value: 0.3
+        color: '#C4D81D'
+      - value: 0.35
+        color: '#F3DC0C'
+      - value: 0.4
+        color: red
+      - value: 0.5
+        color: magenta
+  - entity: sensor.epex_spot_be_price
+    yaxis_id: uurprijs
+    float_precision: 2
+    type: line
+    curve: stepline
+    extend_to: end
+    show:
+      extremas: true
+    data_generator: >
+      return entity.attributes.data.map((entry, index) => { return [new
+      Date(entry.start_time).getTime(), entry.price_eur_per_mwh]; }).slice(23,47); 
+    color_threshold:
+      - value: 0
+        color: '#186ddc'
+      - value: 0.155
+        color: '#04822e'
+      - value: 0.2
+        color: '#12A141'
+      - value: 0.25
+        color: '#79B92C'
+      - value: 0.3
+        color: '#C4D81D'
+      - value: 0.35
+        color: '#F3DC0C'
+      - value: 0.4
+        color: red
+      - value: 0.5
+        color: magenta
+  - entity: sensor.epex_spot_be_price
+    yaxis_id: uurprijs
+    color: green
+    float_precision: 2
+    type: area
+    curve: stepline
+    extend_to: false
+    data_generator: >
+      return entity.attributes.data.map((entry, index) => { return [new
+      Date(entry.start_time).getTime(), entry.price_eur_per_mwh];}).slice(parseInt(hass.states['sensor.start_laagste_prijs'].state.substring(0,2)),parseInt(hass.states['sensor.start_laagste_prijs'].state.substring(0,2))+4);
+        
+experimental:
+  color_threshold: true
+yaxis:
+  - id: uurprijs
+    min: 0.1
+    max: 0.5
+    decimals: 2
+    apex_config:
+      title:
+        text: €/kWh
+      tickAmount: 4
+apex_config:
+  legend:
+    show: false
+  tooltip:
+    x:
+      show: true
+      format: HH:00 - HH:59
+```
