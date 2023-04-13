@@ -279,7 +279,7 @@ series:
     extend_to: false
     data_generator: >
       return entity.attributes.data.map((entry, index) => { return [new
-      Date(entry.start_time).getTime(), entry.price_eur_per_mwh];}).slice(parseInt(hass.states['sensor.start_laagste_prijs'].state.substring(0,2)),parseInt(hass.states['sensor.start_laagste_prijs'].state.substring(0,2))+4);
+      Date(entry.start_time).getTime(), entry.price_eur_per_mwh];}).slice(parseInt(hass.states['sensor.start_low_period'].state.substring(0,2)),parseInt(hass.states['sensor.start_low_period'].state.substring(0,2))+4);
         
 experimental:
   color_threshold: true
