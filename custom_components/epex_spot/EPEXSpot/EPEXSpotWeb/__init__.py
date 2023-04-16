@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 from bs4 import BeautifulSoup
+from homeassistant.util import dt
 
 _LOGGER = logging.getLogger(__name__)
 

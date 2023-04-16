@@ -1,5 +1,6 @@
 """Component for EPEX Spot support."""
 import logging
+import sys
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
@@ -91,9 +92,16 @@ class SourceDecorator:
         now = dt.now()
 
         # find current entry in marketdata list
-        self._marketdata_now = next(
-            filter(lambda e: e.start_time <= now and e.end_time > now, self.marketdata)
-        )
+        try:
+            self._marketdata_now = next(
+                filter(
+                    lambda e: e.start_time <= now and e.end_time > now, self.marketdata
+                )
+            )
+        except StopIteration as e:
+            _LOGGER.error(f"no data found for {self._source}")
+            self._marketdata_now = None
+            self._sorted_marketdata_today = []
 
         # get list of entries for today
         start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -167,26 +175,32 @@ class EpexSpotShell:
                 remove_listener()
 
     def _fetch_source_and_dispatch(self, source):
-        self._fetch_source(source)
-        source.update_time()
-        dispatcher_send(self._hass, UPDATE_SENSORS_SIGNAL)
-
-    def _fetch_source(self, source):
         try:
             source.fetch()
-        except Exception as error:
-            _LOGGER.error(f"fetch failed : {error}")
+        except BaseException as error:
+            _LOGGER.error(f"fetch and dispatch failed : {error}")
+            source.update_time()
+            dispatcher_send(self._hass, UPDATE_SENSORS_SIGNAL)
 
     @callback
     def _on_fetch_sources(self, *_):
+        self._hass.add_job(lambda: self._fetch_sources())
+
+    def _fetch_sources(self):
         for source in self._sources.values():
-            self._hass.add_job(lambda: self._fetch_source(source))
+            try:
+                source.fetch()
+            except Exception as error:
+                _LOGGER.error(f"fetch failed : {error}")
 
     @callback
     def _on_hour_change(self, *_):
         # adjust marketdata in all sources to current hour
         for source in self._sources.values():
-            source.update_time()
+            try:
+                source.update_time()
+            except Exception as error:
+                _LOGGER.error(f"hourly update failed : {error}")
 
         # update all sensors immediately
         dispatcher_send(self._hass, UPDATE_SENSORS_SIGNAL)
