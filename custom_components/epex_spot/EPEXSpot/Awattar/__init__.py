@@ -64,10 +64,8 @@ class Awattar:
         return self._marketdata
 
     def fetch(self):
-        _LOGGER.info(f"awattar start fetch at {dt.now()}")
         data = self._fetch_data(self._url)
         self._marketdata = self._extract_marketdata(data["data"])
-        _LOGGER.info(f"awattar fetch at {dt.now()}, marketdata={self._marketdata}")
 
     def _fetch_data(self, url):
         start = dt.now().replace(hour=0, minute=0, second=0, microsecond=0)

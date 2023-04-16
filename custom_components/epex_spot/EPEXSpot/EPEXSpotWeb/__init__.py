@@ -108,14 +108,12 @@ class EPEXSpotWeb:
         return self._marketdata
 
     def fetch(self):
-        _LOGGER.info(f"epexspot start fetch at {dt.now()}")
         delivery_date = datetime.now(ZoneInfo("Europe/Berlin"))
         # get data for remaining day and upcoming day
         # Data for the upcoming day is typically available at 12:45
         self._marketdata = self._fetch_day(delivery_date) + self._fetch_day(
             delivery_date + timedelta(days=1)
         )
-        _LOGGER.info(f"epexspot fetch at {dt.now()}, marketdata={self._marketdata}")
 
     def _fetch_day(self, delivery_date):
         data = self._fetch_data(delivery_date)
