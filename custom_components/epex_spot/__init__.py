@@ -177,10 +177,10 @@ class EpexSpotShell:
     def _fetch_source_and_dispatch(self, source):
         try:
             source.fetch()
-        except BaseException as error:
-            _LOGGER.error(f"fetch and dispatch failed : {error}")
             source.update_time()
             dispatcher_send(self._hass, UPDATE_SENSORS_SIGNAL)
+        except BaseException as error:
+            _LOGGER.error(f"fetch and dispatch failed : {error}")
 
     @callback
     def _on_fetch_sources(self, *_):
