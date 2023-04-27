@@ -60,12 +60,15 @@ data:
   - start_time: '2022-12-15T23:00:00+00:00'
     end_time: '2022-12-16T00:00:00+00:00'
     price_eur_per_mwh: 296.3
+    price_ct_per_kwh: 29.63
   - start_time: '2022-12-16T00:00:00+00:00'
     end_time: '2022-12-16T01:00:00+00:00'
     price_eur_per_mwh: 288.12
+    price_ct_per_kwh: 28.812
   - start_time: '2022-12-16T01:00:00+00:00'
     end_time: '2022-12-16T02:00:00+00:00'
     price_eur_per_mwh: 280.19
+    price_ct_per_kwh: 28.019
 ```
 
 ### 2. Average Market Price Sensor
@@ -118,12 +121,14 @@ Examples:
 
 ### 1. How can I show the prices in ct/kWh?
 
-Add a template sensor like this:
+Since version 1.1.0, every sensor that shows price information has an extra attribute `price_ct_per_kwh`. This can be used for Lovelace cards like the [Entity Card](https://www.home-assistant.io/dashboards/entity/#attribute), automations and visualizations like [ApexCharts](https://github.com/RomRider/apexcharts-card).
+
+Before version 1.1.0, you can use a template sensor like this:
 
 ```yaml
 template:
   - sensor:
-    - name: epex_spot_price_ct_per_kWh
+    - name: epex_spot_price_ct_per_kwh
       unit_of_measurement: "ct/kWh"
       availability: '{{ states("sensor.epex_spot_de_price") != "unavailable" }}'
       state: '{{ states("sensor.epex_spot_de_price") | float / 10 }}'
