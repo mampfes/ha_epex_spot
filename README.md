@@ -159,6 +159,7 @@ series:
       return entity.attributes.data.map((entry, index) => { return [new
       Date(entry.start_time).getTime(), entry.price_eur_per_mwh]; });
 ```
+
 ### 3. How can I determine the best moment to start appliances?
 
 It might be an interesting use case to know what the hours with lowest consecutive prices during the day are. This might be of value when looking for the most optimum time to start your washing machine, dishwasher, dryer, etc.
@@ -166,10 +167,10 @@ The template below determines when the 3 hours with lowest consecutive prices st
 You can change these hours in the template below, if you want hours before 06:00 and after 22:00 also to be considered.
 Remove `{%- set ns.combo = ns.combo[6:22] %}` do disable this filtering completely.
 
-```
+```yaml
 template:
   - sensor:    
-    - name: start_low_period
+    - name: epex_start_low_period
       state: >- 
         {% set ns = namespace(attr_dict=[]) %}
         {% for item in (state_attr('sensor.epex_spot_be_price', 'data'))[0:24] %}
@@ -193,7 +194,7 @@ template:
         {{ key[val.index(val_min)]|string + ":00" }}
 ```
 
-### 4. I want to combine and view everyting
+### 4. I want to combine and view everything
 
 Here's an other [ApexCharts](https://github.com/RomRider/apexcharts-card) example.
 It shows the price for the current day, the next day and the `min/max` value for each day.
@@ -201,7 +202,7 @@ Furthermore, it also fills the hours during which prices are lowest (see 3.)
 
 ![apexchart](/images/apex_advanced.png)
 
-```
+```yaml
 type: custom:apexcharts-card
 header:
   show: false
@@ -224,7 +225,7 @@ series:
       extremas: true
     data_generator: >
       return entity.attributes.data.map((entry, index) => { return [new
-      Date(entry.start_time).getTime(), entry.price_eur_per_mwh; }).slice(0,24); 
+      Date(entry.start_time).getTime(), entry.price_eur_per_mwh]; }).slice(0,24);
     color_threshold:
       - value: 0
         color: '#186ddc'
@@ -279,7 +280,7 @@ series:
     extend_to: false
     data_generator: >
       return entity.attributes.data.map((entry, index) => { return [new
-      Date(entry.start_time).getTime(), entry.price_eur_per_mwh];}).slice(parseInt(hass.states['sensor.start_low_period'].state.substring(0,2)),parseInt(hass.states['sensor.start_low_period'].state.substring(0,2))+4);
+      Date(entry.start_time).getTime(), entry.price_eur_per_mwh];}).slice(parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0,2)),parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0,2))+4);
         
 experimental:
   color_threshold: true
