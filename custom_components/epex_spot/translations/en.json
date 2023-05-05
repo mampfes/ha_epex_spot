@@ -16,5 +16,16 @@
           }
         }
       }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "data": {
+            "factor": "Dynamic price portion",
+            "summand": "Static price portion",
+            "vat": "VAT"
+          }
+        }
+      }
     }
   }

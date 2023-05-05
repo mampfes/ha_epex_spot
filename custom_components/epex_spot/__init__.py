@@ -116,6 +116,13 @@ class SourceDecorator:
         )
         self._sorted_marketdata_today = sorted_sorted_marketdata_today
 
+    def to_net_price(self, price_eur_per_mwh):
+        net_p = price_eur_per_mwh / 10 # convert from EUR/MWh to ct/KWh
+#        net_p *= factor
+#        net_p += offset
+#        net_p *= vaf
+        return net_p
+
 
 class EpexSpotShell:
     """Shell object for EPEX Spot. Stored in hass.data."""
