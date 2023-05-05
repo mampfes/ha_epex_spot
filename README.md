@@ -119,7 +119,7 @@ Examples:
 
 ## FAQ
 
-### 1. How can I show the prices in ct/kWh?
+### 1. How can I show the prices in ct/KWh?
 
 Since version 1.1.0, every sensor that shows price information has an extra attribute `price_ct_per_kwh`. This can be used for Lovelace cards like the [Entity Card](https://www.home-assistant.io/dashboards/entity/#attribute), automations and visualizations like [ApexCharts](https://github.com/RomRider/apexcharts-card).
 
@@ -129,7 +129,7 @@ Before version 1.1.0, you can use a template sensor like this:
 template:
   - sensor:
     - name: epex_spot_price_ct_per_kwh
-      unit_of_measurement: "ct/kWh"
+      unit_of_measurement: "ct/KWh"
       availability: '{{ states("sensor.epex_spot_de_price") != "unavailable" }}'
       state: '{{ states("sensor.epex_spot_de_price") | float / 10 }}'
 ```
