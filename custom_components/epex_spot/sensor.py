@@ -79,7 +79,7 @@ class EpexSpotSensorEntity(SensorEntity):
         try:
             self._on_update_sensor()
             self._attr_available = True
-        except:
+        except Exception:
             self._attr_available = False
             self._attr_native_value = None
             self._attr_extra_state_attributes = None
@@ -132,11 +132,14 @@ class EpexSpotNetPriceSensorEntity(EpexSpotSensorEntity):
         self._attr_unique_id = f"{source.unique_id} Net Price"
         self._attr_name = f"EPEX Spot {source.market_area} Net Price"
         self._attr_icon = "mdi:currency-eur"
-        self._attr_native_unit_of_measurement = "ct/KWh"
+        self._attr_native_unit_of_measurement = "ct/kWh"
+        self._attr_suggested_display_precision = 2
 
     def _on_update_sensor(self):
         """Update the value of the entity."""
-        self._attr_native_value = self.to_net_price(self._source.marketdata_now.price_eur_per_mwh)
+        self._attr_native_value = self.to_net_price(
+            self._source.marketdata_now.price_eur_per_mwh
+        )
 
         data = [
             {
@@ -147,9 +150,7 @@ class EpexSpotNetPriceSensorEntity(EpexSpotSensorEntity):
             for e in self._source.marketdata
         ]
 
-        self._attr_extra_state_attributes = {
-            ATTR_DATA: data
-        }
+        self._attr_extra_state_attributes = {ATTR_DATA: data}
 
 
 class EpexSpotBuyVolumeSensorEntity(EpexSpotSensorEntity):

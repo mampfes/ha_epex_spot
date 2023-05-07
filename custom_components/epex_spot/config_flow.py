@@ -4,9 +4,12 @@ Used by UI to setup integration.
 """
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.core import callback
 
 from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
-                    CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN)
+                    CONF_SOURCE_EPEX_SPOT_WEB, CONF_SURCHARGE_ABS,
+                    CONF_SURCHARGE_PERC, CONF_VAT, DEFAULT_SURCHARGE_ABS,
+                    DEFAULT_SURCHARGE_PERC, DEFAULT_VAT, DOMAIN)
 from .EPEXSpot import Awattar, EPEXSpotWeb
 
 CONF_SOURCE_LIST = (CONF_SOURCE_AWATTAR, CONF_SOURCE_EPEX_SPOT_WEB)
@@ -65,6 +68,14 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                 data={CONF_SOURCE: self._source_name, CONF_MARKET_AREA: market_area},
             )
 
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> config_entries.OptionsFlow:
+        """Create the options flow."""
+        return EpexSpotOptionsFlow(config_entry)
+
 
 class EpexSpotOptionsFlow(config_entries.OptionsFlow):
     """Handle the start of the option flow."""
@@ -83,23 +94,21 @@ class EpexSpotOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(
                 {
                     vol.Optional(
-                        CONF_FACTOR,
+                        CONF_SURCHARGE_PERC,
                         default=self.config_entry.options.get(
-                            CONF_FIX_PRICE, 1.0
+                            CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
                         ),
-                    ): float,
+                    ): vol.Coerce(float),
                     vol.Optional(
-                        CONF_SUMMAND,
+                        CONF_SURCHARGE_ABS,
                         default=self.config_entry.options.get(
-                            CONF_SUMMAND, 11.93
+                            CONF_SURCHARGE_ABS, DEFAULT_SURCHARGE_ABS
                         ),
-                    ): float,
+                    ): vol.Coerce(float),
                     vol.Optional(
-                        CONF_VFAT,
-                        default=self.config_entry.options.get(
-                            CONF_VFAT, 19.0
-                        ),
-                    ): float,
+                        CONF_VAT,
+                        default=self.config_entry.options.get(CONF_VAT, DEFAULT_VAT),
+                    ): vol.Coerce(float),
                 }
             ),
         )

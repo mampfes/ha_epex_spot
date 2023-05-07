@@ -9,7 +9,6 @@ _LOGGER = logging.getLogger(__name__)
 
 class Marketprice:
     UOM_EUR_PER_MWh = "EUR/MWh"
-    UOM_CT_PER_KWh = "ct/KWh"
 
     def __init__(self, data):
         assert data["unit"].lower() == self.UOM_EUR_PER_MWh.lower()

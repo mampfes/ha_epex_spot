@@ -1,31 +1,33 @@
 {
-    "config": {
-      "abort": {
-        "already_configured": "This market area is already configured.",
-        "fetch_failed": "Failed to fetch data."
+  "config": {
+    "abort": {
+      "already_configured": "This market area is already configured.",
+      "fetch_failed": "Failed to fetch data."
+    },
+    "step": {
+      "source": {
+        "data": {
+          "source": "Select data source"
+        }
       },
-      "step": {
-        "source": {
-          "data": {
-            "source": "Select data source"
-          }
-        },
-        "market_area": {
-          "data": {
-            "market_area": "Select market area"
-          }
+      "market_area": {
+        "data": {
+          "market_area": "Select market area"
         }
       }
-    },
-    "options": {
-      "step": {
-        "init": {
-          "data": {
-            "factor": "Dynamic price portion",
-            "summand": "Static price portion",
-            "vat": "VAT"
-          }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Net Price",
+        "description": "Configure surcharge and taxes to calculate net price per kWh.",
+        "data": {
+          "percentage_surcharge": "Percentage surcharge in %",
+          "absolute_surcharge": "Absolute price surcharge in ct/kWh",
+          "value_added_tax": "Value Added Tax in %"
         }
       }
     }
   }
+}
