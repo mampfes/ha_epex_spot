@@ -10,8 +10,8 @@ from homeassistant.util import dt
 
 from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
                     CONF_SOURCE_EPEX_SPOT_WEB, CONF_SURCHARGE_ABS,
-                    CONF_SURCHARGE_PERC, CONF_VAT, DEFAULT_SURCHARGE_ABS,
-                    DEFAULT_SURCHARGE_PERC, DEFAULT_VAT, DOMAIN,
+                    CONF_SURCHARGE_PERC, CONF_TAX, DEFAULT_SURCHARGE_ABS,
+                    DEFAULT_SURCHARGE_PERC, DEFAULT_TAX, DOMAIN,
                     UPDATE_SENSORS_SIGNAL)
 from .EPEXSpot import Awattar, EPEXSpotWeb
 
@@ -133,12 +133,12 @@ class SourceDecorator:
         surcharge_abs = self._config_entry.options.get(
             CONF_SURCHARGE_ABS, DEFAULT_SURCHARGE_ABS
         )
-        vat = self._config_entry.options.get(CONF_VAT, DEFAULT_VAT)
+        tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
 
         net_p = price_eur_per_mwh / 10  # convert from EUR/MWh to ct/kWh
         net_p *= 1 + (surcharge_pct / 100)
         net_p += surcharge_abs
-        net_p *= 1 + (vat / 100)
+        net_p *= 1 + (tax / 100)
 
         return net_p
 

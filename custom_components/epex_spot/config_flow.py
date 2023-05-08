@@ -8,8 +8,8 @@ from homeassistant.core import callback
 
 from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
                     CONF_SOURCE_EPEX_SPOT_WEB, CONF_SURCHARGE_ABS,
-                    CONF_SURCHARGE_PERC, CONF_VAT, DEFAULT_SURCHARGE_ABS,
-                    DEFAULT_SURCHARGE_PERC, DEFAULT_VAT, DOMAIN)
+                    CONF_SURCHARGE_PERC, CONF_TAX, DEFAULT_SURCHARGE_ABS,
+                    DEFAULT_SURCHARGE_PERC, DEFAULT_TAX, DOMAIN)
 from .EPEXSpot import Awattar, EPEXSpotWeb
 
 CONF_SOURCE_LIST = (CONF_SOURCE_AWATTAR, CONF_SOURCE_EPEX_SPOT_WEB)
@@ -106,8 +106,8 @@ class EpexSpotOptionsFlow(config_entries.OptionsFlow):
                         ),
                     ): vol.Coerce(float),
                     vol.Optional(
-                        CONF_VAT,
-                        default=self.config_entry.options.get(CONF_VAT, DEFAULT_VAT),
+                        CONF_TAX,
+                        default=self.config_entry.options.get(CONF_TAX, DEFAULT_TAX),
                     ): vol.Coerce(float),
                 }
             ),

@@ -36,12 +36,13 @@ In case you would like to install manually:
 
 This integration provides the following sensors:
 
-1. Current market price
-2. Average market price during the day
-3. Lowest market price during the day
-4. Highest market price during the day
-5. Current market price quantile during the day
-6. Rank of the current market price during the day
+1. Net market price
+2. Market price
+3. Average market price during the day
+4. Lowest market price during the day
+5. Highest market price during the day
+6. Current market price quantile during the day
+7. Rank of the current market price during the day
 
 The *EPEX Spot Web Scraper* provides some additional sensors:
 
@@ -49,13 +50,55 @@ The *EPEX Spot Web Scraper* provides some additional sensors:
 - Sell Volume
 - Volume
 
-### 1. Current Market Price Sensor
+### 1. Net Market Price Sensor
 
-The sensor value reports the current market price which will be updated every hour.
+The sensor value reports the net market price in ct/kWh. The price value will be updated every hour to reflect the current net market price.
 
-The sensor attributes contains a list of all available market prices (today and tomorrow if available):
+The sensor attributes contains a list of all available net market prices (for today and tomorrow if available) in ct/kWh.
 
 ```yaml
+data:
+  - start_time: '2022-12-15T23:00:00+00:00'
+    end_time: '2022-12-16T00:00:00+00:00'
+    price_ct_per_kwh: 29.63
+  - start_time: '2022-12-16T00:00:00+00:00'
+    end_time: '2022-12-16T01:00:00+00:00'
+    price_ct_per_kwh: 28.812
+  - start_time: '2022-12-16T01:00:00+00:00'
+    end_time: '2022-12-16T02:00:00+00:00'
+    price_ct_per_kwh: 28.019
+```
+
+The net market price will be calculated as follows:
+
+`<Net Price>` = `<Gross Price>` + `<Surcharges>` + `<Tax>`
+
+The values for surcharges and tax can be adjusted in the integration configuration. 2 different types of surcharges can be adjusted:
+
+1. Percentage Surcharge, stated in % of the gross price.
+2. Absolute Surcharge, stated in ct/kWh.
+
+Example:
+
+```text
+Percentage Surchage = 3%
+Absolute Surcharge = 12ct
+Tax = 19%
+
+Net Price = ((Gross Price * 1.03) + 12ct) * 1.19
+```
+
+### 2. Market Price Sensor
+
+The sensor value reports the gross market price in EUR/MWh. The price value will be updated every hour to reflect the current gross market price.
+
+The sensor attributes contains additional values:
+
+- The gross market price in ct/kWh.
+- A list of all available gross market prices (for today and tomorrow if available) in EUR/MWh and ct/kWh.
+
+```yaml
+price_ct_per_kwh: 29.63
 data:
   - start_time: '2022-12-15T23:00:00+00:00'
     end_time: '2022-12-16T00:00:00+00:00'
@@ -71,33 +114,39 @@ data:
     price_ct_per_kwh: 28.019
 ```
 
-### 2. Average Market Price Sensor
+### 3. Average Market Price Sensor
 
-The sensor value reports the average market price during the day.
+The sensor value reports the average gross market price during the day. The sensor value reports the gross market price in EUR/MWh. The gross price in ct/kWh is available as sensor attribute.
 
-### 3. Lowest Market Price Sensor
+```yaml
+price_ct_per_kwh: 29.63
+```
 
-The sensor value reports the lowest market price during the day.
+### 4. Lowest Market Price Sensor
+
+The sensor value reports the lowest gross market price during the day. The sensor value reports the gross market price in EUR/MWh. The gross price in ct/kWh is available as sensor attribute.
 
 The sensor attributes contains the start and endtime of the lowest market price timeframe.
 
 ```yaml
+price_ct_per_kwh: 29.63
 start_time: '2023-02-15T22:00:00+00:00'
 end_time: '2023-02-15T23:00:00+00:00'
 ```
 
-### 4. Highest Market Price Sensor
+### 5. Highest Market Price Sensor
 
-The sensor value reports the highest market price during the day.
+The sensor value reports the highest gross market price during the day. The sensor value reports the gross market price in EUR/MWh. The gross price in ct/kWh is available as sensor attribute.
 
 The sensor attributes contains the start and endtime of the highest market price timeframe.
 
 ```yaml
+price_ct_per_kwh: 29.63
 start_time: '2023-02-15T22:00:00+00:00'
 end_time: '2023-02-15T23:00:00+00:00'
 ```
 
-### 5. Quantile Sensor
+### 6. Quantile Sensor
 
 The sensor value reports the quantile between the lowest market price and the highest market price during the day in the range between 0 .. 1.
 
@@ -107,7 +156,7 @@ Examples:
 - The sensor reports 1 if the current market price is the highest during the day.
 - If the sensor reports e.g., 0.25, then the current market price is 25% of the range between the lowest and the highest market price.
 
-### 6. Rank Sensor
+### 7. Rank Sensor
 
 The sensor value reports the rank of the current market price during the day. Or in other words: The number of hours in which the price is lower than the current price.
 

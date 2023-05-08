@@ -21,11 +21,14 @@
     "step": {
       "init": {
         "title": "Net Price",
-        "description": "Configure surcharge and taxes to calculate net price per kWh.",
+        "description": "Configure surcharges and tax to calculate net price per kWh.",
         "data": {
-          "percentage_surcharge": "Percentage surcharge in %",
-          "absolute_surcharge": "Absolute price surcharge in ct/kWh",
-          "value_added_tax": "Value Added Tax in %"
+          "percentage_surcharge": "Percentage Surcharge (%)",
+          "absolute_surcharge": "Absolute Surcharge (ct/kWh)",
+          "tax": "Tax (%)"
+        },
+        "data_description": {
+          "tax": "Like Value Added Tax (VAT)"
         }
       }
     }
