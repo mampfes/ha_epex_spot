@@ -1,6 +1,5 @@
 """Component for EPEX Spot support."""
 import logging
-import sys
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
@@ -10,7 +9,10 @@ from homeassistant.helpers.event import async_track_time_change
 from homeassistant.util import dt
 
 from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
-                    CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN, UPDATE_SENSORS_SIGNAL)
+                    CONF_SOURCE_EPEX_SPOT_WEB, CONF_SURCHARGE_ABS,
+                    CONF_SURCHARGE_PERC, CONF_TAX, DEFAULT_SURCHARGE_ABS,
+                    DEFAULT_SURCHARGE_PERC, DEFAULT_TAX, DOMAIN,
+                    UPDATE_SENSORS_SIGNAL)
 from .EPEXSpot import Awattar, EPEXSpotWeb
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,6 +30,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     shell.add_entry(entry)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    entry.async_on_unload(entry.add_update_listener(on_update_options_listener))
 
     return True
 
@@ -47,10 +51,16 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     return unload_ok
 
 
+async def on_update_options_listener(hass, entry):
+    """Handle options update."""
+    # update all sensors immediately
+    dispatcher_send(hass, UPDATE_SENSORS_SIGNAL)
+
+
 class SourceDecorator:
-    def __init__(self, unique_id, source):
+    def __init__(self, config_entry, source):
         self._source = source
-        self._unique_id = unique_id
+        self._config_entry = config_entry
         self._marketdata_now = None
         self._sorted_marketdata_today = []
         self._cheapest_sorted_marketdata_today = None
@@ -58,7 +68,7 @@ class SourceDecorator:
 
     @property
     def unique_id(self):
-        return self._unique_id
+        return self._config_entry.unique_id
 
     @property
     def name(self):
@@ -98,7 +108,7 @@ class SourceDecorator:
                     lambda e: e.start_time <= now and e.end_time > now, self.marketdata
                 )
             )
-        except StopIteration as e:
+        except StopIteration:
             _LOGGER.error(f"no data found for {self._source}")
             self._marketdata_now = None
             self._sorted_marketdata_today = []
@@ -115,6 +125,22 @@ class SourceDecorator:
             sorted_marketdata_today, key=lambda e: e.price_eur_per_mwh
         )
         self._sorted_marketdata_today = sorted_sorted_marketdata_today
+
+    def to_net_price(self, price_eur_per_mwh):
+        surcharge_pct = self._config_entry.options.get(
+            CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
+        )
+        surcharge_abs = self._config_entry.options.get(
+            CONF_SURCHARGE_ABS, DEFAULT_SURCHARGE_ABS
+        )
+        tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
+
+        net_p = price_eur_per_mwh / 10  # convert from EUR/MWh to ct/kWh
+        net_p *= 1 + (surcharge_pct / 100)
+        net_p += surcharge_abs
+        net_p *= 1 + (tax / 100)
+
+        return net_p
 
 
 class EpexSpotShell:
@@ -144,7 +170,7 @@ class EpexSpotShell:
                 market_area=config_entry.data[CONF_MARKET_AREA]
             )
 
-        source = SourceDecorator(config_entry.unique_id, source)
+        source = SourceDecorator(config_entry, source)
         self._sources[config_entry.unique_id] = source
 
         self._hass.add_job(lambda: self._fetch_source_and_dispatch(source))

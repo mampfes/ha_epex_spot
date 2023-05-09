@@ -4,9 +4,12 @@ Used by UI to setup integration.
 """
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.core import callback
 
 from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
-                    CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN)
+                    CONF_SOURCE_EPEX_SPOT_WEB, CONF_SURCHARGE_ABS,
+                    CONF_SURCHARGE_PERC, CONF_TAX, DEFAULT_SURCHARGE_ABS,
+                    DEFAULT_SURCHARGE_PERC, DEFAULT_TAX, DOMAIN)
 from .EPEXSpot import Awattar, EPEXSpotWeb
 
 CONF_SOURCE_LIST = (CONF_SOURCE_AWATTAR, CONF_SOURCE_EPEX_SPOT_WEB)
@@ -64,3 +67,48 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                 title=title,
                 data={CONF_SOURCE: self._source_name, CONF_MARKET_AREA: market_area},
             )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> config_entries.OptionsFlow:
+        """Create the options flow."""
+        return EpexSpotOptionsFlow(config_entry)
+
+
+class EpexSpotOptionsFlow(config_entries.OptionsFlow):
+    """Handle the start of the option flow."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_SURCHARGE_PERC,
+                        default=self.config_entry.options.get(
+                            CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
+                        ),
+                    ): vol.Coerce(float),
+                    vol.Optional(
+                        CONF_SURCHARGE_ABS,
+                        default=self.config_entry.options.get(
+                            CONF_SURCHARGE_ABS, DEFAULT_SURCHARGE_ABS
+                        ),
+                    ): vol.Coerce(float),
+                    vol.Optional(
+                        CONF_TAX,
+                        default=self.config_entry.options.get(CONF_TAX, DEFAULT_TAX),
+                    ): vol.Coerce(float),
+                }
+            ),
+        )

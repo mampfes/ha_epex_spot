@@ -4,7 +4,6 @@ from zoneinfo import ZoneInfo
 
 import requests
 from bs4 import BeautifulSoup
-from homeassistant.util import dt
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -19,7 +18,6 @@ def _as_date(v):
 
 class Marketprice:
     UOM_EUR_PER_MWh = "EUR/MWh"
-    UOM_CT_PER_KWh = "ct/KWh"
     UOM_MWh = "MWh"
 
     def __init__(
