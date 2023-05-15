@@ -71,11 +71,11 @@ data:
 
 The net market price will be calculated as follows:
 
-`<Net Price>` = `<Gross Price>` + `<Surcharges>` + `<Tax>`
+`<Net Price>` = `<Market Price>` + `<Surcharges>` + `<Tax>`
 
 The values for surcharges and tax can be adjusted in the integration configuration. 2 different types of surcharges can be adjusted:
 
-1. Percentage Surcharge, stated in % of the gross price.
+1. Percentage Surcharge, stated in % of the EPEX Spot market price.
 2. Absolute Surcharge, stated in ct/kWh.
 
 Example:
@@ -85,17 +85,17 @@ Percentage Surchage = 3%
 Absolute Surcharge = 12ct
 Tax = 19%
 
-Net Price = ((Gross Price * 1.03) + 12ct) * 1.19
+Net Price = ((Market Price * 1.03) + 12ct) * 1.19
 ```
 
 ### 2. Market Price Sensor
 
-The sensor value reports the gross market price in EUR/MWh. The price value will be updated every hour to reflect the current gross market price.
+The sensor value reports the EPEX Spot market price in EUR/MWh. The price value will be updated every hour to reflect the current market price.
 
 The sensor attributes contains additional values:
 
-- The gross market price in ct/kWh.
-- A list of all available gross market prices (for today and tomorrow if available) in EUR/MWh and ct/kWh.
+- The market price in ct/kWh.
+- A list of all available market prices (for today and tomorrow if available) in EUR/MWh and ct/kWh.
 
 ```yaml
 price_ct_per_kwh: 29.63
@@ -116,7 +116,7 @@ data:
 
 ### 3. Average Market Price Sensor
 
-The sensor value reports the average gross market price during the day. The sensor value reports the gross market price in EUR/MWh. The gross price in ct/kWh is available as sensor attribute.
+The sensor value reports the average EPEX Spot market price during the day. The sensor value reports the market price in EUR/MWh. The market price in ct/kWh is available as sensor attribute.
 
 ```yaml
 price_ct_per_kwh: 29.63
@@ -124,7 +124,7 @@ price_ct_per_kwh: 29.63
 
 ### 4. Lowest Market Price Sensor
 
-The sensor value reports the lowest gross market price during the day. The sensor value reports the gross market price in EUR/MWh. The gross price in ct/kWh is available as sensor attribute.
+The sensor value reports the lowest EPEX Spot market price during the day. The sensor value reports the market price in EUR/MWh. The market price in ct/kWh is available as sensor attribute.
 
 The sensor attributes contains the start and endtime of the lowest market price timeframe.
 
@@ -136,7 +136,7 @@ end_time: '2023-02-15T23:00:00+00:00'
 
 ### 5. Highest Market Price Sensor
 
-The sensor value reports the highest gross market price during the day. The sensor value reports the gross market price in EUR/MWh. The gross price in ct/kWh is available as sensor attribute.
+The sensor value reports the highest EPEX Spot market price during the day. The sensor value reports the market price in EUR/MWh. The market price in ct/kWh is available as sensor attribute.
 
 The sensor attributes contains the start and endtime of the highest market price timeframe.
 
