@@ -6,11 +6,15 @@ You can choose between multiple sources:
 
 1. Awattar
 
-   [Awattar](https://www.awattar.de/services/api) provides a free of charge service for their customers. Market price data is available for Germany and Austria. So far no user identifiation is required.
+    [Awattar](https://www.awattar.de/services/api) provides a free of charge service for their customers. Market price data is available for Germany and Austria. So far no user identifiation is required.
 
 2. EPEX Spot Web Scraper
 
     This source uses web scraping technologies to retrieve publicly available data from its [website](https://www.epexspot.com/en/market-data).
+
+3. SMARD.de
+
+    [SMARD.de](https://www.smard.de) provides a free of charge API to retrieve a lot of information about electricity market including market prices. SMARD.de is serviced by the Bundesnetzagentur, Germany.
 
 If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot_awattar).
 
