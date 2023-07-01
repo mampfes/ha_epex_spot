@@ -7,12 +7,17 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 
 from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
-                    CONF_SOURCE_EPEX_SPOT_WEB, CONF_SURCHARGE_ABS,
-                    CONF_SURCHARGE_PERC, CONF_TAX, DEFAULT_SURCHARGE_ABS,
-                    DEFAULT_SURCHARGE_PERC, DEFAULT_TAX, DOMAIN)
-from .EPEXSpot import Awattar, EPEXSpotWeb
+                    CONF_SOURCE_EPEX_SPOT_WEB, CONF_SOURCE_SMARD_DE,
+                    CONF_SURCHARGE_ABS, CONF_SURCHARGE_PERC, CONF_TAX,
+                    DEFAULT_SURCHARGE_ABS, DEFAULT_SURCHARGE_PERC, DEFAULT_TAX,
+                    DOMAIN)
+from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb
 
-CONF_SOURCE_LIST = (CONF_SOURCE_AWATTAR, CONF_SOURCE_EPEX_SPOT_WEB)
+CONF_SOURCE_LIST = (
+    CONF_SOURCE_AWATTAR,
+    CONF_SOURCE_EPEX_SPOT_WEB,
+    CONF_SOURCE_SMARD_DE,
+)
 
 
 class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore
@@ -46,6 +51,8 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             areas = Awattar.Awattar.MARKET_AREAS
         elif self._source_name == CONF_SOURCE_EPEX_SPOT_WEB:
             areas = EPEXSpotWeb.EPEXSpotWeb.MARKET_AREAS
+        elif self._source_name == CONF_SOURCE_SMARD_DE:
+            areas = SMARD.SMARD.MARKET_AREAS
 
         data_schema = vol.Schema(
             {vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas))}

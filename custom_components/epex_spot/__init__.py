@@ -9,11 +9,11 @@ from homeassistant.helpers.event import async_track_time_change
 from homeassistant.util import dt
 
 from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
-                    CONF_SOURCE_EPEX_SPOT_WEB, CONF_SURCHARGE_ABS,
-                    CONF_SURCHARGE_PERC, CONF_TAX, DEFAULT_SURCHARGE_ABS,
-                    DEFAULT_SURCHARGE_PERC, DEFAULT_TAX, DOMAIN,
-                    UPDATE_SENSORS_SIGNAL)
-from .EPEXSpot import Awattar, EPEXSpotWeb
+                    CONF_SOURCE_EPEX_SPOT_WEB, CONF_SOURCE_SMARD_DE,
+                    CONF_SURCHARGE_ABS, CONF_SURCHARGE_PERC, CONF_TAX,
+                    DEFAULT_SURCHARGE_ABS, DEFAULT_SURCHARGE_PERC, DEFAULT_TAX,
+                    DOMAIN, UPDATE_SENSORS_SIGNAL)
+from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -169,6 +169,8 @@ class EpexSpotShell:
             source = EPEXSpotWeb.EPEXSpotWeb(
                 market_area=config_entry.data[CONF_MARKET_AREA]
             )
+        elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_SMARD_DE:
+            source = SMARD.SMARD(market_area=config_entry.data[CONF_MARKET_AREA])
 
         source = SourceDecorator(config_entry, source)
         self._sources[config_entry.unique_id] = source
