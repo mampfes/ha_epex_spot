@@ -244,6 +244,7 @@ class EpexSpotRankSensorEntity(EpexSpotSensorEntity):
         EpexSpotSensorEntity.__init__(self, hass, source)
         self._attr_unique_id = f"{source.unique_id} Rank"
         self._attr_name = f"EPEX Spot {source.market_area} Rank"
+        self._attr_native_unit_of_measurement = ""
 
     def _on_update_sensor(self):
         """Update the value of the entity."""
@@ -260,6 +261,7 @@ class EpexSpotQuantileSensorEntity(EpexSpotSensorEntity):
         self._attr_unique_id = f"{source.unique_id} Quantile"
         self._attr_name = f"EPEX Spot {source.market_area} Quantile"
         self._attr_suggested_display_precision = 2
+        self._attr_native_unit_of_measurement = ""
 
     def _on_update_sensor(self):
         """Update the value of the entity."""
