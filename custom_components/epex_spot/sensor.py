@@ -1,4 +1,5 @@
 import logging
+from statistics import median
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import (ATTR_IDENTIFIERS, ATTR_MANUFACTURER,
@@ -36,6 +37,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         EpexSpotLowestPriceSensorEntity(hass, shell.get_source(unique_id)),
         EpexSpotHighestPriceSensorEntity(hass, shell.get_source(unique_id)),
         EpexSpotAveragePriceSensorEntity(hass, shell.get_source(unique_id)),
+        EpexSpotMedianPriceSensorEntity(hass, shell.get_source(unique_id)),
     ]
 
     if config_entry.data[CONF_SOURCE] == CONF_SOURCE_EPEX_SPOT_WEB:
@@ -332,6 +334,27 @@ class EpexSpotAveragePriceSensorEntity(EpexSpotSensorEntity):
         """Update the value of the entity."""
         s = sum(e.price_eur_per_mwh for e in self._source.sorted_marketdata_today)
         self._attr_native_value = s / len(self._source.sorted_marketdata_today)
+
+        attributes = {
+            ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
+        }
+        self._attr_extra_state_attributes = attributes
+
+
+class EpexSpotMedianPriceSensorEntity(EpexSpotSensorEntity):
+    """Home Assistant sensor containing all EPEX spot data."""
+
+    def __init__(self, hass, source):
+        EpexSpotSensorEntity.__init__(self, hass, source)
+        self._attr_unique_id = f"{source.unique_id} Median Price"
+        self._attr_name = f"EPEX Spot {source.market_area} Median Price"
+        self._attr_icon = "mdi:currency-eur"
+        self._attr_native_unit_of_measurement = "EUR/MWh"
+        self._attr_suggested_display_precision = 2
+
+    def _on_update_sensor(self):
+        """Update the value of the entity."""
+        self._attr_native_value = median([e.price_eur_per_mwh for e in self._source.sorted_marketdata_today])
 
         attributes = {
             ATTR_PRICE_CT_PER_KWH: to_ct_per_kwh(self._attr_native_value),
