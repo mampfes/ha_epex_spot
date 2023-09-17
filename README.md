@@ -43,10 +43,11 @@ This integration provides the following sensors:
 1. Net market price
 2. Market price
 3. Average market price during the day
-4. Lowest market price during the day
-5. Highest market price during the day
-6. Current market price quantile during the day
-7. Rank of the current market price during the day
+4. Median market price during the day
+5. Lowest market price during the day
+6. Highest market price during the day
+7. Current market price quantile during the day
+8. Rank of the current market price during the day
 
 The *EPEX Spot Web Scraper* provides some additional sensors:
 
@@ -126,7 +127,15 @@ The sensor value reports the average EPEX Spot market price during the day. The 
 price_ct_per_kwh: 29.63
 ```
 
-### 4. Lowest Market Price Sensor
+### 4. Median Market Price Sensor
+
+The sensor value reports the median EPEX Spot market price during the day. The sensor value reports the market price in EUR/MWh. The market price in ct/kWh is available as sensor attribute.
+
+```yaml
+price_ct_per_kwh: 29.63
+```
+
+### 5. Lowest Market Price Sensor
 
 The sensor value reports the lowest EPEX Spot market price during the day. The sensor value reports the market price in EUR/MWh. The market price in ct/kWh is available as sensor attribute.
 
@@ -138,7 +147,7 @@ start_time: '2023-02-15T22:00:00+00:00'
 end_time: '2023-02-15T23:00:00+00:00'
 ```
 
-### 5. Highest Market Price Sensor
+### 6. Highest Market Price Sensor
 
 The sensor value reports the highest EPEX Spot market price during the day. The sensor value reports the market price in EUR/MWh. The market price in ct/kWh is available as sensor attribute.
 
@@ -150,7 +159,7 @@ start_time: '2023-02-15T22:00:00+00:00'
 end_time: '2023-02-15T23:00:00+00:00'
 ```
 
-### 6. Quantile Sensor
+### 7. Quantile Sensor
 
 The sensor value reports the quantile between the lowest market price and the highest market price during the day in the range between 0 .. 1.
 
@@ -160,7 +169,7 @@ Examples:
 - The sensor reports 1 if the current market price is the highest during the day.
 - If the sensor reports e.g., 0.25, then the current market price is 25% of the range between the lowest and the highest market price.
 
-### 7. Rank Sensor
+### 8. Rank Sensor
 
 The sensor value reports the rank of the current market price during the day. Or in other words: The number of hours in which the price is lower than the current price.
 
