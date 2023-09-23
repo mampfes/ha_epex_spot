@@ -41,7 +41,7 @@ def _calc_start_times(
     start_times = set()
     start_time = earliest_start
 
-    # add earliestStartDateTimeTime and start time which are full hours
+    # add start times which are aligned by full hour start
     while start_time + duration <= latest_end:
         start_times.add(start_time)
 
@@ -49,8 +49,16 @@ def _calc_start_times(
         start_of_next_h = start_of_current_h + timedelta(hours=1)
         start_time = start_of_next_h
 
-    # check if latestEndDateTime - duration is already in the list and add it if not
-    start_times.add(latest_end - duration)
+    # add start time which are aligned by full hour end
+    end_time = latest_end.replace(minute=0, second=0, microsecond=0)
+    while earliest_start < end_time - duration:
+        start_times.add(end_time - duration)
+        end_time = end_time - timedelta(hours=1)
+
+    # add latest possible start (if duration matches)
+    start_time = latest_end - duration
+    if earliest_start < start_time:
+        start_times.add(start_time)
 
     return sorted(start_times)
 
@@ -115,11 +123,7 @@ def get_start_times(
         )
     )
 
-    if (
-        earliest_start_time is not None
-        and latest_end_time is not None
-        and latest_end_time <= earliest_start_time
-    ):
+    if latest_end_time is not None and latest_end <= earliest_start:
         latest_end += timedelta(days=1)
 
     print(f"{earliest_start} - {latest_end}")
