@@ -94,7 +94,7 @@ def get_start_times(
     now = dt_util.now()
 
     earliest_start: datetime = (
-        dt_util.now
+        now
         if earliest_start_time is None
         else now.replace(
             hour=earliest_start_time.hour,
