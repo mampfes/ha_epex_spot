@@ -16,6 +16,11 @@ CONF_SURCHARGE_PERC = "percentage_surcharge"
 CONF_SURCHARGE_ABS = "absolute_surcharge"
 CONF_TAX = "tax"
 
+# service call
+CONF_EARLIEST_START = "earliest_start"
+CONF_LATEST_END = "latest_end"
+CONF_DURATION = "duration"
+
 DEFAULT_SURCHARGE_PERC = 3.0
 DEFAULT_SURCHARGE_ABS = 11.93
 DEFAULT_TAX = 19.0

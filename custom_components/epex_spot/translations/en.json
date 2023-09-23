@@ -32,5 +32,51 @@
         }
       }
     }
+  },
+  "services": {
+    "get_lowest_price_interval": {
+      "description": "Get the time interval during which the price is at its lowest point.",
+      "fields": {
+        "device_id": {
+          "description": "Any EPEX Spot service instance. In case you have multiple EPEX Spot instances.",
+          "name": "EPEX Spot Service"
+        },
+        "earliest_start": {
+          "description": "Earliest time to start.",
+          "name": "Earliest Start Time"
+        },
+        "latest_end": {
+          "description": "Latest time to end. If both times are specified and end time is earlier than (or equal to) start time, end time belongs to the following day.",
+          "name": "Latest End Time"
+        },
+        "duration": {
+          "description": "Required time interval to complete activity.",
+          "name": "Duration"
+        }
+      },
+      "name": "Get lowest price interval"
+    },
+    "get_highest_price_interval": {
+      "description": "Get the time interval during which the price is at its highest point.",
+      "fields": {
+        "device_id": {
+          "description": "Any EPEX Spot service instance. In case you have multiple EPEX Spot instances.",
+          "name": "EPEX Spot Service"
+        },
+        "earliest_start": {
+          "description": "Earliest time to start.",
+          "name": "Earliest Start Time"
+        },
+        "latest_end": {
+          "description": "Latest time to end. If both times are specified and end time is earlier than (or equal to) start time, end time belongs to the following day.",
+          "name": "Latest End Time"
+        },
+        "duration": {
+          "description": "Required time interval to complete activity.",
+          "name": "Duration"
+        }
+      },
+      "name": "Get highest price interval"
+    }
   }
 }

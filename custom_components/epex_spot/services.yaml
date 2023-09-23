@@ -1,0 +1,40 @@
+get_lowest_price_interval:
+  fields:
+    device_id:
+      required: false
+      selector:
+        device:
+          integration: epex_spot
+    earliest_start:
+      required: false
+      selector:
+        time:
+    latest_end:
+      required: false
+      selector:
+        time:
+    duration:
+      required: true
+      example: 01:00:00
+      selector:
+        duration:
+get_highest_price_interval:
+  fields:
+    device_id:
+      required: false
+      selector:
+        device:
+          integration: epex_spot
+    earliest_start:
+      required: false
+      selector:
+        time:
+    latest_end:
+      required: false
+      selector:
+        time:
+    duration:
+      required: true
+      example: 01:00:00
+      selector:
+        duration:

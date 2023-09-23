@@ -1,28 +1,71 @@
 """Component for EPEX Spot support."""
 import logging
-from datetime import timedelta
+from datetime import time, timedelta
+from typing import Callable, Dict
 
+import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.const import ATTR_DEVICE_ID
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+    callback,
+)
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import dispatcher_send
 from homeassistant.helpers.event import async_track_time_change
 from homeassistant.util import dt
 
-from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
-                    CONF_SOURCE_EPEX_SPOT_WEB, CONF_SOURCE_SMARD_DE,
-                    CONF_SURCHARGE_ABS, CONF_SURCHARGE_PERC, CONF_TAX,
-                    DEFAULT_SURCHARGE_ABS, DEFAULT_SURCHARGE_PERC, DEFAULT_TAX,
-                    DOMAIN, UPDATE_SENSORS_SIGNAL)
+from .const import (
+    CONF_DURATION,
+    CONF_EARLIEST_START,
+    CONF_LATEST_END,
+    CONF_MARKET_AREA,
+    CONF_SOURCE,
+    CONF_SOURCE_AWATTAR,
+    CONF_SOURCE_EPEX_SPOT_WEB,
+    CONF_SOURCE_SMARD_DE,
+    CONF_SURCHARGE_ABS,
+    CONF_SURCHARGE_PERC,
+    CONF_TAX,
+    DEFAULT_SURCHARGE_ABS,
+    DEFAULT_SURCHARGE_PERC,
+    DEFAULT_TAX,
+    DOMAIN,
+    UPDATE_SENSORS_SIGNAL,
+)
 from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb
+from .extreme_price_interval import find_extreme_price_interval, get_start_times
 
 _LOGGER = logging.getLogger(__name__)
 
-
 PLATFORMS = ["sensor"]
+
+GET_EXTREME_PRICE_INTERVAL_SCHEMA = vol.Schema(
+    {
+        **cv.ENTITY_SERVICE_FIELDS,  # for device_id
+        vol.Optional(CONF_EARLIEST_START): cv.time,
+        vol.Optional(CONF_LATEST_END): cv.time,
+        vol.Required(CONF_DURATION): cv.positive_time_period,
+    }
+)
+
+EMPTY_EXTREME_PRICE_INTERVAL_RESP = {
+    "start": None,
+    "end": None,
+    "price_eur_per_mwh": None,
+    "price_ct_per_kwh": None,
+    "net_price_ct_per_kwh": None,
+}
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up component from a config entry, config_entry contains data from config entry database."""
+    """Set up component from a config entry, config_entry contains data
+    from config entry database."""
     # store shell object
     shell = hass.data.setdefault(DOMAIN, EpexSpotShell(hass))
 
@@ -32,6 +75,53 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.async_on_unload(entry.add_update_listener(on_update_options_listener))
+
+    async def get_lowest_price_interval(call: ServiceCall) -> ServiceResponse:
+        """Get the time interval during which the price is at its lowest point."""
+        return _find_extreme_price_interval(call, lambda a, b: a < b)
+
+    async def get_highest_price_interval(call: ServiceCall) -> ServiceResponse:
+        """Get the time interval during which the price is at its highest point."""
+        return _find_extreme_price_interval(call, lambda a, b: a > b)
+
+    def _find_extreme_price_interval(
+        call: ServiceCall, cmp: Callable[[float, float], bool]
+    ) -> ServiceResponse:
+        if ATTR_DEVICE_ID in call.data:
+            device_id = call.data[ATTR_DEVICE_ID][0]
+            device_registry = dr.async_get(hass)
+            if not (device_entry := device_registry.async_get(device_id)):
+                raise HomeAssistantError(f"No device found for device id: {device_id}")
+            source = shell.get_source_by_config_entry_id(
+                next(iter(device_entry.config_entries))
+            )
+        else:
+            source = next(iter(shell._sources.values()))
+
+        if source is None:
+            return EMPTY_EXTREME_PRICE_INTERVAL_RESP
+
+        earliest_start_time = call.data.get(CONF_EARLIEST_START)
+        latest_end_time = call.data.get(CONF_LATEST_END)
+        duration = call.data[CONF_DURATION]
+        return source.find_extreme_price_interval(
+            earliest_start_time, latest_end_time, duration, cmp
+        )
+
+    hass.services.async_register(
+        DOMAIN,
+        "get_lowest_price_interval",
+        get_lowest_price_interval,
+        schema=GET_EXTREME_PRICE_INTERVAL_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "get_highest_price_interval",
+        get_highest_price_interval,
+        schema=GET_EXTREME_PRICE_INTERVAL_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
 
     return True
 
@@ -71,6 +161,10 @@ class SourceDecorator:
         return self._config_entry.unique_id
 
     @property
+    def config_entry_id(self):
+        return self._config_entry.entry_id
+
+    @property
     def name(self):
         return self._source.name
 
@@ -88,6 +182,7 @@ class SourceDecorator:
 
     @property
     def sorted_marketdata_today(self):
+        """Sorted by price."""
         return self._sorted_marketdata_today
 
     def fetch(self):
@@ -142,6 +237,28 @@ class SourceDecorator:
 
         return net_p
 
+    def find_extreme_price_interval(
+        self, earliestStartTime: time, latestEndTime: time, duration: timedelta, cmp
+    ):
+        priceMap = {item.start_time: item.price_eur_per_mwh for item in self.marketdata}
+
+        startTimes = get_start_times(
+            earliestStartTime, latestEndTime, self.marketdata[-1].end_time, duration
+        )
+
+        result = find_extreme_price_interval(priceMap, startTimes, duration, cmp)
+
+        if result is None:
+            return EMPTY_EXTREME_PRICE_INTERVAL_RESP
+
+        return {
+            "start": result["start"],
+            "end": result["start"] + duration,
+            "price_eur_per_mwh": result["price"],
+            "price_ct_per_kwh": result["price"] / 10,
+            "net_price_ct_per_kwh": self.to_net_price(result["price"]),
+        }
+
 
 class EpexSpotShell:
     """Shell object for EPEX Spot. Stored in hass.data."""
@@ -149,7 +266,7 @@ class EpexSpotShell:
     def __init__(self, hass: HomeAssistant):
         """Initialize the instance."""
         self._hass = hass
-        self._sources = {}
+        self._sources: Dict[str, SourceDecorator] = {}
         self._timer_listener_hour_change = None
         self._timer_listener_fetch = None
 
@@ -158,6 +275,12 @@ class EpexSpotShell:
 
     def get_source(self, unique_id):
         return self._sources[unique_id]
+
+    def get_source_by_config_entry_id(self, entry_id):
+        for s in self._sources.values():
+            if s.config_entry_id == entry_id:
+                return s
+        return None
 
     def add_entry(self, config_entry: ConfigEntry):
         """Add entry."""
