@@ -16,6 +16,9 @@ def _as_date(v):
     return v.strftime("%Y-%m-%d")
 
 
+MARKET_AREA_MAP = {"GB-30": {"market_area": "GB", "duration": 30}}
+
+
 class Marketprice:
     UOM_EUR_PER_MWh = "EUR/MWh"
     UOM_MWh = "MWh"
@@ -75,6 +78,7 @@ class EPEXSpotWeb:
         "FI",
         "FR",
         "GB",
+        "GB-30",
         "NL",
         "NO1",
         "NO2",
@@ -89,8 +93,14 @@ class EPEXSpotWeb:
     )
 
     def __init__(self, market_area):
-        self._market_area = market_area
-        self._duration = timedelta(minutes=60)
+        item = MARKET_AREA_MAP.get(market_area)
+        if item is None:
+            self._market_area = market_area
+            self._duration = 60
+        else:
+            self._market_area = item["market_area"]
+            self._duration = item["duration"]
+
         self._marketdata = []
 
     @property
@@ -135,7 +145,7 @@ class EPEXSpotWeb:
             "modality": "Auction",
             "sub_modality": "DayAhead",
             #          "technology": None,
-            "product": "60",
+            "product": self._duration,
             "data_mode": "table",
             #          "period": None,
             #          "production_period": None,
@@ -206,7 +216,7 @@ class EPEXSpotWeb:
 
         marketdata = []
         for row in rows:
-            end_time = start_time + self._duration
+            end_time = start_time + timedelta(minutes=self._duration)
             buy_volume_col = row.td
             sell_volume_col = buy_volume_col.find_next_sibling("td")
             volume_col = sell_volume_col.find_next_sibling("td")

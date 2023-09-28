@@ -6,7 +6,7 @@ from typing import Callable, Dict
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_DEVICE_ID
+from homeassistant.const import ATTR_DEVICE_ID, Platform
 from homeassistant.core import (
     HomeAssistant,
     ServiceCall,
@@ -43,7 +43,7 @@ from .extreme_price_interval import find_extreme_price_interval, get_start_times
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["sensor"]
+PLATFORMS = [Platform.SENSOR]
 
 GET_EXTREME_PRICE_INTERVAL_SCHEMA = vol.Schema(
     {
