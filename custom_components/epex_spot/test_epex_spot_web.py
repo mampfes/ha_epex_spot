@@ -2,7 +2,7 @@
 
 import EPEXSpot.EPEXSpotWeb
 
-service = EPEXSpot.EPEXSpotWeb.EPEXSpotWeb(market_area="GB")
+service = EPEXSpot.EPEXSpotWeb.EPEXSpotWeb(market_area="DE-LU")
 print(service.MARKET_AREAS)
 
 service.fetch()

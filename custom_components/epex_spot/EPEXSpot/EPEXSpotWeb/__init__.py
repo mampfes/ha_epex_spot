@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-import requests
+import aiohttp
 from bs4 import BeautifulSoup
 
 _LOGGER = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class Marketprice:
         self._price_eur_per_mwh = _to_float(price)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, buy_volume_mwh: {self._buy_volume_mwh} {self.UOM_MWh}, sell_volume_mwh: {self._sell_volume_mwh} {self.UOM_MWh}, volume_mwh: {self._volume_mwh} {self.UOM_MWh}, marketprice: {self._price_eur_per_mwh} {self.UOM_EUR_PER_MWh})"
+        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, buy_volume_mwh: {self._buy_volume_mwh} {self.UOM_MWh}, sell_volume_mwh: {self._sell_volume_mwh} {self.UOM_MWh}, volume_mwh: {self._volume_mwh} {self.UOM_MWh}, marketprice: {self._price_eur_per_mwh} {self.UOM_EUR_PER_MWh})"  # noqa: E501
 
     @property
     def start_time(self):
@@ -92,7 +92,9 @@ class EPEXSpotWeb:
         "SE4",
     )
 
-    def __init__(self, market_area):
+    def __init__(self, market_area, session: aiohttp.ClientSession):
+        self._session = session
+
         item = MARKET_AREA_MAP.get(market_area)
         if item is None:
             self._market_area = market_area
@@ -112,19 +114,23 @@ class EPEXSpotWeb:
         return self._market_area
 
     @property
+    def duration(self):
+        return self._duration
+
+    @property
     def marketdata(self):
         return self._marketdata
 
-    def fetch(self):
+    async def fetch(self):
         delivery_date = datetime.now(ZoneInfo("Europe/Berlin"))
         # get data for remaining day and upcoming day
         # Data for the upcoming day is typically available at 12:45
-        self._marketdata = self._fetch_day(delivery_date) + self._fetch_day(
+        self._marketdata = await self._fetch_day(delivery_date) + await self._fetch_day(
             delivery_date + timedelta(days=1)
         )
 
-    def _fetch_day(self, delivery_date):
-        data = self._fetch_data(delivery_date)
+    async def _fetch_day(self, delivery_date):
+        data = await self._fetch_data(delivery_date)
         invokes = self._extract_invokes(data)
 
         # check if there is an invoke command with selector ".js-md-widget"
@@ -135,7 +141,7 @@ class EPEXSpotWeb:
             return []
         return self._extract_table_data(delivery_date, table_data)
 
-    def _fetch_data(self, delivery_date):
+    async def _fetch_data(self, delivery_date):
         trading_date = delivery_date - timedelta(days=1)
         params = {
             "market_area": self._market_area,
@@ -163,18 +169,19 @@ class EPEXSpotWeb:
             #          "filters[market_area]": "AT",
             #          "triggered_element": "filters[market_area]",
             #          "first_triggered_date": None,
-            #          "form_build_id": "form-fwlBrltLn1Oh2ak-YdbDNeXBpEPle4M8hmu0omAd4nU",
+            #          "form_build_id": "form-fwlBrltLn1Oh2ak-YdbDNeXBpEPle4M8hmu0omAd4nU",  # noqa: E501
             "form_id": "market_data_filters_form",
             "_triggering_element_name": "submit_js",
             #          "_triggering_element_value": None,
             #          "_drupal_ajax": 1,
             #          "ajax_page_state[theme]": "epex",
             #          "ajax_page_state[theme_token]": None,
-            #          "ajax_page_state[libraries]": "bootstrap/popover,bootstrap/tooltip,core/html5shiv,core/jquery.form,epex/global-scripts,epex/global-styling,epex/highcharts,epex_core/data-disclaimer,epex_market_data/filters,epex_market_data/tables,eu_cookie_compliance/eu_cookie_compliance_default,statistics/drupal.statistics,system/base",
+            #          "ajax_page_state[libraries]": "bootstrap/popover,bootstrap/tooltip,core/html5shiv,core/jquery.form,epex/global-scripts,epex/global-styling,epex/highcharts,epex_core/data-disclaimer,epex_market_data/filters,epex_market_data/tables,eu_cookie_compliance/eu_cookie_compliance_default,statistics/drupal.statistics,system/base",  # noqa: E501
         }
-        r = requests.post(self.URL, params=params, data=data)
-        r.raise_for_status()
-        return r.json()
+
+        async with self._session.post(self.URL, params=params, data=data) as resp:
+            resp.raise_for_status()
+            return await resp.json()
 
     def _extract_invokes(self, data):
         """Extract invoke commands from JSON response.

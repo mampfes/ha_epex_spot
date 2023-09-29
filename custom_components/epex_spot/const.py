@@ -25,5 +25,10 @@ DEFAULT_SURCHARGE_PERC = 3.0
 DEFAULT_SURCHARGE_ABS = 11.93
 DEFAULT_TAX = 19.0
 
-
-UPDATE_SENSORS_SIGNAL = f"{DOMAIN}_update_sensors_signal"
+EMPTY_EXTREME_PRICE_INTERVAL_RESP = {
+    "start": None,
+    "end": None,
+    "price_eur_per_mwh": None,
+    "price_ct_per_kwh": None,
+    "net_price_ct_per_kwh": None,
+}
