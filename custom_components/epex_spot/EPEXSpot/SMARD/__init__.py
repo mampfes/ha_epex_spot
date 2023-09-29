@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timedelta, timezone
 
-import requests
+import aiohttp
 
 # from homeassistant.util import dt
 
@@ -38,7 +38,7 @@ class Marketprice:
         self._price_eur_per_mwh = float(data[1])
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_eur_per_mwh} {self.UOM_EUR_PER_MWh})"
+        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_eur_per_mwh} {self.UOM_EUR_PER_MWh})"  # noqa: E501
 
     @property
     def start_time(self):
@@ -62,7 +62,8 @@ class SMARD:
 
     MARKET_AREAS = MARKET_AREA_MAP.keys()
 
-    def __init__(self, market_area):
+    def __init__(self, market_area, session: aiohttp.ClientSession):
+        self._session = session
         self._market_area = market_area
         self._marketdata = []
 
@@ -75,31 +76,35 @@ class SMARD:
         return self._market_area
 
     @property
+    def duration(self):
+        return 60
+
+    @property
     def marketdata(self):
         return self._marketdata
 
-    def fetch(self):
-        data = self._fetch_data()
+    async def fetch(self):
+        data = await self._fetch_data()
         self._marketdata = self._extract_marketdata(data["series"])
 
-    def _fetch_data(self):
+    async def _fetch_data(self):
         smard_filter = MARKET_AREA_MAP[self._market_area]
         smard_region = "DE"  # self._market_area
         smard_resolution = "hour"
 
         # get available timestamps for given market area
         url = f"{self.URL}/{smard_filter}/{smard_region}/index_{smard_resolution}.json"
-        r = requests.get(url)
-        r.raise_for_status()
+        async with self._session.get(url) as resp:
+            resp.raise_for_status()
+            j = await resp.json()
 
-        j = r.json()
         latest_timestamp = j["timestamps"][-1]
 
         # get available data
-        url = f"{self.URL}/{smard_filter}/{smard_region}/{smard_filter}_{smard_region}_{smard_resolution}_{latest_timestamp}.json"
-        r = requests.get(url)
-        r.raise_for_status()
-        return r.json()
+        url = f"{self.URL}/{smard_filter}/{smard_region}/{smard_filter}_{smard_region}_{smard_resolution}_{latest_timestamp}.json"  # noqa: E501
+        async with self._session.get(url) as resp:
+            resp.raise_for_status()
+            return await resp.json()
 
     def _extract_marketdata(self, data):
         entries = []

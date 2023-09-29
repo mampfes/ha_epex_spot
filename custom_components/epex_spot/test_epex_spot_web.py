@@ -8,4 +8,4 @@ print(service.MARKET_AREAS)
 service.fetch()
 print(f"count = {len(service.marketdata)}")
 for e in service.marketdata:
-    print(f"{e.start_time}: {e.price_eur_per_mwh} {e.UOM_EUR_PER_MWh}")
+    print(f"{e.start_time}-{e.end_time}: {e.price_eur_per_mwh} {e.UOM_EUR_PER_MWh}")
