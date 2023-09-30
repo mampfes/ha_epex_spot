@@ -38,20 +38,23 @@
       "description": "Get the time interval during which the price is at its lowest point.",
       "fields": {
         "device_id": {
-          "description": "Any EPEX Spot service instance. In case you have multiple EPEX Spot instances.",
+          "description": "An EPEX Spot service instance ID. In case you have multiple EPEX Spot instances.",
           "name": "EPEX Spot Service"
         },
         "earliest_start": {
-          "description": "Earliest time to start.",
-          "name": "Earliest Start Time"
+          "description": "Earliest time to start the appliance.",
+          "name": "Earliest Start Time",
+          "example": "14:00:00"
         },
         "latest_end": {
-          "description": "Latest time to end. If both times are specified and end time is earlier than (or equal to) start time, end time belongs to the following day.",
-          "name": "Latest End Time"
+          "description": "Latest time to end the appliance. If both times are preset and end time is earlier than (or equal to) start time, end time belongs to tomorrow.",
+          "name": "Latest End Time",
+          "example": "20:00:00"
         },
         "duration": {
-          "description": "Required time interval to complete activity.",
-          "name": "Duration"
+          "description": "Required duration to complete appliance.",
+          "name": "Duration",
+          "example": "01:30:00"
         }
       },
       "name": "Get lowest price interval"
@@ -60,20 +63,23 @@
       "description": "Get the time interval during which the price is at its highest point.",
       "fields": {
         "device_id": {
-          "description": "Any EPEX Spot service instance. In case you have multiple EPEX Spot instances.",
+          "description": "An EPEX Spot service instance ID. In case you have multiple EPEX Spot instances.",
           "name": "EPEX Spot Service"
         },
         "earliest_start": {
-          "description": "Earliest time to start.",
-          "name": "Earliest Start Time"
+          "description": "Earliest time to start the appliance.",
+          "name": "Earliest Start Time",
+          "example": "14:00:00"
         },
         "latest_end": {
-          "description": "Latest time to end. If both times are specified and end time is earlier than (or equal to) start time, end time belongs to the following day.",
-          "name": "Latest End Time"
+          "description": "Latest time to end the appliance. If both times are preset and end time is earlier than (or equal to) start time, end time belongs to tomorrow.",
+          "name": "Latest End Time",
+          "example": "20:00:00"
         },
         "duration": {
-          "description": "Required time interval to complete activity.",
-          "name": "Duration"
+          "description": "Required duration to complete appliance.",
+          "name": "Duration",
+          "example": "01:30:00"
         }
       },
       "name": "Get highest price interval"
