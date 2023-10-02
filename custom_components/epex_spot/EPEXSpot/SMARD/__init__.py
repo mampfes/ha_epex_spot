@@ -84,12 +84,8 @@ class SMARD:
         return self._marketdata
 
     async def fetch(self):
-        data = await self._fetch_data()
-        self._marketdata = self._extract_marketdata(data["series"])
-
-    async def _fetch_data(self):
         smard_filter = MARKET_AREA_MAP[self._market_area]
-        smard_region = "DE"  # self._market_area
+        smard_region = self._market_area
         smard_resolution = "hour"
 
         # get available timestamps for given market area
@@ -98,17 +94,31 @@ class SMARD:
             resp.raise_for_status()
             j = await resp.json()
 
-        latest_timestamp = j["timestamps"][-1]
+        # fetch last 2 data-series, because on sunday noon starts a new series
+        # and then some data is missing
+        latest_timestamp = j["timestamps"][-2:]
 
+        entries = []
+
+        for lt in latest_timestamp:
+            # get available data
+            data = await self._fetch_data(
+                lt, smard_filter, smard_region, smard_resolution
+            )
+
+            for entry in data["series"]:
+                if entry[1] is not None:
+                    entries.append(Marketprice(entry))
+
+        self._marketdata = entries[
+            -72:
+        ]  # limit number of entries to protect HA recorder
+
+    async def _fetch_data(
+        self, latest_timestamp, smard_filter, smard_region, smard_resolution
+    ):
         # get available data
         url = f"{self.URL}/{smard_filter}/{smard_region}/{smard_filter}_{smard_region}_{smard_resolution}_{latest_timestamp}.json"  # noqa: E501
         async with self._session.get(url) as resp:
             resp.raise_for_status()
             return await resp.json()
-
-    def _extract_marketdata(self, data):
-        entries = []
-        for entry in data:
-            if entry[1] is not None:
-                entries.append(Marketprice(entry))
-        return entries[-72:]  # limit number of entries to protect HA recorder
