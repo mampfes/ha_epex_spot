@@ -76,15 +76,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
     )
     if source.duration == 30 or source.duration == 15:
-        async_track_time_change(
-            hass, coordinator.on_refresh, hour=None, minute=30, second=0
+        entry.async_on_unload(
+            async_track_time_change(
+                hass, coordinator.on_refresh, hour=None, minute=30, second=0
+            )
         )
     if source.duration == 15:
-        async_track_time_change(
-            hass, coordinator.on_refresh, hour=None, minute=15, second=0
+        entry.async_on_unload(
+            async_track_time_change(
+                hass, coordinator.on_refresh, hour=None, minute=15, second=0
+            )
         )
-        async_track_time_change(
-            hass, coordinator.on_refresh, hour=None, minute=45, second=0
+        entry.async_on_unload(
+            async_track_time_change(
+                hass, coordinator.on_refresh, hour=None, minute=45, second=0
+            )
         )
 
     entry.async_on_unload(
@@ -141,8 +147,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-
-    hass.data[DOMAIN][entry.entry_id]
 
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)

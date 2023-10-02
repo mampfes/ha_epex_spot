@@ -6,11 +6,20 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 
-from .const import (CONF_MARKET_AREA, CONF_SOURCE, CONF_SOURCE_AWATTAR,
-                    CONF_SOURCE_EPEX_SPOT_WEB, CONF_SOURCE_SMARD_DE,
-                    CONF_SURCHARGE_ABS, CONF_SURCHARGE_PERC, CONF_TAX,
-                    DEFAULT_SURCHARGE_ABS, DEFAULT_SURCHARGE_PERC, DEFAULT_TAX,
-                    DOMAIN)
+from .const import (
+    CONF_MARKET_AREA,
+    CONF_SOURCE,
+    CONF_SOURCE_AWATTAR,
+    CONF_SOURCE_EPEX_SPOT_WEB,
+    CONF_SOURCE_SMARD_DE,
+    CONF_SURCHARGE_ABS,
+    CONF_SURCHARGE_PERC,
+    CONF_TAX,
+    DEFAULT_SURCHARGE_ABS,
+    DEFAULT_SURCHARGE_PERC,
+    DEFAULT_TAX,
+    DOMAIN,
+)
 from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb
 
 CONF_SOURCE_LIST = (
@@ -42,7 +51,9 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             {vol.Required(CONF_SOURCE): vol.In(sorted(CONF_SOURCE_LIST))}
         )
 
-        return self.async_show_form(step_id="source", data_schema=data_schema)
+        return self.async_show_form(
+            step_id="source", data_schema=data_schema, last_step=False
+        )
 
     async def async_step_source(self, user_input=None):
         self._source_name = user_input[CONF_SOURCE]
