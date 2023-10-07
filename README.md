@@ -57,6 +57,8 @@ The _EPEX Spot Web Scraper_ provides some additional sensors:
 - Sell Volume
 - Volume
 
+NOTE: For GB data, the prices will be shown in GBP instead of EUR. The sensor attribute names are adjusted accordingly.
+
 ### 1. Net Market Price Sensor
 
 The sensor value reports the net market price in ct/kWh. The price value will be updated every hour to reflect the current net market price.
@@ -181,9 +183,9 @@ Examples:
 - The sensor reports 23 if the current market price is the highest during the day (if the market price will be updated hourly). There are 23 hours which are cheaper than the current hour market price.
 - The sensor reports 1 if the current market price is the 2nd cheapest during the day. There is 1 one which is cheaper than the current hour market price.
 
-## Services
+## Service Calls
 
-**Requires Release >= 1.6.0**
+**Requires Release >= 2.0.0**
 
 ### 1. Lowest and Highest Price Interval
 
@@ -318,7 +320,7 @@ series:
 
 ### 2. How can I determine the best moment to start appliances?
 
-**NOTE: Deprecated since release 1.6.0. Use Service call instead!**
+**NOTE: Deprecated since release 2.0.0. Use Service call instead!**
 
 It might be an interesting use case to know what the hours with lowest consecutive prices during the day are. This might be of value when looking for the most optimum time to start your washing machine, dishwasher, dryer, etc.
 The template below determines when the 3 hours with lowest consecutive prices start, between 06:00 and 22:00.
