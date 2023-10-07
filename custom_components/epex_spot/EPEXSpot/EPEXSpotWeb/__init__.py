@@ -95,12 +95,13 @@ class EPEXSpotWeb:
     def __init__(self, market_area, session: aiohttp.ClientSession):
         self._session = session
 
+        self._market_area = market_area
         item = MARKET_AREA_MAP.get(market_area)
         if item is None:
-            self._market_area = market_area
+            self._int_market_area = market_area
             self._duration = 60
         else:
-            self._market_area = item["market_area"]
+            self._int_market_area = item["market_area"]
             self._duration = item["duration"]
 
         self._marketdata = []
@@ -116,6 +117,10 @@ class EPEXSpotWeb:
     @property
     def duration(self):
         return self._duration
+
+    @property
+    def currency(self):
+        return "GBP" if self._market_area.startswith("GB") else "EUR"
 
     @property
     def marketdata(self):
@@ -144,7 +149,7 @@ class EPEXSpotWeb:
     async def _fetch_data(self, delivery_date):
         trading_date = delivery_date - timedelta(days=1)
         params = {
-            "market_area": self._market_area,
+            "market_area": self._int_market_area,
             "trading_date": _as_date(trading_date),
             "delivery_date": _as_date(delivery_date),
             #          "underlying_year": None,

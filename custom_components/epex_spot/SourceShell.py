@@ -68,6 +68,10 @@ class SourceShell:
         return self._source.duration
 
     @property
+    def currency(self):
+        return self._source.currency
+
+    @property
     def marketdata(self):
         return self._source.marketdata
 

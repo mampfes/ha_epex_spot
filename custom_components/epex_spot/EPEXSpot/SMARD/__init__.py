@@ -33,7 +33,7 @@ class Marketprice:
         self._start_time = datetime.fromtimestamp(data[0] / 1000, tz=timezone.utc)
         self._end_time = self._start_time + timedelta(
             hours=1
-        )  # TODO: this will not work for 1/2 updates
+        )  # TODO: this will not work for 1/2h updates
 
         self._price_eur_per_mwh = float(data[1])
 
@@ -78,6 +78,10 @@ class SMARD:
     @property
     def duration(self):
         return 60
+
+    @property
+    def currency(self):
+        return "EUR"
 
     @property
     def marketdata(self):

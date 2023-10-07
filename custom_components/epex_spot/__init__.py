@@ -33,6 +33,7 @@ from .const import (
     DOMAIN,
 )
 from .SourceShell import SourceShell
+from .localization import CURRENCY_MAPPING
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -196,6 +197,7 @@ class EpexSpotEntity(CoordinatorEntity, Entity):
         super().__init__(coordinator)
         self._coordinator = coordinator
         self._source = coordinator.source
+        self._localized = CURRENCY_MAPPING[coordinator.source.currency]
         self._attr_unique_id = f"{self._source.unique_id} {description.key}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{self._source.name} {self._source.market_area}")},

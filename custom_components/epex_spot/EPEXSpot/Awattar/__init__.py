@@ -69,6 +69,10 @@ class Awattar:
         return 60
 
     @property
+    def currency(self):
+        return "EUR"
+
+    @property
     def marketdata(self):
         return self._marketdata
 
