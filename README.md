@@ -185,9 +185,15 @@ Examples:
 
 ## Service Calls
 
-**Requires Release >= 2.0.0**
+List of Service Calls:
 
-### 1. Lowest and Highest Price Interval
+- Get Lowest Price Interval
+- Get Highest Price Interval
+- Fetch Data
+
+### 1. Get Lowest and Highest Price Interval
+
+**Requires Release >= 2.0.0**
 
 Get the time interval during which the price is at its lowest/highest point.
 
@@ -286,6 +292,30 @@ template:
         device_class: timestamp
         state: "{{ resp.start is defined and resp.start }}"
 ```
+
+This sensor can be used to trigger automations:
+
+```yaml
+trigger:
+  - platform: time
+    at: sensor.start_appliance
+condition: []
+action: []
+```
+
+### 2. Fetch Data
+
+**Requires Release >= 2.1.0**
+
+Fetch data from all services or a specific service.
+
+```yaml
+epex_spot.fetch_data
+```
+
+| Service data attribute | Optional | Description                                                                     | Example                          |
+| ---------------------- | -------- | ------------------------------------------------------------------------------- | -------------------------------- |
+| `device_id`            | yes      | A EPEX Spot service instance ID. In case you have multiple EPEX Spot instances. | 9d44d8ce9b19e0863cf574c2763749ac |
 
 ## FAQ
 
