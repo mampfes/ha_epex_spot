@@ -83,6 +83,16 @@
         }
       },
       "name": "Get highest price interval"
+    },
+    "fetch_data": {
+      "description": "Fetch data now",
+      "fields": {
+        "device_id": {
+          "description": "An EPEX Spot service instance ID. In case you have multiple EPEX Spot instances.",
+          "name": "EPEX Spot Service"
+        }
+      },
+      "name": "Fetch data from all services or a specific service."
     }
   }
 }
