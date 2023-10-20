@@ -38,3 +38,10 @@ get_highest_price_interval:
       example: 01:00:00
       selector:
         duration:
+fetch_data:
+  fields:
+    device_id:
+      required: false
+      selector:
+        device:
+          integration: epex_spot

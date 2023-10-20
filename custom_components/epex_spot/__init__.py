@@ -47,6 +47,11 @@ GET_EXTREME_PRICE_INTERVAL_SCHEMA = vol.Schema(
         vol.Required(CONF_DURATION): cv.positive_time_period,
     }
 )
+FETCH_DATA_SCHEMA = vol.Schema(
+    {
+        **cv.ENTITY_SERVICE_FIELDS,  # for device_id
+    }
+)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -107,6 +112,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         """Get the time interval during which the price is at its highest point."""
         return _find_extreme_price_interval(call, lambda a, b: a > b)
 
+    async def fetch_data(call: ServiceCall) -> None:
+        entries = hass.data[DOMAIN]
+        if ATTR_DEVICE_ID in call.data:
+            device_id = call.data[ATTR_DEVICE_ID][0]
+            device_registry = dr_async_get(hass)
+            if not (device_entry := device_registry.async_get(device_id)):
+                raise HomeAssistantError(f"No device found for device id: {device_id}")
+            coordinators = [entries[next(iter(device_entry.config_entries))]]
+        else:
+            coordinators = entries.values()
+
+        for c in coordinators:
+            await c.source.fetch()
+
     def _find_extreme_price_interval(
         call: ServiceCall, cmp: Callable[[float, float], bool]
     ) -> ServiceResponse:
@@ -140,6 +159,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         get_highest_price_interval,
         schema=GET_EXTREME_PRICE_INTERVAL_SCHEMA,
         supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        DOMAIN, "fetch_data", fetch_data, schema=FETCH_DATA_SCHEMA
     )
 
     return True
