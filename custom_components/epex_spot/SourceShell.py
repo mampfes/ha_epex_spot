@@ -1,5 +1,5 @@
 import aiohttp
-from datetime import time, timedelta
+from datetime import timedelta
 import logging
 from typing import Any
 
@@ -8,8 +8,10 @@ from homeassistant.util import dt
 
 from .const import (
     CONF_DURATION,
-    CONF_EARLIEST_START,
-    CONF_LATEST_END,
+    CONF_EARLIEST_START_TIME,
+    CONF_EARLIEST_START_POST,
+    CONF_LATEST_END_TIME,
+    CONF_LATEST_END_POST,
     CONF_MARKET_AREA,
     CONF_SOURCE,
     CONF_SOURCE_AWATTAR,
@@ -137,16 +139,16 @@ class SourceShell:
         return net_p
 
     def find_extreme_price_interval(self, call_data, cmp):
-        earliest_start_time: time = call_data.get(CONF_EARLIEST_START)
-        latest_end_time: time = call_data.get(CONF_LATEST_END)
         duration: timedelta = call_data[CONF_DURATION]
 
         start_times = get_start_times(
-            self.marketdata,
-            earliest_start_time,
-            latest_end_time,
-            self.marketdata[-1].end_time,
-            duration,
+            marketdata=self.marketdata,
+            earliest_start_time=call_data.get(CONF_EARLIEST_START_TIME),
+            earliest_start_post=call_data.get(CONF_EARLIEST_START_POST),
+            latest_end_time=call_data.get(CONF_LATEST_END_TIME),
+            latest_end_post=call_data.get(CONF_LATEST_END_POST),
+            latest_market_datetime=self.marketdata[-1].end_time,
+            duration=duration,
         )
 
         result = find_extreme_price_interval(

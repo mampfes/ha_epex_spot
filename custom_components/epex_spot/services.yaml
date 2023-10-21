@@ -9,10 +9,28 @@ get_lowest_price_interval:
       required: false
       selector:
         time:
+    earliest_start_post:
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2
+          step: 1
+          unit_of_measurement: days
+          mode: box
     latest_end:
       required: false
       selector:
         time:
+    latest_end_post:
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2
+          step: 1
+          unit_of_measurement: days
+          mode: box
     duration:
       required: true
       example: 01:00:00
@@ -29,10 +47,28 @@ get_highest_price_interval:
       required: false
       selector:
         time:
+    earliest_start_post:
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2
+          step: 1
+          unit_of_measurement: days
+          mode: box
     latest_end:
       required: false
       selector:
         time:
+    latest_end_post:
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2
+          step: 1
+          unit_of_measurement: days
+          mode: box
     duration:
       required: true
       example: 01:00:00

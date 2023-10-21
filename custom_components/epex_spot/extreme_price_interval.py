@@ -1,6 +1,9 @@
+import logging
 from datetime import datetime, time, timedelta
 
 import homeassistant.util.dt as dt_util
+
+_LOGGER = logging.getLogger(__name__)
 
 SECONDS_PER_HOUR = 60 * 60
 
@@ -98,7 +101,9 @@ def find_extreme_price_interval(marketdata, start_times, duration: timedelta, cm
 def get_start_times(
     marketdata,
     earliest_start_time: time,
+    earliest_start_post: int,
     latest_end_time: time,
+    latest_end_post: int,
     latest_market_datetime: datetime,
     duration: timedelta,
 ):
@@ -115,20 +120,33 @@ def get_start_times(
             microsecond=earliest_start_time.microsecond,
         )
     )
+    if earliest_start_post is not None:
+        earliest_start += timedelta(days=earliest_start_post)
 
-    latest_end: datetime = (
-        latest_market_datetime
-        if latest_end_time is None
-        else earliest_start.replace(
+    if latest_end_time is None:
+        latest_end = latest_market_datetime
+    else:
+        latest_end: datetime = now.replace(
             hour=latest_end_time.hour,
             minute=latest_end_time.minute,
             second=latest_end_time.second,
             microsecond=latest_end_time.microsecond,
         )
-    )
 
-    if latest_end_time is not None and latest_end <= earliest_start:
-        latest_end += timedelta(days=1)
+        if latest_end_post is not None:
+            latest_end += timedelta(days=latest_end_post)
+        elif latest_end <= earliest_start:
+            latest_end += timedelta(days=1)
+
+        if latest_end > latest_market_datetime:
+            latest_end = latest_market_datetime
+
+    if latest_end <= earliest_start:
+        raise ValueError("latest_end is earlier or equal than earliest_start")
+
+    _LOGGER.debug(
+        f"extreme price service call: earliest_start={earliest_start}, latest_end={latest_end}"  # noqa: E501
+    )
 
     return _calc_start_times(
         marketdata,

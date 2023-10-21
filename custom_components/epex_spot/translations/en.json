@@ -42,14 +42,24 @@
           "name": "EPEX Spot Service"
         },
         "earliest_start": {
-          "description": "Earliest time to start the appliance.",
+          "description": "Earliest time to start the appliance. If omitted, the current time is used. Refers to today if `Earliest Start Offset` is not set or 0, or tomorrow if offset is 1.",
           "name": "Earliest Start Time",
           "example": "14:00:00"
         },
+        "earliest_start_post": {
+          "description": "Postponement of `Earliest Start Time` in days: 0 = today (default), 1 = tomorrow",
+          "name": "Postponement of Earliest Start",
+          "example": "0"
+        },
         "latest_end": {
-          "description": "Latest time to end the appliance. If both times are preset and end time is earlier than (or equal to) start time, end time belongs to tomorrow.",
+          "description": "Latest time to end the appliance. If omitted, the end of the available market data is used. Refers to today if `Latest End Offset` is not set or 0, or tomorrow if offset is 1.",
           "name": "Latest End Time",
           "example": "20:00:00"
+        },
+        "latest_end_post": {
+          "description": "Postponement of `Latest End Time` in days: 0 = today (default), 1 = tomorrow.",
+          "name": "Postponement of Latest End",
+          "example": "0"
         },
         "duration": {
           "description": "Required duration to complete appliance.",
@@ -67,14 +77,24 @@
           "name": "EPEX Spot Service"
         },
         "earliest_start": {
-          "description": "Earliest time to start the appliance.",
+          "description": "Earliest time to start the appliance. If omitted, the current time is used. Refers to today if `Earliest Start Offset` is not set or 0, or tomorrow if offset is 1.",
           "name": "Earliest Start Time",
           "example": "14:00:00"
         },
+        "earliest_start_post": {
+          "description": "Postponement of `Earliest Start Time` in days: 0 = today (default), 1 = tomorrow",
+          "name": "Postponement of Earliest Start",
+          "example": "0"
+        },
         "latest_end": {
-          "description": "Latest time to end the appliance. If both times are preset and end time is earlier than (or equal to) start time, end time belongs to tomorrow.",
+          "description": "Latest time to end the appliance. If omitted, the end of the available market data is used. Refers to today if `Latest End Offset` is not set or 0, or tomorrow if offset is 1.",
           "name": "Latest End Time",
           "example": "20:00:00"
+        },
+        "latest_end_post": {
+          "description": "Postponement of `Latest End Time` in days: 0 = today (default), 1 = tomorrow.",
+          "name": "Postponement of Latest End",
+          "example": "0"
         },
         "duration": {
           "description": "Required duration to complete appliance.",

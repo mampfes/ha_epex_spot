@@ -28,8 +28,10 @@ from homeassistant.helpers.update_coordinator import (
 
 from .const import (
     CONF_DURATION,
-    CONF_EARLIEST_START,
-    CONF_LATEST_END,
+    CONF_EARLIEST_START_TIME,
+    CONF_EARLIEST_START_POST,
+    CONF_LATEST_END_TIME,
+    CONF_LATEST_END_POST,
     DOMAIN,
 )
 from .SourceShell import SourceShell
@@ -42,8 +44,10 @@ PLATFORMS = [Platform.SENSOR]
 GET_EXTREME_PRICE_INTERVAL_SCHEMA = vol.Schema(
     {
         **cv.ENTITY_SERVICE_FIELDS,  # for device_id
-        vol.Optional(CONF_EARLIEST_START): cv.time,
-        vol.Optional(CONF_LATEST_END): cv.time,
+        vol.Optional(CONF_EARLIEST_START_TIME): cv.time,
+        vol.Optional(CONF_EARLIEST_START_POST): cv.positive_int,
+        vol.Optional(CONF_LATEST_END_TIME): cv.time,
+        vol.Optional(CONF_LATEST_END_POST): cv.positive_int,
         vol.Required(CONF_DURATION): cv.positive_time_period,
     }
 )

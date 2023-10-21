@@ -17,8 +17,10 @@ CONF_SURCHARGE_ABS = "absolute_surcharge"
 CONF_TAX = "tax"
 
 # service call
-CONF_EARLIEST_START = "earliest_start"
-CONF_LATEST_END = "latest_end"
+CONF_EARLIEST_START_TIME = "earliest_start"
+CONF_EARLIEST_START_POST = "earliest_start_post"
+CONF_LATEST_END_TIME = "latest_end"
+CONF_LATEST_END_POST = "latest_end_post"
 CONF_DURATION = "duration"
 
 DEFAULT_SURCHARGE_PERC = 3.0

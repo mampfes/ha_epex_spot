@@ -210,16 +210,19 @@ epex_spot.get_highest_price_interval
 | ---------------------- | -------- | ------------------------------------------------------------------------------- | -------------------------------- |
 | `device_id`            | yes      | A EPEX Spot service instance ID. In case you have multiple EPEX Spot instances. | 9d44d8ce9b19e0863cf574c2763749ac |
 | `earliest_start`       | yes      | Earliest time to start the appliance.                                           | "14:00:00"                       |
+| `earliest_start_post`  | yes      | Postponement of `earliest_start` in days: 0 = today (default), 1= tomorrow      | 0                                |
 | `latest_end`           | yes      | Latest time to end the appliance.                                               | "16:00:00"                       |
+| `latest_end_post`      | yes      | Postponement of `latest_end` in days: 0 = today (default), 1= tomorrow          | 0                                |
 | `duration`             | no       | Required duration to complete appliance.                                        | See below...                     |
 
 Notes:
 
 - If `earliest_start` is omitted, the current time is used instead.
-- If `latest_end` is omitted, end end of all available data is used which is either end of today or tomorrow. Data for the next day will be provided at ~13:00 by EPEX Spot.
-- `earliest_start` always belongs to today.
-- If `earliest_start` and `latest_end` are present _and_ `latest_end` is earlier than (or equal to) `earliest_start`, then `latest_end` belongs to tomorrow.
-- `device_id` is only required if have have setup multiple EPEX Spot instances. The easiest way to get the unique device*id is to use the \_Developer Tools -> Services*.
+- If `latest_end` is omitted, the end of all available market data is used.
+- `earliest_start` refers to today if `earliest_start_post` is omitted or set to 0.
+- `latest_end` will be automatically trimmed to the available market area.
+- If `earliest_start` and `latest_end` are present _and_ `latest_end` is earlier than (or equal to) `earliest_start`, then `latest_end` refers to tomorrow.
+- `device_id` is only required if have have setup multiple EPEX Spot instances. The easiest way to get the unique device id, is to use the _Developer Tools -> Services_.
 
 Service Call Examples:
 
@@ -255,9 +258,20 @@ data:
   duration: 120 # in seconds -> 2 minutes
 ```
 
+```yaml
+# get the lowest price all day tomorrow:
+service: epex_spot.get_lowest_price_interval
+data:
+  earliest_start: "00:00:00"
+  earliest_start_post: 1
+  latest_end: "00:00:00"
+  latest_end_post: 2
+  duration: "01:30:00" # 1h, 30 minutes
+```
+
 #### Response
 
-The response contains the the calculated start and end-time and the average price per MWh/KWh for the whole duration.
+The response contains the calculated start and end-time and the average price per MWh/KWh for the whole duration.
 
 Example:
 
