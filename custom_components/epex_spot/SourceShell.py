@@ -132,9 +132,9 @@ class SourceShell:
         tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
 
         net_p = price_eur_per_mwh / 10  # convert from EUR/MWh to ct/kWh
+        net_p *= 1 + (tax / 100)
         net_p = net_p + abs(net_p * surcharge_pct / 100)
         net_p += surcharge_abs
-        net_p *= 1 + (tax / 100)
 
         return net_p
 
