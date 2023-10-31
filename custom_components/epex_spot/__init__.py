@@ -129,6 +129,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         for c in coordinators:
             await c.source.fetch()
+            await c.on_refresh()
 
     def _find_extreme_price_interval(
         call: ServiceCall, cmp: Callable[[float, float], bool]
