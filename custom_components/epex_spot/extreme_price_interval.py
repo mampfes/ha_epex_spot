@@ -94,7 +94,8 @@ def find_extreme_price_interval(marketdata, start_times, duration: timedelta, cm
     return {
         "start": interval_start_time,
         "end": interval_start_time + duration,
-        "price": interval_price,
+        "interval_price": interval_price,
+        "price_per_hour": interval_price * SECONDS_PER_HOUR / duration.total_seconds(),
     }
 
 

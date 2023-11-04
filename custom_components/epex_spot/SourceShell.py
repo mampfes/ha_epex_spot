@@ -161,7 +161,7 @@ class SourceShell:
         return {
             "start": result["start"],
             "end": result["start"] + duration,
-            "price_eur_per_mwh": result["price"],
-            "price_ct_per_kwh": result["price"] / 10,
-            "net_price_ct_per_kwh": self.to_net_price(result["price"]),
+            "price_eur_per_mwh": result["price_per_hour"],
+            "price_ct_per_kwh": result["price_per_hour"] / 10,
+            "net_price_ct_per_kwh": self.to_net_price(result["price_per_hour"]),
         }

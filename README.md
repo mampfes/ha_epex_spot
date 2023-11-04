@@ -271,7 +271,7 @@ data:
 
 #### Response
 
-The response contains the calculated start and end-time and the average price per MWh/KWh for the whole duration.
+The response contains the calculated start and end-time and the average price per MWh/KWh.
 
 Example:
 
