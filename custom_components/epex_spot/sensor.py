@@ -1,7 +1,11 @@
 import logging
 from statistics import median
 
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorEntityDescription,
+    SensorStateClass,
+)
 from homeassistant.helpers.typing import StateType
 
 from .const import CONF_SOURCE, CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN
@@ -54,6 +58,7 @@ class EpexSpotPriceSensorEntity(EpexSpotEntity, SensorEntity):
     entity_description = SensorEntityDescription(
         key="Price",
         name="Price",
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
@@ -90,6 +95,7 @@ class EpexSpotNetPriceSensorEntity(EpexSpotEntity, SensorEntity):
         key="Net Price",
         name="Net Price",
         suggested_display_precision=2,
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
