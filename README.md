@@ -490,8 +490,6 @@ experimental:
   color_threshold: true
 yaxis:
   - id: uurprijs
-    min: 0.1
-    max: 0.5
     decimals: 2
     apex_config:
       title:
