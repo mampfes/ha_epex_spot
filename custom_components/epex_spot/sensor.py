@@ -152,9 +152,7 @@ class EpexSpotBuyVolumeSensorEntity(EpexSpotEntity, SensorEntity):
             for e in self._source.marketdata
         ]
 
-        self._attr_extra_state_attributes = {
-            ATTR_DATA: data,
-        }
+        return {ATTR_DATA: data}
 
 
 class EpexSpotSellVolumeSensorEntity(EpexSpotEntity, SensorEntity):
@@ -186,9 +184,7 @@ class EpexSpotSellVolumeSensorEntity(EpexSpotEntity, SensorEntity):
             for e in self._source.marketdata
         ]
 
-        self._attr_extra_state_attributes = {
-            ATTR_DATA: data,
-        }
+        return {ATTR_DATA: data}
 
 
 class EpexSpotVolumeSensorEntity(EpexSpotEntity, SensorEntity):
@@ -220,9 +216,7 @@ class EpexSpotVolumeSensorEntity(EpexSpotEntity, SensorEntity):
             for e in self._source.marketdata
         ]
 
-        self._attr_extra_state_attributes = {
-            ATTR_DATA: data,
-        }
+        return {ATTR_DATA: data}
 
 
 class EpexSpotRankSensorEntity(EpexSpotEntity, SensorEntity):
@@ -245,6 +239,22 @@ class EpexSpotRankSensorEntity(EpexSpotEntity, SensorEntity):
             e.price_eur_per_mwh for e in self._source.sorted_marketdata_today
         ].index(self._source.marketdata_now.price_eur_per_mwh)
 
+    @property
+    def extra_state_attributes(self):
+        sorted_prices = [
+            e.price_eur_per_mwh for e in self._source.sorted_marketdata_today
+        ]
+        data = [
+            {
+                ATTR_START_TIME: e.start_time.isoformat(),
+                ATTR_END_TIME: e.end_time.isoformat(),
+                "rank": sorted_prices.index(e.price_eur_per_mwh),
+            }
+            for e in self._source.sorted_marketdata_today
+        ]
+
+        return {ATTR_DATA: data}
+
 
 class EpexSpotQuantileSensorEntity(EpexSpotEntity, SensorEntity):
     """Home Assistant sensor containing all EPEX spot data."""
@@ -266,6 +276,21 @@ class EpexSpotQuantileSensorEntity(EpexSpotEntity, SensorEntity):
         min_price = self._source.sorted_marketdata_today[0].price_eur_per_mwh
         max_price = self._source.sorted_marketdata_today[-1].price_eur_per_mwh
         return (current_price - min_price) / (max_price - min_price)
+
+    @property
+    def extra_state_attributes(self):
+        min_price = self._source.sorted_marketdata_today[0].price_eur_per_mwh
+        max_price = self._source.sorted_marketdata_today[-1].price_eur_per_mwh
+        data = [
+            {
+                ATTR_START_TIME: e.start_time.isoformat(),
+                ATTR_END_TIME: e.end_time.isoformat(),
+                "quantile": (e.price_eur_per_mwh - min_price) / (max_price - min_price),
+            }
+            for e in self._source.sorted_marketdata_today
+        ]
+
+        return {ATTR_DATA: data}
 
 
 class EpexSpotLowestPriceSensorEntity(EpexSpotEntity, SensorEntity):
