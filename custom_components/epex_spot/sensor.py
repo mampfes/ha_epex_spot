@@ -131,6 +131,7 @@ class EpexSpotBuyVolumeSensorEntity(EpexSpotEntity, SensorEntity):
         name="Buy Volume",
         icon="mdi:lightning-bolt",
         native_unit_of_measurement="MWh",
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
@@ -164,6 +165,7 @@ class EpexSpotSellVolumeSensorEntity(EpexSpotEntity, SensorEntity):
         name="Sell Volume",
         icon="mdi:lightning-bolt",
         native_unit_of_measurement="MWh",
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
@@ -197,6 +199,7 @@ class EpexSpotVolumeSensorEntity(EpexSpotEntity, SensorEntity):
         name="Volume",
         icon="mdi:lightning-bolt",
         native_unit_of_measurement="MWh",
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
@@ -226,7 +229,11 @@ class EpexSpotRankSensorEntity(EpexSpotEntity, SensorEntity):
     """Home Assistant sensor containing all EPEX spot data."""
 
     entity_description = SensorEntityDescription(
-        key="Rank", name="Rank", native_unit_of_measurement=""
+        key="Rank",
+        name="Rank",
+        native_unit_of_measurement="",
+        suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
@@ -245,8 +252,9 @@ class EpexSpotQuantileSensorEntity(EpexSpotEntity, SensorEntity):
     entity_description = SensorEntityDescription(
         key="Quantile",
         name="Quantile",
-        suggested_display_precision=2,
         native_unit_of_measurement="",
+        suggested_display_precision=2,
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
@@ -266,6 +274,8 @@ class EpexSpotLowestPriceSensorEntity(EpexSpotEntity, SensorEntity):
     entity_description = SensorEntityDescription(
         key="Lowest Price",
         name="Lowest Price",
+        suggested_display_precision=2,
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
@@ -294,6 +304,8 @@ class EpexSpotHighestPriceSensorEntity(EpexSpotEntity, SensorEntity):
     entity_description = SensorEntityDescription(
         key="Highest Price",
         name="Highest Price",
+        suggested_display_precision=2,
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
@@ -323,6 +335,7 @@ class EpexSpotAveragePriceSensorEntity(EpexSpotEntity, SensorEntity):
         key="Average Price",
         name="Average Price",
         suggested_display_precision=2,
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
@@ -349,6 +362,7 @@ class EpexSpotMedianPriceSensorEntity(EpexSpotEntity, SensorEntity):
         key="Median Price",
         name="Median Price",
         suggested_display_precision=2,
+        state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
