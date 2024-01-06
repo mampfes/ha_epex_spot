@@ -1,0 +1,11 @@
+{
+  "domain": "epex_spot_sensor",
+  "name": "EPEX Spot Sensor",
+  "codeowners": ["@mampfes"],
+  "config_flow": true,
+  "documentation": "https://github.com/mampfes/ha_epex_spot",
+  "integration_type": "helper",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/mampfes/ha_epex_spot/issues",
+  "version": "0.0.0"
+}
