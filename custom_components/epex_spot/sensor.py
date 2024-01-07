@@ -1,6 +1,7 @@
 import logging
 from statistics import median
 
+import homeassistant.util.dt as dt_util
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
@@ -74,8 +75,8 @@ class EpexSpotPriceSensorEntity(EpexSpotEntity, SensorEntity):
     def extra_state_attributes(self):
         data = [
             {
-                ATTR_START_TIME: e.start_time.isoformat(),
-                ATTR_END_TIME: e.end_time.isoformat(),
+                ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
+                ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
                 self._localized.attr_name_per_mwh: e.price_eur_per_mwh,
                 self._localized.attr_name_per_kwh: to_ct_per_kwh(e.price_eur_per_mwh),
             }
@@ -111,8 +112,8 @@ class EpexSpotNetPriceSensorEntity(EpexSpotEntity, SensorEntity):
     def extra_state_attributes(self):
         data = [
             {
-                ATTR_START_TIME: e.start_time.isoformat(),
-                ATTR_END_TIME: e.end_time.isoformat(),
+                ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
+                ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
                 self._localized.attr_name_per_kwh: self._source.to_net_price(
                     e.price_eur_per_mwh
                 ),
@@ -145,8 +146,8 @@ class EpexSpotBuyVolumeSensorEntity(EpexSpotEntity, SensorEntity):
     def extra_state_attributes(self):
         data = [
             {
-                ATTR_START_TIME: e.start_time.isoformat(),
-                ATTR_END_TIME: e.end_time.isoformat(),
+                ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
+                ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
                 "buy_volume_mwh": e.buy_volume_mwh,
             }
             for e in self._source.marketdata
@@ -177,8 +178,8 @@ class EpexSpotSellVolumeSensorEntity(EpexSpotEntity, SensorEntity):
     def extra_state_attributes(self):
         data = [
             {
-                ATTR_START_TIME: e.start_time.isoformat(),
-                ATTR_END_TIME: e.end_time.isoformat(),
+                ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
+                ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
                 "sell_volume_mwh": e.sell_volume_mwh,
             }
             for e in self._source.marketdata
@@ -209,8 +210,8 @@ class EpexSpotVolumeSensorEntity(EpexSpotEntity, SensorEntity):
     def extra_state_attributes(self):
         data = [
             {
-                ATTR_START_TIME: e.start_time.isoformat(),
-                ATTR_END_TIME: e.end_time.isoformat(),
+                ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
+                ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
                 "volume_mwh": e.volume_mwh,
             }
             for e in self._source.marketdata
@@ -246,8 +247,8 @@ class EpexSpotRankSensorEntity(EpexSpotEntity, SensorEntity):
         ]
         data = [
             {
-                ATTR_START_TIME: e.start_time.isoformat(),
-                ATTR_END_TIME: e.end_time.isoformat(),
+                ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
+                ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
                 "rank": sorted_prices.index(e.price_eur_per_mwh),
             }
             for e in self._source.sorted_marketdata_today
@@ -283,8 +284,8 @@ class EpexSpotQuantileSensorEntity(EpexSpotEntity, SensorEntity):
         max_price = self._source.sorted_marketdata_today[-1].price_eur_per_mwh
         data = [
             {
-                ATTR_START_TIME: e.start_time.isoformat(),
-                ATTR_END_TIME: e.end_time.isoformat(),
+                ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
+                ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
                 "quantile": (e.price_eur_per_mwh - min_price) / (max_price - min_price),
             }
             for e in self._source.sorted_marketdata_today
@@ -317,8 +318,8 @@ class EpexSpotLowestPriceSensorEntity(EpexSpotEntity, SensorEntity):
     def extra_state_attributes(self):
         min = self._source.sorted_marketdata_today[0]
         return {
-            ATTR_START_TIME: min.start_time.isoformat(),
-            ATTR_END_TIME: min.end_time.isoformat(),
+            ATTR_START_TIME: dt_util.as_local(min.start_time).isoformat(),
+            ATTR_END_TIME: dt_util.as_local(min.end_time).isoformat(),
             self._localized.attr_name_per_kwh: to_ct_per_kwh(self.native_value),
         }
 
@@ -347,8 +348,8 @@ class EpexSpotHighestPriceSensorEntity(EpexSpotEntity, SensorEntity):
     def extra_state_attributes(self):
         max = self._source.sorted_marketdata_today[-1]
         return {
-            ATTR_START_TIME: max.start_time.isoformat(),
-            ATTR_END_TIME: max.end_time.isoformat(),
+            ATTR_START_TIME: dt_util.as_local(max.start_time).isoformat(),
+            ATTR_END_TIME: dt_util.as_local(max.end_time).isoformat(),
             self._localized.attr_name_per_kwh: to_ct_per_kwh(self.native_value),
         }
 
