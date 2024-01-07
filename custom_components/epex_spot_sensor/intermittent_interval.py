@@ -45,6 +45,12 @@ def calc_intervals_for_intermittent(
     most_expensive: bool = False,
 ):
     """Calculate price for given start time and duration."""
+    if len(marketdata) == 0:
+        return None
+
+    if marketdata[-1].end_time < latest_end:
+        return None
+
     # filter intervals which fit to start- and end-time (including overlapping)
     marketdata = [
         e
@@ -57,7 +63,6 @@ def calc_intervals_for_intermittent(
 
     active_time: timedelta = timedelta(seconds=0)
     intervals = []
-    total_price: float = None
 
     for count, mp in enumerate(marketdata):
         interval_start_time = (
@@ -87,12 +92,11 @@ def calc_intervals_for_intermittent(
         )
 
         active_time += active_duration_in_this_segment
-        total_price = price if total_price is None else total_price + price
 
         if active_time == duration:
             break
 
-    return (intervals, total_price)
+    return intervals
 
 
 def is_now_in_intervals(now: datetime, intervals):

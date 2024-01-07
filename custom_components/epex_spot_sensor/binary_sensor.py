@@ -247,7 +247,7 @@ class BinarySensor(BinarySensorEntity):
     ):
         marketdata = get_marketdata_from_sensor_attrs(self._sensor_attributes)
 
-        (intervals, total_price) = calc_intervals_for_intermittent(
+        intervals = calc_intervals_for_intermittent(
             marketdata=marketdata,
             earliest_start=earliest_start,
             latest_end=latest_end,
@@ -255,9 +255,8 @@ class BinarySensor(BinarySensorEntity):
             most_expensive=self._price_mode == PriceModes.MOST_EXPENSIVE.value,
         )
 
-        if len(intervals) == 0:
-            self._state = None
-            self._intervals = []
+        if intervals is None:
+            return
 
         self._state = is_now_in_intervals(now, intervals)
 
@@ -267,14 +266,16 @@ class BinarySensor(BinarySensorEntity):
             # do calculation only if latest_end is limited to 24h from earliest_start,
             # --> avoid calculation if latest_end includes all available marketdata
             latest_end += timedelta(days=1)
-            (intervals2, _) = calc_intervals_for_intermittent(
+            intervals2 = calc_intervals_for_intermittent(
                 marketdata=marketdata,
                 earliest_start=earliest_start,
                 latest_end=latest_end,
                 duration=self._duration,
                 most_expensive=self._price_mode == PriceModes.MOST_EXPENSIVE.value,
             )
-            intervals = [*intervals, *intervals2]
+
+            if intervals2 is not None:
+                intervals = [*intervals, *intervals2]
 
         self._intervals = [
             {
@@ -291,9 +292,6 @@ class BinarySensor(BinarySensorEntity):
         self, earliest_start: time, latest_end: time, now: datetime
     ):
         marketdata = get_marketdata_from_sensor_attrs(self._sensor_attributes)
-
-        if len(marketdata) == 0:
-            return
 
         result = calc_interval_for_contiguous(
             marketdata,

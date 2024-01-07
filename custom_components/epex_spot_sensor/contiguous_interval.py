@@ -117,6 +117,12 @@ def calc_interval_for_contiguous(
     duration: timedelta,
     most_expensive: bool = True,
 ):
+    if len(marketdata) == 0:
+        return None
+
+    if marketdata[-1].end_time < latest_end:
+        return None
+
     start_times = _calc_start_times(
         marketdata,
         earliest_start=earliest_start,
