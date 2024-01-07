@@ -7,5 +7,5 @@
   "integration_type": "helper",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/mampfes/ha_epex_spot/issues",
-  "version": "0.0.0"
+  "version": "2.3.0beta"
 }
