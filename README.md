@@ -22,7 +22,7 @@ You can choose between multiple sources:
 
    [smartENERGY.at](https://www.smartenergy.at/api-schnittstellen) provides a free of charge service for their customers. Market price data is available for Austria. So far no user identifiation is required.
 
-If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot_awattar).
+If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
 
 ## Installation
 
