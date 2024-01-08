@@ -18,7 +18,7 @@ You can choose between multiple sources:
 
    [SMARD.de](https://www.smard.de) provides a free of charge API to retrieve a lot of information about electricity market including market prices. SMARD.de is serviced by the Bundesnetzagentur, Germany.
 
-If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot_awattar).
+If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
 
 ## Installation
 
