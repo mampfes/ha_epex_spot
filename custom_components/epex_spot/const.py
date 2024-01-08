@@ -10,6 +10,7 @@ CONF_MARKET_AREA = "market_area"
 CONF_SOURCE_AWATTAR = "Awattar"
 CONF_SOURCE_EPEX_SPOT_WEB = "EPEX Spot Web Scraper"
 CONF_SOURCE_SMARD_DE = "SMARD.de"
+CONF_SOURCE_SMARTENERGY = "smartENERGY.at"
 
 # configuration options for net price calculation
 CONF_SURCHARGE_PERC = "percentage_surcharge"
