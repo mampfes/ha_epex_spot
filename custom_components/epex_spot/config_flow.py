@@ -12,6 +12,7 @@ from .const import (
     CONF_SOURCE_AWATTAR,
     CONF_SOURCE_EPEX_SPOT_WEB,
     CONF_SOURCE_SMARD_DE,
+    CONF_SOURCE_SMARTENERGY,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -20,12 +21,13 @@ from .const import (
     DEFAULT_TAX,
     DOMAIN,
 )
-from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb
+from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, smartENERGY
 
 CONF_SOURCE_LIST = (
     CONF_SOURCE_AWATTAR,
     CONF_SOURCE_EPEX_SPOT_WEB,
     CONF_SOURCE_SMARD_DE,
+    CONF_SOURCE_SMARTENERGY,
 )
 
 
@@ -64,6 +66,8 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             areas = EPEXSpotWeb.EPEXSpotWeb.MARKET_AREAS
         elif self._source_name == CONF_SOURCE_SMARD_DE:
             areas = SMARD.SMARD.MARKET_AREAS
+        elif self._source_name == CONF_SOURCE_SMARTENERGY:
+            areas = smartENERGY.smartENERGY.MARKET_AREAS
 
         data_schema = vol.Schema(
             {vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas))}
