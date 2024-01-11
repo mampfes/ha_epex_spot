@@ -28,7 +28,7 @@ class Marketprice:
 
     @property
     def price_eur_per_mwh(self):
-        return self._price_ct_per_kwh * 10
+        return round(self._price_ct_per_kwh * 10, 2)
 
     @property
     def price_ct_per_kwh(self):

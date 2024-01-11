@@ -141,7 +141,7 @@ class SourceShell:
         net_p += surcharge_abs
         net_p *= 1 + (tax / 100)
 
-        return net_p
+        return round(net_p, 3)
 
     def find_extreme_price_interval(self, call_data, cmp):
         duration: timedelta = call_data[CONF_DURATION]
@@ -167,6 +167,6 @@ class SourceShell:
             "start": result["start"],
             "end": result["start"] + duration,
             "price_eur_per_mwh": result["price_per_hour"],
-            "price_ct_per_kwh": result["price_per_hour"] / 10,
+            "price_ct_per_kwh": round(result["price_per_hour"] / 10, 3),
             "net_price_ct_per_kwh": self.to_net_price(result["price_per_hour"]),
         }
