@@ -3,6 +3,19 @@
 # Component domain, used to store component data in hass data.
 DOMAIN = "epex_spot"
 
+ATTR_DATA = "data"
+ATTR_START_TIME = "start_time"
+ATTR_END_TIME = "end_time"
+ATTR_BUY_VOLUME_MWH = "buy_volume_mwh"
+ATTR_SELL_VOLUME_MWH = "sell_volume_mwh"
+ATTR_VOLUME_MWH = "volume_mwh"
+ATTR_RANK = "rank"
+ATTR_QUANTILE = "quantile"
+ATTR_PRICE_EUR_PER_MWH = "price_eur_per_mwh"
+ATTR_PRICE_CT_PER_KWH = "price_ct_per_kwh"
+ATTR_PRICE_GBP_PER_MWH = "price_gbp_per_mwh"
+ATTR_PRICE_PENCE_PER_KWH = "price_pence_per_kwh"
+
 CONF_SOURCE = "source"
 CONF_MARKET_AREA = "market_area"
 
