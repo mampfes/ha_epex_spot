@@ -37,7 +37,7 @@ def _calc_interval_price(marketdata, start_time: datetime, duration: timedelta):
 
         start_time = mp.end_time
 
-    return total_price
+    return round(total_price, 2)
 
 
 def _calc_start_times(
@@ -91,11 +91,13 @@ def find_extreme_price_interval(marketdata, start_times, duration: timedelta, cm
     if interval_start_time is None:
         return None
 
+    interval_price = round(interval_price, 2)
+
     return {
         "start": interval_start_time,
         "end": interval_start_time + duration,
         "interval_price": interval_price,
-        "price_per_hour": interval_price * SECONDS_PER_HOUR / duration.total_seconds(),
+        "price_per_hour": round(interval_price * SECONDS_PER_HOUR / duration.total_seconds(), 2),
     }
 
 
