@@ -26,6 +26,9 @@ class Marketprice:
     def end_time(self):
         return self._end_time
 
+    def set_end_time(self, end_time):
+        self._end_time = end_time
+
     @property
     def price_eur_per_mwh(self):
         return round(self._price_ct_per_kwh * 10, 2)
@@ -70,7 +73,10 @@ class smartENERGY:
         data = await self._fetch_data(self.URL)
         self._duration = data["interval"]
         assert data["unit"].lower() == Marketprice.UOM_CT_PER_kWh.lower()
-        self._marketdata = self._extract_marketdata(data["data"])
+        marketdata = self._extract_marketdata(data["data"])
+        # override duration and compress data
+        self._duration = 60
+        self._marketdata = self._compress_marketdata(marketdata)
 
     async def _fetch_data(self, url):
         async with self._session.get(url) as resp:
@@ -81,4 +87,25 @@ class smartENERGY:
         entries = []
         for entry in data:
             entries.append(Marketprice(self._duration, entry))
+        return entries
+
+    def _compress_marketdata(self, data):
+        entries = []
+        start = None
+        for entry in data:
+            if start == None:
+                start = entry
+                continue
+            is_price_equal = start.price_ct_per_kwh == entry.price_ct_per_kwh
+            is_continuation = start.end_time == entry.start_time
+            max_start_time = start.start_time + timedelta(minutes=self._duration)
+            is_same_hour = entry.start_time < max_start_time
+
+            if (is_price_equal & is_continuation & is_same_hour):
+                start.set_end_time(entry.end_time)
+            else:
+                entries.append(start)
+                start = entry
+        if start != None:
+            entries.append(start)
         return entries
