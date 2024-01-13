@@ -27,6 +27,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .const import (
+    ATTR_DATA,
     CONF_DURATION,
     CONF_EARLIEST_START_TIME,
     CONF_EARLIEST_START_POST,
@@ -217,6 +218,7 @@ class EpexSpotEntity(CoordinatorEntity, Entity):
     _coordinator: EpexSpotDataUpdateCoordinator
     _source: SourceShell
     _attr_has_entity_name = True
+    _unrecorded_attributes = frozenset({ATTR_DATA})
 
     def __init__(
         self, coordinator: EpexSpotDataUpdateCoordinator, description: EntityDescription
