@@ -9,12 +9,20 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.helpers.typing import StateType
 
-from .const import CONF_SOURCE, CONF_SOURCE_EPEX_SPOT_WEB, DOMAIN
+from .const import (
+    ATTR_BUY_VOLUME_MWH,
+    ATTR_DATA,
+    ATTR_END_TIME,
+    ATTR_QUANTILE,
+    ATTR_RANK,
+    ATTR_SELL_VOLUME_MWH,
+    ATTR_START_TIME,
+    ATTR_VOLUME_MWH,
+    CONF_SOURCE,
+    CONF_SOURCE_EPEX_SPOT_WEB,
+    DOMAIN,
+)
 from . import EpexSpotEntity, EpexSpotDataUpdateCoordinator as DataUpdateCoordinator
-
-ATTR_DATA = "data"
-ATTR_START_TIME = "start_time"
-ATTR_END_TIME = "end_time"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -148,7 +156,7 @@ class EpexSpotBuyVolumeSensorEntity(EpexSpotEntity, SensorEntity):
             {
                 ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
                 ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
-                "buy_volume_mwh": e.buy_volume_mwh,
+                ATTR_BUY_VOLUME_MWH: e.buy_volume_mwh,
             }
             for e in self._source.marketdata
         ]
@@ -180,7 +188,7 @@ class EpexSpotSellVolumeSensorEntity(EpexSpotEntity, SensorEntity):
             {
                 ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
                 ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
-                "sell_volume_mwh": e.sell_volume_mwh,
+                ATTR_SELL_VOLUME_MWH: e.sell_volume_mwh,
             }
             for e in self._source.marketdata
         ]
@@ -212,7 +220,7 @@ class EpexSpotVolumeSensorEntity(EpexSpotEntity, SensorEntity):
             {
                 ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
                 ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
-                "volume_mwh": e.volume_mwh,
+                ATTR_VOLUME_MWH: e.volume_mwh,
             }
             for e in self._source.marketdata
         ]
@@ -249,7 +257,7 @@ class EpexSpotRankSensorEntity(EpexSpotEntity, SensorEntity):
             {
                 ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
                 ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
-                "rank": sorted_prices.index(e.price_eur_per_mwh),
+                ATTR_RANK: sorted_prices.index(e.price_eur_per_mwh),
             }
             for e in self._source.sorted_marketdata_today
         ]
@@ -286,7 +294,7 @@ class EpexSpotQuantileSensorEntity(EpexSpotEntity, SensorEntity):
             {
                 ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
                 ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
-                "quantile": (e.price_eur_per_mwh - min_price) / (max_price - min_price),
+                ATTR_QUANTILE: (e.price_eur_per_mwh - min_price) / (max_price - min_price),
             }
             for e in self._source.sorted_marketdata_today
         ]
