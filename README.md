@@ -10,7 +10,7 @@ January 2024: Hi there, I'm eperimenting with a new feature:
 
 https://github.com/mampfes/ha_epex_spot_sensor
 
-Please let me know if this is a useful addition to EPEX Spit.
+Please let me know if this is a useful addition to EPEX Spot.
 
 ---
 
