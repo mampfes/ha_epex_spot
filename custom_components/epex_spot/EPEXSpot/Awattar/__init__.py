@@ -81,8 +81,10 @@ class Awattar:
         self._marketdata = self._extract_marketdata(data["data"])
 
     async def _fetch_data(self, url):
-        start = dt.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        end = start + timedelta(days=2)
+        start = dt.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
+            days=1
+        )
+        end = start + timedelta(days=3)
         async with self._session.get(
             url, params={"start": toEpochMilliSec(start), "end": toEpochMilliSec(end)}
         ) as resp:
