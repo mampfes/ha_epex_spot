@@ -130,9 +130,11 @@ class EPEXSpotWeb:
         delivery_date = datetime.now(ZoneInfo("Europe/Berlin"))
         # get data for remaining day and upcoming day
         # Data for the upcoming day is typically available at 12:45
-        self._marketdata = await self._fetch_day(delivery_date) + await self._fetch_day(
+        marketdata = await self._fetch_day(delivery_date) + await self._fetch_day(
             delivery_date + timedelta(days=1)
         )
+        # overwrite cached marketdata only on success
+        self._marketdata = marketdata
 
     async def _fetch_day(self, delivery_date):
         data = await self._fetch_data(delivery_date)
