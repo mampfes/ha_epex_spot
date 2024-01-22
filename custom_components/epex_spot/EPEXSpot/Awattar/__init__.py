@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta, timezone
-from time import mktime
 
 import aiohttp
 from homeassistant.util import dt
@@ -42,7 +41,7 @@ class Marketprice:
 
 
 def toEpochMilliSec(dt: datetime) -> int:
-    return mktime(dt.timetuple()) * 1000
+    return int(dt.timestamp() * 1000)
 
 
 class Awattar:
