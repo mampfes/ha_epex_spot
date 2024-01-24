@@ -96,10 +96,14 @@ The net market price will be calculated as follows:
 
 `<Net Price>` = `<Market Price>` + `<Surcharges>` + `<Tax>`
 
-The values for surcharges and tax can be adjusted in the integration configuration. 2 different types of surcharges can be adjusted:
+- Net market price is the price you have to pay at the end, including taxes, surcharges and VAT.
+- Market price is the energy price from EPEX Spot excluding taxes, surcharges, VAT.
+- 2 different types of surcharges can be adjusted:
+  1. Percentage Surcharge, stated in % of the EPEX Spot market price.
+  2. Absolute Surcharge, stated in ct/kWh, excluding VAT.
+- Tax, e.g. VAT
 
-1. Percentage Surcharge, stated in % of the EPEX Spot market price.
-2. Absolute Surcharge, stated in ct/kWh.
+The values for surcharges and tax can be adjusted in the integration configuration.
 
 Example:
 
@@ -113,7 +117,7 @@ Net Price = ((Market Price * 1.03) + 12ct) * 1.19
 
 ### 2. Market Price Sensor
 
-The sensor value reports the EPEX Spot market price in EUR/MWh. The price value will be updated every hour to reflect the current market price.
+The sensor value reports the EPEX Spot market price in EUR/MWh. The market price doesn't include taxes, surcharges, VAT. The price value will be updated every hour to reflect the current market price.
 
 The sensor attributes contains additional values:
 
