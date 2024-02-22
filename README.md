@@ -377,11 +377,14 @@ It might be an interesting use case to know what the hours with lowest consecuti
 
 #### Create & Configure a Helper
 Create a Helper by going to Settings → Devices & Services → Helpers → Create Helper → EPEX Spot Sensor and configure it like so:
+
 ![Dishwasher Config Example](/images/epex-spot-sensor-dishwasher-config-example.png)
+
 This creates a binary sensor `binary_sensor.dishwasher_cheapest_window` with the Friendly Name "Dishwasher: Cheapest Window". The sensor turns on at the start of the cheapest time-window, off at the end of the time-window, and reports the `start_time` & `end_time` for this time-window in its attributes.
+
 ![Dishwasher Sensor Example](/images/epex-spot-sensor-dishwasher-sensor-example.png)
 
-Depending on your implementation use-case, there are two ways to proceed 
+Depending on your implementation use-case, there are two ways to proceed:
 
 **Case 1: Automating the dishwasher**
 If the dishwasher can be controlled via Home Assistant, or you can use some kind of smart-device to start the dishwasher cycle, you could create an automations that triggers when `binary_sensor.dishwasher_cheapest_window` turns on.
@@ -427,10 +430,11 @@ In addition to what the previous sensor does, this one calculates how long it is
 
 In both cases, if the `start_time` has already passed, the sensors display `Waiting for new data`. 
 
-Finally, create an Entity Card on your dashboard with the sensor you want to display.
-![Dishwasher Card Examples](/images/dishwasher_card_examples.png)
+Finally, create Entity Cards on your dashboard with the sensors you want to display.
 
-See [this Show & Tell post](https://github.com/mampfes/ha_epex_spot/discussions/111) for a fancier, more elaborate version of this card that can show several appliances at once, auto hide appliances that don't have data, and even hide itself when no appliances have any data.
+![Dishwasher Card Examples](/images/dishwasher-card-examples.png)
+
+See [this Show & Tell post](https://github.com/mampfes/ha_epex_spot/discussions/111) for a fancier, more elaborate version of this card that can show several appliances at once, auto hide ones that don't have data, and even hide itself when there is no data at all.
 
 ### 3. I want to combine and view everything
 Here's another [ApexCharts](https://github.com/RomRider/apexcharts-card) example.
