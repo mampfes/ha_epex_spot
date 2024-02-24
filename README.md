@@ -1,4 +1,3 @@
-
 # EPEX Spot
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
@@ -7,11 +6,9 @@ This component adds electricity prices from stock exchange [EPEX Spot](https://w
 
 ---
 
-January 2024: Hi there, I'm eperimenting with a new feature:
+There is a companion integration which simplifies the use of EPEX Spot integration to switch on/off an application depending on the energy market prices:
 
-https://github.com/mampfes/ha_epex_spot_sensor
-
-Please let me know if this is a useful addition to EPEX Spot.
+<https://github.com/mampfes/ha_epex_spot_sensor>
 
 ---
 
@@ -25,14 +22,16 @@ You can choose between multiple sources:
 
 3. SMARD.de
    [SMARD.de](https://www.smard.de) provides a free of charge API to retrieve a lot of information about electricity market including market prices. SMARD.de is serviced by the Bundesnetzagentur, Germany.
-   
+
 4. smartENERGY.at
    [smartENERGY.at](https://www.smartenergy.at/api-schnittstellen) provides a free of charge service for their customers. Market price data is available for Austria. So far no user identifiation is required.
 
 If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
 
 ## Installation
+
 1. Ensure that [HACS](https://hacs.xyz) is installed.
+
 2. Install **EPEX Spot** integration via HACS:
 
    [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=mampfes&repository=ha_epex_spot)
@@ -49,6 +48,7 @@ In case you would like to install manually:
    [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start?domain=epex_spot)
 
 ## Sensors
+
 This integration provides the following sensors:
 
 1. Net market price
@@ -73,6 +73,7 @@ NOTE: For GB data, the prices will be shown in GBP instead of EUR. The sensor at
 The sensor value reports the net market price in ct/kWh. The price value will be updated every hour to reflect the current net market price.
 
 The sensor attributes contains a list of all available net market prices (for today and tomorrow if available) in ct/kWh.
+
 ```yaml
 data:
   - start_time: "2022-12-15T23:00:00+00:00"
@@ -85,6 +86,7 @@ data:
     end_time: "2022-12-16T02:00:00+00:00"
     price_ct_per_kwh: 28.019
 ```
+
 The net market price will be calculated as follows:
 `<Net Price>` = `<Market Price>` + `<Surcharges>` + `<Tax>`
 
@@ -98,6 +100,7 @@ The net market price will be calculated as follows:
 The values for surcharges and tax can be adjusted in the integration configuration.
 
 Example:
+
 ```text
 Percentage Surchage = 3%
 Absolute Surcharge = 12ct
@@ -105,10 +108,13 @@ Tax = 19%
 
 Net Price = ((Market Price * 1.03) + 12ct) * 1.19
 ```
+
 #### Note about smartENERGY.at
+
 As of Feb 2024, even though smartENERGY says that the prices reported by the API already include 20% tax (meaning users would configure the sensor to add a static ¢1.44 to every price value from the API), [this is incorrect, and the API reports pricing without Tax](https://github.com/mampfes/ha_epex_spot/issues/108#issuecomment-1951423366 "this is incorrect, and the API reports pricing without Tax").
 
-To get the actual, current Net Price [listed by smartENERGY on their website](https://www.smartenergy.at/smartcontrol#:~:text=Aktueller%20Stundenpreis "listed by smartENERGY on their website"), configure: 
+To get the actual, current Net Price [listed by smartENERGY on their website](https://www.smartenergy.at/smartcontrol#:~:text=Aktueller%20Stundenpreis "listed by smartENERGY on their website"), configure:
+
 - Absolute surcharge = ¢1.2
 - Tax = 20%
 
@@ -117,8 +123,10 @@ To get the actual, current Net Price [listed by smartENERGY on their website](ht
 The sensor value reports the EPEX Spot market price in EUR/MWh. The market price doesn't include taxes, surcharges, VAT. The price value will be updated every hour to reflect the current market price.
 
 The sensor attributes contains additional values:
+
 - The market price in ct/kWh.
 - A list of all available market prices (for today and tomorrow if available) in EUR/MWh and ct/kWh.
+
 ```yaml
 price_ct_per_kwh: 29.63
 data:
@@ -139,6 +147,7 @@ data:
 ### 3. Average Market Price Sensor
 
 The sensor value reports the average EPEX Spot market price during the day. The sensor value reports the market price in EUR/MWh. The market price in ct/kWh is available as sensor attribute.
+
 ```yaml
 price_ct_per_kwh: 29.63
 ```
@@ -146,6 +155,7 @@ price_ct_per_kwh: 29.63
 ### 4. Median Market Price Sensor
 
 The sensor value reports the median EPEX Spot market price during the day. The sensor value reports the market price in EUR/MWh. The market price in ct/kWh is available as sensor attribute.
+
 ```yaml
 price_ct_per_kwh: 29.63
 ```
@@ -155,6 +165,7 @@ price_ct_per_kwh: 29.63
 The sensor value reports the lowest EPEX Spot market price during the day. The sensor value reports the market price in EUR/MWh. The market price in ct/kWh is available as sensor attribute.
 
 The sensor attributes contains the start and endtime of the lowest market price timeframe.
+
 ```yaml
 price_ct_per_kwh: 29.63
 start_time: "2023-02-15T22:00:00+00:00"
@@ -166,6 +177,7 @@ end_time: "2023-02-15T23:00:00+00:00"
 The sensor value reports the highest EPEX Spot market price during the day. The sensor value reports the market price in EUR/MWh. The market price in ct/kWh is available as sensor attribute.
 
 The sensor attributes contains the start and endtime of the highest market price timeframe.
+
 ```yaml
 price_ct_per_kwh: 29.63
 start_time: "2023-02-15T22:00:00+00:00"
@@ -209,6 +221,7 @@ Get the time interval during which the price is at its lowest/highest point.
 Knowing the hours with the lowest / highest consecutive prices during the day could be an interesting use case. This might be of value when looking for the most optimum time to start your washing machine, dishwasher, dryer, etc.
 
 With this service call, you can let the integration calculate the optimal start time. The only mandatory attribute is the duration of your appliance. Optionally you can limit start- and end-time, e.g. to start your appliance only during night hours.
+
 ```yaml
 epex_spot.get_lowest_price_interval
 epex_spot.get_highest_price_interval
@@ -233,6 +246,7 @@ Notes:
 - `device_id` is only required if have have setup multiple EPEX Spot instances. The easiest way to get the unique device id, is to use the _Developer Tools -> Services_.
 
 Service Call Examples:
+
 ```yaml
 service: epex_spot.get_lowest_price_interval
 data:
@@ -244,6 +258,7 @@ data:
     minutes: 0
     seconds: 0
 ```
+
 ```yaml
 service: epex_spot.get_lowest_price_interval
 data:
@@ -251,16 +266,19 @@ data:
   latest_end: "16:00:00"
   duration: "00:30:00" # 30 minutes
 ```
+
 ```yaml
 service: epex_spot.get_lowest_price_interval
 data:
   duration: "00:30" # 30 minutes
 ```
+
 ```yaml
 service: epex_spot.get_lowest_price_interval
 data:
   duration: 120 # in seconds -> 2 minutes
 ```
+
 ```yaml
 # get the lowest price all day tomorrow:
 service: epex_spot.get_lowest_price_interval
@@ -271,11 +289,13 @@ data:
   latest_end_post: 2
   duration: "01:30:00" # 1h, 30 minutes
 ```
+
 #### Response
 
 The response contains the calculated start and end-time and the average price per MWh/KWh.
 
 Example:
+
 ```yaml
 start: "2023-09-29T12:00:00+00:00"
 end: "2023-09-29T13:00:00+00:00"
@@ -283,9 +303,11 @@ price_eur_per_mwh: 77.04
 price_ct_per_kwh: 7.704000000000001
 net_price_ct_per_kwh: 23.6394928
 ```
+
 With Home Assistant release >= 2023.9 you can use the [Template Integration](https://www.home-assistant.io/integrations/template/) to create a sensor (in your `configuration.yaml` file) that shows the start time:
 
 ![Start Appliance Sensor](/images/start_appliance_sensor.png)
+
 ```yaml
 template:
   - trigger:
@@ -307,6 +329,7 @@ template:
 ```
 
 This sensor can be used to trigger automations:
+
 ```yaml
 trigger:
   - platform: time
@@ -314,6 +337,7 @@ trigger:
 condition: []
 action: []
 ```
+
 ### 2. Fetch Data
 
 **Requires Release >= 2.1.0**
@@ -323,21 +347,25 @@ Fetch data from all services or a specific service.
 ```yaml
 epex_spot.fetch_data
 ```
+
 | Service data attribute | Optional | Description                                                                     | Example                          |
 | ---------------------- | -------- | ------------------------------------------------------------------------------- | -------------------------------- |
 | `device_id`            | yes      | A EPEX Spot service instance ID. In case you have multiple EPEX Spot instances. | 9d44d8ce9b19e0863cf574c2763749ac |
 
 ### 3. The EPEX Spot Sensor Integration
+
 A significantly easier, GUI-based method to achieve some of the results listed above is to install the [EPEX Spot Sensor](https://github.com/mampfes/ha_epex_spot_sensor "EPEX Spot Sensor") integration (via HACS) and configure helpers with it. An example for this method is covered in FAQ 2 below.
 
 ## FAQ
 
 ### 1. How can I show a chart of the next hours?
+
 With [ApexCharts](https://github.com/RomRider/apexcharts-card), you can easily show a chart like this to see the hourly net prices for today:
 
 ![apexchart](/images/apexcharts.png)
 
 You just have to install [ApexCharts](https://github.com/RomRider/apexcharts-card) (via HACS) and enter the following data in the card configuration:
+
 ```yaml
 type: custom:apexcharts-card
 header:
@@ -359,23 +387,29 @@ series:
         return [new Date(entry.start_time), entry.price_ct_per_kwh];
       });
 ```
+
 See [this Show & Tell post](https://github.com/mampfes/ha_epex_spot/discussions/110) for a fancier, more elaborate version of this card that can auto-hide the next day's prices when they aren't available, colour the hourly bars depending on the price, etc.
-#### Assumptions:
+
+**Assumptions:**
+
 This example assumes that you are using smartENERGY.at as a source and want to display the Net Price in ct/kWh for the next 48 hours. The value for `entity` and the `entry` being processed by the `data_generator` are specific to this data source:
 
 ![Apex Chart Data Source Example](/images/apexcharts-entities-example.png)
 
-If you are using a different source, you will need to first update `sensor.epex_spot_data_net_price` to use the correct sensor for your configuration (check which Entites you have available under Devices → Integrations → EPEX Spot → `#` Entities) and then change `entry.price_ct_per_kwh` to the attribute that you want to use from your sensor of choice. If your data source does not report prices for the next day, you can change the `graph_span` to `24h` to get rid of the empty space that this configuration would create.
+If you are using a different source, you will need to first update `sensor.epex_spot_data_net_price` to use the correct sensor for your configuration (check which Entities you have available under Devices → Integrations → EPEX Spot → `#` Entities) and then change `entry.price_ct_per_kwh` to the attribute that you want to use from your sensor of choice. If your data source does not report prices for the next day, you can change the `graph_span` to `24h` to get rid of the empty space that this configuration would create.
 
 ### 2. How can I optimise the best moment to start appliances?
+
 It might be an interesting use case to know what the hours with lowest consecutive prices during the day are. This might be of value when looking for the most optimum time to start your washing machine, dishwasher, dryer, etc. The most convenient way to do this would be to install and configure the [EPEX Spot Sensor](https://github.com/mampfes/ha_epex_spot_sensor "EPEX Spot Sensor") (via HACS).
 
 #### Example
- - Your dishwasher cycle takes 3 hours and 15 minutes to run
- - You want to run a full, continuous cycle in the time-window when power is the cheapest for those 3 hours & 15 minutes
- - You don't care at what exact time the dishwasher cycle starts or finishes
+
+- Your dishwasher cycle takes 3 hours and 15 minutes to run
+- You want to run a full, continuous cycle in the time-window when power is the cheapest for those 3 hours & 15 minutes
+- You don't care at what exact time the dishwasher cycle starts or finishes
 
 #### Create & Configure a Helper
+
 Create a Helper by going to Settings → Devices & Services → Helpers → Create Helper → EPEX Spot Sensor and configure it like so:
 
 ![Dishwasher Config Example](/images/epex-spot-sensor-dishwasher-config-example.png)
@@ -392,8 +426,9 @@ If the dishwasher can be controlled via Home Assistant, or you can use some kind
 **Case 2: Manually starting / scheduling the dishwasher**
 If your dishwasher cannot be automated, you can create a card on your dashboard that tells you either what time, or in how much time you should should manually start your dishwasher or schedule it to start.
 
-*What time should I start the dishwasher?*
+_What time should I start the dishwasher?_
 Create a Template Sensor by going to Settings → Devices & Services → Helpers → Create Helper → Template → Template a sensor. Give it a Friendly name, for example "Next Dishwasher Start (Time)" and under "State Template", enter
+
 ```yaml
 {% set data = state_attr('binary_sensor.dishwasher_cheapest_window', 'data') %}
 {% set now = now() %}
@@ -406,10 +441,12 @@ Create a Template Sensor by going to Settings → Devices & Services → Helpers
   Waiting for new data
 {% endif %}
 ```
+
 This Template Sensors uses the data from the attributes of the "Dishwasher: Cheapest Window" binary sensor created earlier with the EPEX Spot Sensor integration, checks whether the `start_time` is in the future, and displays the `start_time` as `H:M` on `d/m/y`.
 
-*In how much time from now should I start the dishwasher?*
+_In how much time from now should I start the dishwasher?_
 Create a Template Sensor by going to Settings → Devices & Services → Helpers → Create Helper → Template → Template a sensor. Give it a Friendly name, for example "Next Dishwasher Start (Duration)" and under "State Template", enter
+
 ```yaml
 {% set data = state_attr('binary_sensor.dishwasher_cheapest_window', 'data') %}
 {% set now = now() %}
@@ -426,9 +463,10 @@ Create a Template Sensor by going to Settings → Devices & Services → Helpers
   Waiting for new data
 {% endif %}
 ```
+
 In addition to what the previous sensor does, this one calculates how long it is from `now` till the `start_time`, and displays the result in `H:M`.
 
-In both cases, if the `start_time` has already passed, the sensors display `Waiting for new data`. 
+In both cases, if the `start_time` has already passed, the sensors display `Waiting for new data`.
 
 Finally, create Entity Cards on your dashboard with the sensors you want to display.
 
@@ -437,11 +475,13 @@ Finally, create Entity Cards on your dashboard with the sensors you want to disp
 See [this Show & Tell post](https://github.com/mampfes/ha_epex_spot/discussions/111) for a fancier, more elaborate version of this card that can show several appliances at once, auto hide ones that don't have data, and even hide itself when there is no data at all.
 
 ### 3. I want to combine and view everything
+
 Here's another [ApexCharts](https://github.com/RomRider/apexcharts-card) example.
 It shows the price for the current day, the next day and the `min/max` value for each day.
 Furthermore, it also fills the hours during which prices are lowest (see 2.)
 
 ![apexchart](/images/apex_advanced.png)
+
 ```yaml
 type: custom:apexcharts-card
 header:
@@ -539,8 +579,10 @@ apex_config:
       show: true
       format: HH:00 - HH:59
 ```
-#### Assumptions:
-This example assumes that you are using the EPEX Spot Web Scraper as a source and want to display the Price in €/MWh for the next 48 hours, and highlight a 4-hour block where the electricity price is the lowest. As with the previous example, the `entity` and the `entry` being processed by the `data_generator` are specific to this data source, and you should update them to match your configuration. 
+
+**Assumptions:**
+
+This example assumes that you are using the EPEX Spot Web Scraper as a source and want to display the Price in €/MWh for the next 48 hours, and highlight a 4-hour block where the electricity price is the lowest. As with the previous example, the `entity` and the `entry` being processed by the `data_generator` are specific to this data source, and you should update them to match your configuration.
 
 In case the electricity pricing in your market results in the entire sparkline having one static colour (for example, the line always appears magenta), you will need to fine-tune the `color_threshold` entries . You can do this by either editing the `value` entries in the example above, or you can also add more `value` and `color` pairs if you want additional colours.
 
