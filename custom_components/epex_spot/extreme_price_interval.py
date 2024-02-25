@@ -94,10 +94,12 @@ def find_extreme_price_interval(marketdata, start_times, duration: timedelta, cm
     interval_price = round(interval_price, 2)
 
     return {
-        "start": interval_start_time,
-        "end": interval_start_time + duration,
+        "start": dt_util.as_local(interval_start_time),
+        "end": dt_util.as_local(interval_start_time + duration),
         "interval_price": interval_price,
-        "price_per_hour": round(interval_price * SECONDS_PER_HOUR / duration.total_seconds(), 2),
+        "price_per_hour": round(
+            interval_price * SECONDS_PER_HOUR / duration.total_seconds(), 2
+        ),
     }
 
 
