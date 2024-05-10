@@ -14,13 +14,25 @@
         "data": {
           "market_area": "Select market area"
         }
+      },
+      "options": {
+        "title": "Net Price Options",
+        "description": "Configure surcharges and tax to calculate net price per kWh.",
+        "data": {
+          "percentage_surcharge": "Percentage Surcharge (%)",
+          "absolute_surcharge": "Absolute Surcharge (ct/kWh)",
+          "tax": "Tax (%)"
+        },
+        "data_description": {
+          "tax": "Like Value Added Tax (VAT)"
+        }
       }
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Net Price",
+        "title": "Net Price Options",
         "description": "Configure surcharges and tax to calculate net price per kWh.",
         "data": {
           "percentage_surcharge": "Percentage Surcharge (%)",
