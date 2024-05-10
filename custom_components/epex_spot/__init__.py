@@ -205,6 +205,7 @@ class EpexSpotDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     ) -> None:
         """Initialize."""
         self.source = source
+        self._error_count = 0
 
         super().__init__(hass, _LOGGER, name=DOMAIN)
 
