@@ -35,7 +35,9 @@ class Marketprice:
     def __init__(self, data):
         self._start_time = datetime.fromisoformat(data["startsAt"])
         self._end_time   = self._start_time + timedelta(hours = 1)
-        self._price_ct_per_kwh = round(float(data["energy"]) * 100, 3)
+        # Tibber already returns the actual net price for the customer
+        # so we can use that
+        self._price_ct_per_kwh = round(float(data["total"]) * 100, 3)
 
     def __repr__(self):
         return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_ct_per_kwh} {self.UOM_CT_PER_kWh})"  # noqa: E501
