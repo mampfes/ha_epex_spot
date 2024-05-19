@@ -18,12 +18,14 @@ ATTR_PRICE_GBP_PER_KWH = "price_gbp_per_kwh"
 
 CONF_SOURCE = "source"
 CONF_MARKET_AREA = "market_area"
+CONF_TOKEN = "token"
 
 # possible values for CONF_SOURCE
 CONF_SOURCE_AWATTAR = "Awattar"
 CONF_SOURCE_EPEX_SPOT_WEB = "EPEX Spot Web Scraper"
 CONF_SOURCE_SMARD_DE = "SMARD.de"
 CONF_SOURCE_SMARTENERGY = "smartENERGY.at"
+CONF_SOURCE_TIBBER = "Tibber"
 
 # configuration options for net price calculation
 CONF_SURCHARGE_PERC = "percentage_surcharge"

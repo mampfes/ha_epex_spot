@@ -18,15 +18,17 @@ from .const import (
     CONF_SOURCE_EPEX_SPOT_WEB,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
+    CONF_SOURCE_TIBBER,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
+    CONF_TOKEN,
     DEFAULT_SURCHARGE_ABS,
     DEFAULT_SURCHARGE_PERC,
     DEFAULT_TAX,
     EMPTY_EXTREME_PRICE_INTERVAL_RESP,
 )
-from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, smartENERGY
+from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, smartENERGY, Tibber
 from .extreme_price_interval import find_extreme_price_interval, get_start_times
 
 _LOGGER = logging.getLogger(__name__)
@@ -34,6 +36,10 @@ _LOGGER = logging.getLogger(__name__)
 
 class SourceShell:
     def __init__(self, config_entry: ConfigEntry, session: aiohttp.ClientSession):
+        if (config_entry.unique_id == "epex_spot Tibber de"):
+            _LOGGER.critical(config_entry)
+            _LOGGER.critical(config_entry.data)
+
         self._config_entry = config_entry
         self._marketdata_now = None
         self._sorted_marketdata_today = []
@@ -56,6 +62,10 @@ class SourceShell:
         elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_SMARTENERGY:
             self._source = smartENERGY.smartENERGY(
                 market_area=config_entry.data[CONF_MARKET_AREA], session=session
+            )
+        elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_TIBBER:
+            self._source = Tibber.Tibber(
+                market_area=config_entry.data[CONF_MARKET_AREA], session=session, token=self._config_entry.data[CONF_TOKEN]
             )
 
     @property
@@ -136,10 +146,15 @@ class SourceShell:
         )
         tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
 
-        net_p = price_currency_per_mwh / 1000  # convert from EUR/MWh to EUR/kWh
-        net_p = net_p + abs(net_p) * surcharge_pct / 100
-        net_p += surcharge_abs
-        net_p *= 1 + (tax / 100)
+        net_p = price_eur_per_mwh / 10  # convert from EUR/MWh to ct/kWh
+        # Tibber adds tax to base market price and adds fixed surcharge later
+        if self.name == "Tibber API v1-beta":
+            net_p += abs(net_p) * (tax / 100) # assuming they don't charge negative taxes here
+            net_p += surcharge_abs
+        else:
+            net_p = net_p + abs(net_p) * surcharge_pct / 100
+            net_p += surcharge_abs
+            net_p *= 1 + (tax / 100)
 
         return round(net_p, 4)
 
@@ -166,7 +181,7 @@ class SourceShell:
         return {
             "start": result["start"],
             "end": result["start"] + duration,
-            "price_currency_per_mwh": result["price_per_hour"],
-            "price_currency_per_kwh": round(result["price_per_hour"] / 10, 4),
+            "price_eur_per_mwh": result["price_per_hour"],
+            "price_ct_per_kwh": round(result["price_per_hour"] / 10, 3),
             "net_price_ct_per_kwh": self.to_net_price(result["price_per_hour"]),
         }
