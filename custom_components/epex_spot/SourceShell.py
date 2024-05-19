@@ -36,10 +36,6 @@ _LOGGER = logging.getLogger(__name__)
 
 class SourceShell:
     def __init__(self, config_entry: ConfigEntry, session: aiohttp.ClientSession):
-        if (config_entry.unique_id == "epex_spot Tibber de"):
-            _LOGGER.critical(config_entry)
-            _LOGGER.critical(config_entry.data)
-
         self._config_entry = config_entry
         self._marketdata_now = None
         self._sorted_marketdata_today = []
