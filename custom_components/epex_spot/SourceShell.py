@@ -141,7 +141,7 @@ class SourceShell:
         net_p = price_eur_per_mwh / 10  # convert from EUR/MWh to ct/kWh
 
         # Tibber already reaturns the net price for the customer
-        if self.name != "Tibber API v1-beta":
+        if "Tibber API" not in self.name:
             surcharge_pct = self._config_entry.options.get(
                 CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
             )
