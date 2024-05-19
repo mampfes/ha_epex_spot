@@ -137,21 +137,18 @@ class SourceShell:
         )
         self._sorted_marketdata_today = sorted_sorted_marketdata_today
 
-    def to_net_price(self, price_currency_per_mwh):
-        surcharge_pct = self._config_entry.options.get(
-            CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
-        )
-        surcharge_abs = self._config_entry.options.get(
-            CONF_SURCHARGE_ABS, DEFAULT_SURCHARGE_ABS
-        )
-        tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
-
+    def to_net_price(self, price_eur_per_mwh):
         net_p = price_eur_per_mwh / 10  # convert from EUR/MWh to ct/kWh
-        # Tibber adds tax to base market price and adds fixed surcharge later
-        if self.name == "Tibber API v1-beta":
-            net_p += abs(net_p) * (tax / 100) # assuming they don't charge negative taxes here
-            net_p += surcharge_abs
-        else:
+
+        # Tibber already reaturns the net price for the customer
+        if self.name != "Tibber API v1-beta":
+            surcharge_pct = self._config_entry.options.get(
+                CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
+            )
+            surcharge_abs = self._config_entry.options.get(
+                CONF_SURCHARGE_ABS, DEFAULT_SURCHARGE_ABS
+            )
+            tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
             net_p = net_p + abs(net_p) * surcharge_pct / 100
             net_p += surcharge_abs
             net_p *= 1 + (tax / 100)
