@@ -13,21 +13,24 @@ from .const import (
     CONF_SOURCE_EPEX_SPOT_WEB,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
+    CONF_SOURCE_TIBBER,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
+    CONF_TOKEN,
     DEFAULT_SURCHARGE_ABS,
     DEFAULT_SURCHARGE_PERC,
     DEFAULT_TAX,
     DOMAIN,
 )
-from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, smartENERGY
+from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, smartENERGY, Tibber
 
 CONF_SOURCE_LIST = (
     CONF_SOURCE_AWATTAR,
     CONF_SOURCE_EPEX_SPOT_WEB,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
+    CONF_SOURCE_TIBBER,
 )
 
 
@@ -60,18 +63,29 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
     async def async_step_source(self, user_input=None):
         self._source_name = user_input[CONF_SOURCE]
 
-        if self._source_name == CONF_SOURCE_AWATTAR:
-            areas = Awattar.Awattar.MARKET_AREAS
-        elif self._source_name == CONF_SOURCE_EPEX_SPOT_WEB:
-            areas = EPEXSpotWeb.EPEXSpotWeb.MARKET_AREAS
-        elif self._source_name == CONF_SOURCE_SMARD_DE:
-            areas = SMARD.SMARD.MARKET_AREAS
-        elif self._source_name == CONF_SOURCE_SMARTENERGY:
-            areas = smartENERGY.smartENERGY.MARKET_AREAS
+        # Tibber API requires a token
+        if self._source_name == CONF_SOURCE_TIBBER:
+            areas = Tibber.Tibber.MARKET_AREAS
+            data_schema = vol.Schema(
+                {
+                    vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas)),
+                    vol.Optional(CONF_TOKEN, default="Change me!"): vol.Coerce(str)
+                }
+            )
+        else:
+            if self._source_name == CONF_SOURCE_AWATTAR:
+                areas = Awattar.Awattar.MARKET_AREAS
+            elif self._source_name == CONF_SOURCE_EPEX_SPOT_WEB:
+                areas = EPEXSpotWeb.EPEXSpotWeb.MARKET_AREAS
+            elif self._source_name == CONF_SOURCE_SMARD_DE:
+                areas = SMARD.SMARD.MARKET_AREAS
+            elif self._source_name == CONF_SOURCE_SMARTENERGY:
+                areas = smartENERGY.smartENERGY.MARKET_AREAS
 
-        data_schema = vol.Schema(
-            {vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas))}
-        )
+            self._token = None
+            data_schema = vol.Schema(
+                {vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas))}
+            )
 
         return self.async_show_form(step_id="market_area", data_schema=data_schema)
 
@@ -85,9 +99,14 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             await self.async_set_unique_id(unique_id)
             self._abort_if_unique_id_configured()
 
+            if CONF_TOKEN in user_input:
+                self._token = user_input[CONF_TOKEN]
+            else:
+                self._token = None
+
             return self.async_create_entry(
                 title=title,
-                data={CONF_SOURCE: self._source_name, CONF_MARKET_AREA: market_area},
+                data={CONF_SOURCE: self._source_name, CONF_MARKET_AREA: market_area, CONF_TOKEN: self._token},
             )
 
     @staticmethod
