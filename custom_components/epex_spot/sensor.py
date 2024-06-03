@@ -58,7 +58,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 def to_ct_per_kwh(price_currency_per_mwh):
-    return round(price_currency_per_mwh / 10, 3)
+    return round(price_currency_per_mwh / 10, 4)
 
 
 class EpexSpotPriceSensorEntity(EpexSpotEntity, SensorEntity):

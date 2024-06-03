@@ -50,7 +50,7 @@ class Marketprice:
 
     @property
     def price_currency_per_kwh(self):
-        return round(self._price_curency_per_mwh / 10, 3)
+        return round(self._price_curency_per_mwh / 10, 4)
 
     @property
     def buy_volume_mwh(self):
