@@ -135,7 +135,7 @@ class SourceShell:
         )
         self._sorted_marketdata_today = sorted_sorted_marketdata_today
 
-    def to_net_price(self, price_eur_per_mwh):
+def to_net_price(self, price_currency_per_mwh):
         net_p = price_eur_per_mwh / 10  # convert from EUR/MWh to ct/kWh
 
         # Tibber already reaturns the net price for the customer
@@ -176,7 +176,7 @@ class SourceShell:
         return {
             "start": result["start"],
             "end": result["start"] + duration,
-            "price_eur_per_mwh": result["price_per_hour"],
-            "price_ct_per_kwh": round(result["price_per_hour"] / 10, 3),
+            "price_currency_per_mwh": result["price_per_hour"],
+            "price_currency_per_kwh": round(result["price_per_hour"] / 10, 3),
             "net_price_ct_per_kwh": self.to_net_price(result["price_per_hour"]),
         }

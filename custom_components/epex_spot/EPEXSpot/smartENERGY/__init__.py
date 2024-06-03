@@ -14,7 +14,7 @@ class Marketprice:
         self._end_time = self._start_time + timedelta(minutes=duration)
         # price includes austrian vat (20%) -> remove to be consistent with other data sources
         # in cts/kWh
-        self._price_currency_per_kwh = round(float(data["value"]) / 1.2, 5)
+        self._price_currency_per_kwh = round(float(data["value"]) / 1.2, 4)
 
     def __repr__(self):
         return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_ct_per_kwh} {self.UOM_CT_PER_kWh})"  # noqa: E501
