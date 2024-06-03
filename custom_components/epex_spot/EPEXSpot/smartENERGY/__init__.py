@@ -13,7 +13,8 @@ class Marketprice:
         self._start_time = datetime.fromisoformat(data["date"])
         self._end_time = self._start_time + timedelta(minutes=duration)
         # price includes austrian vat (20%) -> remove to be consistent with other data sources
-        self._price_ct_per_kwh = round(float(data["value"]) / 1.2, 3)
+        # in cts/kWh
+        self._price_currency_per_kwh = round(float(data["value"]) / 1.2, 4)
 
     def __repr__(self):
         return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_ct_per_kwh} {self.UOM_CT_PER_kWh})"  # noqa: E501
@@ -30,12 +31,12 @@ class Marketprice:
         self._end_time = end_time
 
     @property
-    def price_eur_per_mwh(self):
-        return round(self._price_ct_per_kwh * 10, 2)
+    def price_currency_per_mwh(self):
+        return round(self._price_currency_per_kwh * 10, 2)
 
     @property
-    def price_ct_per_kwh(self):
-        return self._price_ct_per_kwh
+    def price_currency_per_kwh(self):
+        return self._price_currency_per_kwh
 
 
 class smartENERGY:
@@ -46,7 +47,7 @@ class smartENERGY:
     def __init__(self, market_area, session: aiohttp.ClientSession):
         self._session = session
         self._market_area = market_area
-        self._duration = 15 # default value, can be overwritten by API response
+        self._duration = 15  # default value, can be overwritten by API response
         self._marketdata = []
 
     @property
@@ -96,12 +97,14 @@ class smartENERGY:
             if start == None:
                 start = entry
                 continue
-            is_price_equal = start.price_ct_per_kwh == entry.price_ct_per_kwh
+            is_price_equal = (
+                start.price_currency_per_kwh == entry.price_currency_per_kwh
+            )
             is_continuation = start.end_time == entry.start_time
             max_start_time = start.start_time + timedelta(minutes=self._duration)
             is_same_hour = entry.start_time < max_start_time
 
-            if (is_price_equal & is_continuation & is_same_hour):
+            if is_price_equal & is_continuation & is_same_hour:
                 start.set_end_time(entry.end_time)
             else:
                 entries.append(start)

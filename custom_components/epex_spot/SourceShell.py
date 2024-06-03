@@ -123,11 +123,11 @@ class SourceShell:
             self.marketdata,
         )
         sorted_sorted_marketdata_today = sorted(
-            sorted_marketdata_today, key=lambda e: e.price_eur_per_mwh
+            sorted_marketdata_today, key=lambda e: e.price_currency_per_mwh
         )
         self._sorted_marketdata_today = sorted_sorted_marketdata_today
 
-    def to_net_price(self, price_eur_per_mwh):
+    def to_net_price(self, price_currency_per_mwh):
         surcharge_pct = self._config_entry.options.get(
             CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
         )
@@ -136,7 +136,7 @@ class SourceShell:
         )
         tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
 
-        net_p = price_eur_per_mwh / 10  # convert from EUR/MWh to ct/kWh
+        net_p = price_currency_per_mwh / 1000  # convert from EUR/MWh to EUR/kWh
         net_p = net_p + abs(net_p) * surcharge_pct / 100
         net_p += surcharge_abs
         net_p *= 1 + (tax / 100)
@@ -166,7 +166,7 @@ class SourceShell:
         return {
             "start": result["start"],
             "end": result["start"] + duration,
-            "price_eur_per_mwh": result["price_per_hour"],
-            "price_ct_per_kwh": round(result["price_per_hour"] / 10, 3),
+            "price_currency_per_mwh": result["price_per_hour"],
+            "price_currency_per_kwh": round(result["price_per_hour"] / 10, 3),
             "net_price_ct_per_kwh": self.to_net_price(result["price_per_hour"]),
         }
