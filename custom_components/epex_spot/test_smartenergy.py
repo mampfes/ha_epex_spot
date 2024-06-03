@@ -13,7 +13,7 @@ async def main():
         await service.fetch()
         print(f"count = {len(service.marketdata)}")
         for e in service.marketdata:
-            print(f"{e.start_time}: {e.price_ct_per_kwh} {e.UOM_CT_PER_kWh}")
+            print(f"{e.start_time}: {e.price_currency_per_kwh} {e.UOM_CT_PER_kWh}")
 
 
 asyncio.run(main())
