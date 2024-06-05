@@ -12,7 +12,8 @@
       },
       "market_area": {
         "data": {
-          "market_area": "Select market area"
+          "market_area": "Select market area",
+          "token": "API Token"
         }
       },
       "options": {
