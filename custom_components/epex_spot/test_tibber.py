@@ -10,7 +10,7 @@ DEMO_TOKEN = "5K4MVS-OjfWhK_4yrjOlFe1F6kJXPVf7eQYggo8ebAE"
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        service = Tibber.Tibber(market_area="de", session=session, token=DEMO_TOKEN)
+        service = Tibber.Tibber(market_area="de", token=DEMO_TOKEN, session=session)
         print(service.MARKET_AREAS)
 
         await service.fetch()

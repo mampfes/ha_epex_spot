@@ -53,7 +53,11 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
         """
         # query top level source
         data_schema = vol.Schema(
-            {vol.Required(CONF_SOURCE): vol.In(sorted(CONF_SOURCE_LIST))}
+            {
+                vol.Required(CONF_SOURCE): vol.In(
+                    sorted(CONF_SOURCE_LIST, key=lambda s: s.casefold())
+                )
+            }
         )
 
         return self.async_show_form(
@@ -69,7 +73,7 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             data_schema = vol.Schema(
                 {
                     vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas)),
-                    vol.Optional(CONF_TOKEN, default="Change me!"): vol.Coerce(str)
+                    vol.Required(CONF_TOKEN): vol.Coerce(str),
                 }
             )
         else:
@@ -82,7 +86,6 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             elif self._source_name == CONF_SOURCE_SMARTENERGY:
                 areas = smartENERGY.smartENERGY.MARKET_AREAS
 
-            self._token = None
             data_schema = vol.Schema(
                 {vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas))}
             )
@@ -99,14 +102,13 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             await self.async_set_unique_id(unique_id)
             self._abort_if_unique_id_configured()
 
+            data = {CONF_SOURCE: self._source_name, CONF_MARKET_AREA: market_area}
             if CONF_TOKEN in user_input:
-                self._token = user_input[CONF_TOKEN]
-            else:
-                self._token = None
+                data[CONF_TOKEN] = user_input[CONF_TOKEN]
 
             return self.async_create_entry(
                 title=title,
-                data={CONF_SOURCE: self._source_name, CONF_MARKET_AREA: market_area, CONF_TOKEN: self._token},
+                data=data,
             )
 
     @staticmethod
