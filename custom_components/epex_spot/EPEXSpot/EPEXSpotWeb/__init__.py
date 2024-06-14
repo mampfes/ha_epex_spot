@@ -16,7 +16,11 @@ def _as_date(v):
     return v.strftime("%Y-%m-%d")
 
 
-MARKET_AREA_MAP = {"GB-30": {"market_area": "GB", "duration": 30}}
+MARKET_AREA_MAP = {
+    "GB-30": {"auction": "30-call-GB", "market_area": "GB", "duration": 30},
+    "GB": {"auction": "GB", "market_area": "GB", "duration": 60},
+    "CH": {"auction": "CH", "market_area": "CH", "duration": 60},
+}
 
 
 class Marketprice:
@@ -100,9 +104,11 @@ class EPEXSpotWeb:
         if item is None:
             self._int_market_area = market_area
             self._duration = 60
+            self._auction = "MRC"
         else:
             self._int_market_area = item["market_area"]
             self._duration = item["duration"]
+            self._auction = item["auction"]
 
         self._marketdata = []
 
@@ -154,6 +160,7 @@ class EPEXSpotWeb:
             "market_area": self._int_market_area,
             "trading_date": _as_date(trading_date),
             "delivery_date": _as_date(delivery_date),
+            "auction": self._auction,
             #          "underlying_year": None,
             "modality": "Auction",
             "sub_modality": "DayAhead",
