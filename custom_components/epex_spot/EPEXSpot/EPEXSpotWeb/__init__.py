@@ -156,6 +156,9 @@ class EPEXSpotWeb:
 
     async def _fetch_data(self, delivery_date):
         trading_date = delivery_date - timedelta(days=1)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0"  # noqa
+        }
         params = {
             "market_area": self._int_market_area,
             "trading_date": _as_date(trading_date),
@@ -194,7 +197,7 @@ class EPEXSpotWeb:
         }
 
         async with self._session.post(
-            self.URL, params=params, data=data, verify_ssl=False
+            self.URL, headers=headers, params=params, data=data, verify_ssl=False
         ) as resp:
             resp.raise_for_status()
             return await resp.json()
