@@ -1,27 +1,32 @@
-import logging
+"""Awattar API."""
+
 from datetime import datetime, timedelta, timezone
+import logging
 
 import aiohttp
-from homeassistant.util import dt
+
+from homeassistant.util import dt as dt_util
+
+from ...const import EUR_PER_MWH, UOM_EUR_PER_KWH
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class Marketprice:
-    UOM_EUR_PER_MWh = "EUR/MWh"
+    """Marketprice class for Awattar."""
 
     def __init__(self, data):
-        assert data["unit"].lower() == self.UOM_EUR_PER_MWh.lower()
+        assert data["unit"].lower() == EUR_PER_MWH.lower()
         self._start_time = datetime.fromtimestamp(
             data["start_timestamp"] / 1000, tz=timezone.utc
         )
         self._end_time = datetime.fromtimestamp(
             data["end_timestamp"] / 1000, tz=timezone.utc
         )
-        self._price_eur_per_mwh = float(data["marketprice"])
+        self._price_per_kwh = round(float(data["marketprice"]) / 1000.0, 6)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_eur_per_mwh} {self.UOM_EUR_PER_MWh})"  # noqa: E501
+        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_per_kwh} {UOM_EUR_PER_KWH})"  # noqa: E501
 
     @property
     def start_time(self):
@@ -32,12 +37,8 @@ class Marketprice:
         return self._end_time
 
     @property
-    def price_eur_per_mwh(self):
-        return self._price_eur_per_mwh
-
-    @property
-    def price_ct_per_kwh(self):
-        return round(self._price_eur_per_mwh / 10, 3)
+    def price_per_kwh(self):
+        return self._price_per_kwh
 
 
 def toEpochMilliSec(dt: datetime) -> int:
@@ -80,9 +81,9 @@ class Awattar:
         self._marketdata = self._extract_marketdata(data["data"])
 
     async def _fetch_data(self, url):
-        start = dt.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
-            days=1
-        )
+        start = dt_util.now().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ) - timedelta(days=1)
         end = start + timedelta(days=3)
         async with self._session.get(
             url, params={"start": toEpochMilliSec(start), "end": toEpochMilliSec(end)}

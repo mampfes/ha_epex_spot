@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
-import aiohttp
 import asyncio
 
-from EPEXSpot import SMARD
+import aiohttp
+
+from .const import UOM_EUR_PER_KWH
+from .EPEXSpot import SMARD
 
 
 async def main():
@@ -14,7 +16,7 @@ async def main():
         await service.fetch()
         print(f"count = {len(service.marketdata)}")
         for e in service.marketdata:
-            print(f"{e.start_time}: {e.price_eur_per_mwh} {e.UOM_EUR_PER_MWh}")
+            print(f"{e.start_time}: {e.price_per_kwh} {UOM_EUR_PER_KWH}")
 
 
 asyncio.run(main())

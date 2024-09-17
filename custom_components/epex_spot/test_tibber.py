@@ -3,7 +3,8 @@
 import aiohttp
 import asyncio
 
-from EPEXSpot import Tibber
+from .EPEXSpot import Tibber
+from .const import UOM_EUR_PER_KWH
 
 DEMO_TOKEN = "5K4MVS-OjfWhK_4yrjOlFe1F6kJXPVf7eQYggo8ebAE"
 
@@ -16,7 +17,7 @@ async def main():
         await service.fetch()
         print(f"count = {len(service.marketdata)}")
         for e in service.marketdata:
-            print(f"{e.start_time}: {e.price_ct_per_kwh} {e.UOM_CT_PER_kWh}")
+            print(f"{e.start_time}: {e.price_per_kwh} {UOM_EUR_PER_KWH}")
 
 
 asyncio.run(main())

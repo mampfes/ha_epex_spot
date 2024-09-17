@@ -131,12 +131,12 @@ class SourceShell:
             self.marketdata,
         )
         sorted_sorted_marketdata_today = sorted(
-            sorted_marketdata_today, key=lambda e: e.price_eur_per_mwh
+            sorted_marketdata_today, key=lambda e: e.price_per_kwh
         )
         self._sorted_marketdata_today = sorted_sorted_marketdata_today
 
-    def to_net_price(self, price_eur_per_mwh):
-        net_p = price_eur_per_mwh / 10  # convert from EUR/MWh to ct/kWh
+    def to_net_price(self, price_per_kwh):
+        net_p = price_per_kwh
 
         # Tibber already reaturns the net price for the customer
         if "Tibber API" not in self.name:
@@ -151,7 +151,7 @@ class SourceShell:
             net_p += surcharge_abs
             net_p *= 1 + (tax / 100)
 
-        return round(net_p, 3)
+        return round(net_p, 6)
 
     def find_extreme_price_interval(self, call_data, cmp):
         duration: timedelta = call_data[CONF_DURATION]
@@ -173,10 +173,11 @@ class SourceShell:
         if result is None:
             return EMPTY_EXTREME_PRICE_INTERVAL_RESP
 
+        _LOGGER.error(f"result: {result}")
+
         return {
             "start": result["start"],
             "end": result["start"] + duration,
-            "price_eur_per_mwh": result["price_per_hour"],
-            "price_ct_per_kwh": round(result["price_per_hour"] / 10, 3),
+            "price_per_kwh": round(result["price_per_hour"] / 1000, 6),
             "net_price_ct_per_kwh": self.to_net_price(result["price_per_hour"]),
         }
