@@ -11,9 +11,7 @@ ATTR_SELL_VOLUME_MWH = "sell_volume_mwh"
 ATTR_VOLUME_MWH = "volume_mwh"
 ATTR_RANK = "rank"
 ATTR_QUANTILE = "quantile"
-ATTR_PRICE_EUR_PER_MWH = "price_eur_per_mwh"
 ATTR_PRICE_EUR_PER_KWH = "price_eur_per_kwh"
-ATTR_PRICE_GBP_PER_MWH = "price_gbp_per_mwh"
 ATTR_PRICE_GBP_PER_KWH = "price_gbp_per_kwh"
 
 CONF_SOURCE = "source"
@@ -48,5 +46,12 @@ EMPTY_EXTREME_PRICE_INTERVAL_RESP = {
     "end": None,
     "price_eur_per_mwh": None,
     "price_eur_per_kwh": None,
-    "net_price_ct_per_kwh": None,
+    "net_price_per_kwh": None,
 }
+
+EUR_PER_MWH = "EUR/MWh"
+EUR_PER_KWH = "EUR/kWh"
+CT_PER_KWH = "ct/kWh"
+
+UOM_EUR_PER_KWH = "€/kWh"
+UOM_MWH = "MWh"

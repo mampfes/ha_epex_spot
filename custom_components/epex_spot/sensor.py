@@ -1,14 +1,15 @@
 import logging
 from statistics import median
 
-import homeassistant.util.dt as dt_util
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
 )
 from homeassistant.helpers.typing import StateType
+import homeassistant.util.dt as dt_util
 
+from . import EpexSpotDataUpdateCoordinator as DataUpdateCoordinator, EpexSpotEntity
 from .const import (
     ATTR_BUY_VOLUME_MWH,
     ATTR_DATA,
@@ -22,7 +23,6 @@ from .const import (
     CONF_SOURCE_EPEX_SPOT_WEB,
     DOMAIN,
 )
-from . import EpexSpotEntity, EpexSpotDataUpdateCoordinator as DataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,8 +57,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities(entities)
 
 
-def to_ct_per_kwh(price_currency_per_mwh):
-    return round(price_currency_per_mwh / 10, 4)
+def to_ct_per_kwh(price_per_kwh):
+    return round(price_per_kwh / 10, 4)
 
 
 class EpexSpotPriceSensorEntity(EpexSpotEntity, SensorEntity):
@@ -73,11 +73,11 @@ class EpexSpotPriceSensorEntity(EpexSpotEntity, SensorEntity):
     def __init__(self, coordinator: DataUpdateCoordinator):
         super().__init__(coordinator, self.entity_description)
         self._attr_icon = self._localized.icon
-        self._attr_native_unit_of_measurement = self._localized.uom_per_mwh
+        self._attr_native_unit_of_measurement = self._localized.uom_per_kwh
 
     @property
     def native_value(self) -> StateType:
-        return self._source.marketdata_now.price_currency_per_mwh
+        return self._source.marketdata_now.price_per_kwh
 
     @property
     def extra_state_attributes(self):
@@ -85,17 +85,14 @@ class EpexSpotPriceSensorEntity(EpexSpotEntity, SensorEntity):
             {
                 ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
                 ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
-                self._localized.attr_name_per_mwh: e.price_currency_per_mwh,
-                self._localized.attr_name_per_kwh: to_ct_per_kwh(
-                    e.price_currency_per_mwh
-                ),
+                self._localized.attr_name_per_kwh: e.price_per_kwh,
             }
             for e in self._source.marketdata
         ]
 
         return {
             ATTR_DATA: data,
-            self._localized.attr_name_per_kwh: to_ct_per_kwh(self.native_value),
+            self._localized.attr_name_per_kwh: self.native_value,
         }
 
 
@@ -105,7 +102,7 @@ class EpexSpotNetPriceSensorEntity(EpexSpotEntity, SensorEntity):
     entity_description = SensorEntityDescription(
         key="Net Price",
         name="Net Price",
-        suggested_display_precision=2,
+        suggested_display_precision=6,
         state_class=SensorStateClass.MEASUREMENT,
     )
 
@@ -116,9 +113,7 @@ class EpexSpotNetPriceSensorEntity(EpexSpotEntity, SensorEntity):
 
     @property
     def native_value(self) -> StateType:
-        return self._source.to_net_price(
-            self._source.marketdata_now.price_currency_per_mwh
-        )
+        return self._source.to_net_price(self._source.marketdata_now.price_per_kwh)
 
     @property
     def extra_state_attributes(self):
@@ -127,7 +122,7 @@ class EpexSpotNetPriceSensorEntity(EpexSpotEntity, SensorEntity):
                 ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
                 ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
                 self._localized.attr_name_per_kwh: self._source.to_net_price(
-                    e.price_currency_per_mwh
+                    e.price_per_kwh
                 ),
             }
             for e in self._source.marketdata
@@ -248,20 +243,18 @@ class EpexSpotRankSensorEntity(EpexSpotEntity, SensorEntity):
 
     @property
     def native_value(self) -> StateType:
-        return [
-            e.price_currency_per_mwh for e in self._source.sorted_marketdata_today
-        ].index(self._source.marketdata_now.price_currency_per_mwh)
+        return [e.price_per_kwh for e in self._source.sorted_marketdata_today].index(
+            self._source.marketdata_now.price_per_kwh
+        )
 
     @property
     def extra_state_attributes(self):
-        sorted_prices = [
-            e.price_currency_per_mwh for e in self._source.sorted_marketdata_today
-        ]
+        sorted_prices = [e.price_per_kwh for e in self._source.sorted_marketdata_today]
         data = [
             {
                 ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
                 ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
-                ATTR_RANK: sorted_prices.index(e.price_currency_per_mwh),
+                ATTR_RANK: sorted_prices.index(e.price_per_kwh),
             }
             for e in self._source.sorted_marketdata_today
         ]
@@ -285,21 +278,20 @@ class EpexSpotQuantileSensorEntity(EpexSpotEntity, SensorEntity):
 
     @property
     def native_value(self) -> StateType:
-        current_price = self._source.marketdata_now.price_currency_per_mwh
-        min_price = self._source.sorted_marketdata_today[0].price_currency_per_mwh
-        max_price = self._source.sorted_marketdata_today[-1].price_currency_per_mwh
+        current_price = self._source.marketdata_now.price_per_kwh
+        min_price = self._source.sorted_marketdata_today[0].price_per_kwh
+        max_price = self._source.sorted_marketdata_today[-1].price_per_kwh
         return (current_price - min_price) / (max_price - min_price)
 
     @property
     def extra_state_attributes(self):
-        min_price = self._source.sorted_marketdata_today[0].price_currency_per_mwh
-        max_price = self._source.sorted_marketdata_today[-1].price_currency_per_mwh
+        min_price = self._source.sorted_marketdata_today[0].price_per_kwh
+        max_price = self._source.sorted_marketdata_today[-1].price_per_kwh
         data = [
             {
                 ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
                 ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
-                ATTR_QUANTILE: (e.price_currency_per_mwh - min_price)
-                / (max_price - min_price),
+                ATTR_QUANTILE: (e.price_per_kwh - min_price) / (max_price - min_price),
             }
             for e in self._source.sorted_marketdata_today
         ]
@@ -313,19 +305,19 @@ class EpexSpotLowestPriceSensorEntity(EpexSpotEntity, SensorEntity):
     entity_description = SensorEntityDescription(
         key="Lowest Price",
         name="Lowest Price",
-        suggested_display_precision=2,
+        suggested_display_precision=6,
         state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
         super().__init__(coordinator, self.entity_description)
         self._attr_icon = self._localized.icon
-        self._attr_native_unit_of_measurement = self._localized.uom_per_mwh
+        self._attr_native_unit_of_measurement = self._localized.uom_per_kwh
 
     @property
     def native_value(self) -> StateType:
         min = self._source.sorted_marketdata_today[0]
-        return min.price_currency_per_mwh
+        return min.price_per_kwh
 
     @property
     def extra_state_attributes(self):
@@ -343,19 +335,19 @@ class EpexSpotHighestPriceSensorEntity(EpexSpotEntity, SensorEntity):
     entity_description = SensorEntityDescription(
         key="Highest Price",
         name="Highest Price",
-        suggested_display_precision=2,
+        suggested_display_precision=6,
         state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
         super().__init__(coordinator, self.entity_description)
         self._attr_icon = self._localized.icon
-        self._attr_native_unit_of_measurement = self._localized.uom_per_mwh
+        self._attr_native_unit_of_measurement = self._localized.uom_per_kwh
 
     @property
     def native_value(self) -> StateType:
         max = self._source.sorted_marketdata_today[-1]
-        return max.price_currency_per_mwh
+        return max.price_per_kwh
 
     @property
     def extra_state_attributes(self):
@@ -373,18 +365,18 @@ class EpexSpotAveragePriceSensorEntity(EpexSpotEntity, SensorEntity):
     entity_description = SensorEntityDescription(
         key="Average Price",
         name="Average Price",
-        suggested_display_precision=2,
+        suggested_display_precision=6,
         state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
         super().__init__(coordinator, self.entity_description)
         self._attr_icon = self._localized.icon
-        self._attr_native_unit_of_measurement = self._localized.uom_per_mwh
+        self._attr_native_unit_of_measurement = self._localized.uom_per_kwh
 
     @property
     def native_value(self) -> StateType:
-        s = sum(e.price_currency_per_mwh for e in self._source.sorted_marketdata_today)
+        s = sum(e.price_per_kwh for e in self._source.sorted_marketdata_today)
         return s / len(self._source.sorted_marketdata_today)
 
     @property
@@ -400,20 +392,18 @@ class EpexSpotMedianPriceSensorEntity(EpexSpotEntity, SensorEntity):
     entity_description = SensorEntityDescription(
         key="Median Price",
         name="Median Price",
-        suggested_display_precision=2,
+        suggested_display_precision=6,
         state_class=SensorStateClass.MEASUREMENT,
     )
 
     def __init__(self, coordinator: DataUpdateCoordinator):
         super().__init__(coordinator, self.entity_description)
         self._attr_icon = self._localized.icon
-        self._attr_native_unit_of_measurement = self._localized.uom_per_mwh
+        self._attr_native_unit_of_measurement = self._localized.uom_per_kwh
 
     @property
     def native_value(self) -> StateType:
-        return median(
-            [e.price_currency_per_mwh for e in self._source.sorted_marketdata_today]
-        )
+        return median([e.price_per_kwh for e in self._source.sorted_marketdata_today])
 
     @property
     def extra_state_attributes(self):

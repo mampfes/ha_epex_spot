@@ -5,6 +5,10 @@ import asyncio
 
 from EPEXSpot import Awattar
 
+from const import UOM_EUR_PER_KWH
+
+from pprint import pprint
+
 
 async def main():
     async with aiohttp.ClientSession() as session:
@@ -14,7 +18,7 @@ async def main():
         await service.fetch()
         print(f"count = {len(service.marketdata)}")
         for e in service.marketdata:
-            print(f"{e.start_time}: {e.price_currency_per_mwh} {e.UOM_EUR_PER_MWh}")
+            print(f"{e.start_time}: {e.price_per_kwh} {UOM_EUR_PER_KWH}")
 
 
 asyncio.run(main())

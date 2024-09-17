@@ -3,21 +3,20 @@ import logging
 
 import aiohttp
 
+from ...const import CT_PER_KWH, UOM_EUR_PER_KWH
+
 _LOGGER = logging.getLogger(__name__)
 
 
 class Marketprice:
-    UOM_CT_PER_kWh = "ct/kWh"
-
     def __init__(self, duration, data):
         self._start_time = datetime.fromisoformat(data["date"])
         self._end_time = self._start_time + timedelta(minutes=duration)
-        # price includes austrian vat (20%) -> remove to be consistent with other data sources
-        # in cts/kWh
-        self._price_currency_per_kwh = round(float(data["value"]) / 1.2, 4)
+        # price (ct/kWh) includes austrian vat (20%) -> remove to be consistent with other data sources
+        self._price_per_kwh = round((float(data["value"]) / 1.2) / 100, 6)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_ct_per_kwh} {self.UOM_CT_PER_kWh})"  # noqa: E501
+        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_per_kwh} {UOM_EUR_PER_KWH})"  # noqa: E501
 
     @property
     def start_time(self):
@@ -31,12 +30,8 @@ class Marketprice:
         self._end_time = end_time
 
     @property
-    def price_currency_per_mwh(self):
-        return round(self._price_currency_per_kwh * 10, 2)
-
-    @property
-    def price_currency_per_kwh(self):
-        return self._price_currency_per_kwh
+    def price_per_kwh(self):
+        return self._price_per_kwh
 
 
 class smartENERGY:
@@ -73,7 +68,7 @@ class smartENERGY:
     async def fetch(self):
         data = await self._fetch_data(self.URL)
         self._duration = data["interval"]
-        assert data["unit"].lower() == Marketprice.UOM_CT_PER_kWh.lower()
+        assert data["unit"].lower() == CT_PER_KWH.lower()
         marketdata = self._extract_marketdata(data["data"])
         # override duration and compress data
         self._duration = 60
@@ -97,9 +92,7 @@ class smartENERGY:
             if start == None:
                 start = entry
                 continue
-            is_price_equal = (
-                start.price_currency_per_kwh == entry.price_currency_per_kwh
-            )
+            is_price_equal = start.price_per_kwh == entry.price_per_kwh
             is_continuation = start.end_time == entry.start_time
             max_start_time = start.start_time + timedelta(minutes=self._duration)
             is_same_hour = entry.start_time < max_start_time
