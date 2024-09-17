@@ -35,7 +35,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """
     coordinator: DataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     entities = [
-        EpexSpotPriceSensorEntity(coordinator),
         EpexSpotNetPriceSensorEntity(coordinator),
         EpexSpotRankSensorEntity(coordinator),
         EpexSpotQuantileSensorEntity(coordinator),
@@ -57,47 +56,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities(entities)
 
 
-class EpexSpotPriceSensorEntity(EpexSpotEntity, SensorEntity):
-    """Home Assistant sensor containing all EPEX spot data."""
+class EpexSpotNetPriceSensorEntity(EpexSpotEntity, SensorEntity):
+    """Home Assistant net price sensor."""
 
     entity_description = SensorEntityDescription(
         key="Price",
         name="Price",
-        state_class=SensorStateClass.MEASUREMENT,
-    )
-
-    def __init__(self, coordinator: DataUpdateCoordinator):
-        super().__init__(coordinator, self.entity_description)
-        self._attr_icon = self._localized.icon
-        self._attr_native_unit_of_measurement = self._localized.uom_per_kwh
-
-    @property
-    def native_value(self) -> StateType:
-        return self._source.marketdata_now.price_per_kwh
-
-    @property
-    def extra_state_attributes(self):
-        data = [
-            {
-                ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
-                ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
-                self._localized.attr_name_per_kwh: e.price_per_kwh,
-            }
-            for e in self._source.marketdata
-        ]
-
-        return {
-            ATTR_DATA: data,
-            self._localized.attr_name_per_kwh: self.native_value,
-        }
-
-
-class EpexSpotNetPriceSensorEntity(EpexSpotEntity, SensorEntity):
-    """Home Assistant sensor containing all EPEX spot data."""
-
-    entity_description = SensorEntityDescription(
-        key="Net Price",
-        name="Net Price",
         suggested_display_precision=6,
         state_class=SensorStateClass.MEASUREMENT,
     )
