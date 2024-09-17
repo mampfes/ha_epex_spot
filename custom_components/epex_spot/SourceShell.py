@@ -1,17 +1,20 @@
-import aiohttp
+"""SourceShell"""
+
 from datetime import timedelta
 import logging
 from typing import Any
+
+import aiohttp
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.util import dt
 
 from .const import (
     CONF_DURATION,
-    CONF_EARLIEST_START_TIME,
     CONF_EARLIEST_START_POST,
-    CONF_LATEST_END_TIME,
+    CONF_EARLIEST_START_TIME,
     CONF_LATEST_END_POST,
+    CONF_LATEST_END_TIME,
     CONF_MARKET_AREA,
     CONF_SOURCE,
     CONF_SOURCE_AWATTAR,
@@ -28,7 +31,7 @@ from .const import (
     DEFAULT_TAX,
     EMPTY_EXTREME_PRICE_INTERVAL_RESP,
 )
-from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, smartENERGY, Tibber
+from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, Tibber, smartENERGY
 from .extreme_price_interval import find_extreme_price_interval, get_start_times
 
 _LOGGER = logging.getLogger(__name__)
