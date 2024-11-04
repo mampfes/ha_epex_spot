@@ -165,7 +165,7 @@ end_time: "2023-02-15T23:00:00+00:00"
 
 ### 6. Highest Market Price Sensor
 
-The sensor value reports the highest EPEX Spot market price during the day. The sensor value reports the market price in €/£/MWh. The market price in €/£/kWh is available as sensor attribute.
+The sensor value reports the highest EPEX Spot market price during the day. The sensor value reports the market price in €/£/kWh. The market price in €/£/kWh is available as sensor attribute.
 
 The sensor attributes contains the start and endtime of the highest market price timeframe.
 
@@ -495,7 +495,7 @@ series:
       extremas: true
     data_generator: >
       return entity.attributes.data.map((entry, index) => { return [new
-      Date(entry.start_time).getTime(), entry.price_eur_per_mwh]; }).slice(0,24);
+      Date(entry.start_time).getTime(), entry.price_per_kwh]; }).slice(0,24);
     color_threshold:
       - value: 0
         color: "#186ddc"
@@ -523,7 +523,7 @@ series:
       extremas: true
     data_generator: >
       return entity.attributes.data.map((entry, index) => { return [new
-      Date(entry.start_time).getTime(), entry.price_eur_per_mwh]; }).slice(23,47);
+      Date(entry.start_time).getTime(), entry.price_per_kwh]; }).slice(23,47);
     color_threshold:
       - value: 0
         color: "#186ddc"
@@ -550,7 +550,7 @@ series:
     extend_to: false
     data_generator: >
       return entity.attributes.data.map((entry, index) => { return [new
-      Date(entry.start_time).getTime(), entry.price_eur_per_mwh];}).slice(parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0,2)),parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0,2))+4);
+      Date(entry.start_time).getTime(), entry.price_per_kwh];}).slice(parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0,2)),parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0,2))+4);
 
 experimental:
   color_threshold: true
@@ -559,7 +559,7 @@ yaxis:
     decimals: 2
     apex_config:
       title:
-        text: €/MWh
+        text: €/kWh
       tickAmount: 4
 apex_config:
   legend:
@@ -572,7 +572,7 @@ apex_config:
 
 **Assumptions:**
 
-This example assumes that you are using the EPEX Spot Web Scraper as a source and want to display the Price in €/MWh for the next 48 hours, and highlight a 4-hour block where the electricity price is the lowest. As with the previous example, the `entity` and the `entry` being processed by the `data_generator` are specific to this data source, and you should update them to match your configuration.
+This example assumes that you are using the EPEX Spot Web Scraper as a source and want to display the Price in €/kWh for the next 48 hours, and highlight a 4-hour block where the electricity price is the lowest. As with the previous example, the `entity` and the `entry` being processed by the `data_generator` are specific to this data source, and you should update them to match your configuration.
 
 In case the electricity pricing in your market results in the entire sparkline having one static colour (for example, the line always appears magenta), you will need to fine-tune the `color_threshold` entries . You can do this by either editing the `value` entries in the example above, or you can also add more `value` and `color` pairs if you want additional colours.
 
