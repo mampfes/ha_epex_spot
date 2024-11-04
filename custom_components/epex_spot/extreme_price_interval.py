@@ -91,6 +91,8 @@ def find_extreme_price_interval(marketdata, start_times, duration: timedelta, cm
     if interval_start_time is None:
         return None
 
+    _LOGGER.error("interval_price: %s", interval_price)
+
     interval_price = round(interval_price, 6)
 
     return {
@@ -98,7 +100,7 @@ def find_extreme_price_interval(marketdata, start_times, duration: timedelta, cm
         "end": dt_util.as_local(interval_start_time + duration),
         "interval_price": interval_price,
         "price_per_hour": round(
-            interval_price * SECONDS_PER_HOUR / duration.total_seconds(), 2
+            interval_price * SECONDS_PER_HOUR / duration.total_seconds(), 6
         ),
     }
 
