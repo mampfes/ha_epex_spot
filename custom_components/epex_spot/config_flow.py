@@ -2,7 +2,9 @@
 
 Used by UI to setup integration.
 """
+
 import voluptuous as vol
+
 from homeassistant import config_entries
 from homeassistant.core import callback
 
@@ -18,12 +20,13 @@ from .const import (
     CONF_SURCHARGE_PERC,
     CONF_TAX,
     CONF_TOKEN,
+    CONFIG_VERSION,
     DEFAULT_SURCHARGE_ABS,
     DEFAULT_SURCHARGE_PERC,
     DEFAULT_TAX,
     DOMAIN,
 )
-from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, smartENERGY, Tibber
+from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, Tibber, smartENERGY
 
 CONF_SOURCE_LIST = (
     CONF_SOURCE_AWATTAR,
@@ -37,7 +40,7 @@ CONF_SOURCE_LIST = (
 class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore
     """Component config flow."""
 
-    VERSION = 1
+    VERSION = CONFIG_VERSION
 
     def __init__(self):
         self._source_name = None
