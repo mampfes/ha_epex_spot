@@ -1,11 +1,12 @@
 """Component for EPEX Spot support."""
-import logging
-from typing import Callable, Any
-import asyncio
-import random
 
-import homeassistant.helpers.config_validation as cv
+import asyncio
+import logging
+import random
+from typing import Any, Callable
+
 import voluptuous as vol
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_DEVICE_ID, Platform
 from homeassistant.core import (
@@ -14,31 +15,34 @@ from homeassistant.core import (
     ServiceResponse,
     SupportsResponse,
 )
-from homeassistant.exceptions import HomeAssistantError, ConfigEntryNotReady
-from homeassistant.helpers.device_registry import (
-    async_get as dr_async_get,
-    DeviceInfo,
-    DeviceEntryType,
-)
+from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.device_registry import (
+    DeviceEntryType,
+    DeviceInfo,
+    async_get as dr_async_get,
+)
 from homeassistant.helpers.entity import Entity, EntityDescription
 from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.update_coordinator import (
-    DataUpdateCoordinator,
     CoordinatorEntity,
+    DataUpdateCoordinator,
 )
 
 from .const import (
     ATTR_DATA,
     CONF_DURATION,
-    CONF_EARLIEST_START_TIME,
     CONF_EARLIEST_START_POST,
-    CONF_LATEST_END_TIME,
+    CONF_EARLIEST_START_TIME,
     CONF_LATEST_END_POST,
+    CONF_LATEST_END_TIME,
+    CONF_SURCHARGE_ABS,
+    CONFIG_VERSION,
     DOMAIN,
 )
-from .SourceShell import SourceShell
 from .localization import CURRENCY_MAPPING
+from .SourceShell import SourceShell
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -62,8 +66,8 @@ FETCH_DATA_SCHEMA = vol.Schema(
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up component from a config entry, config_entry contains data
-    from config entry database."""
+    """Set up component from a config entry."""
+
     source = SourceShell(entry, async_get_clientsession(hass))
 
     try:
@@ -191,6 +195,32 @@ async def on_update_options_listener(hass, entry):
     # update all sensors immediately
     coordinator = hass.data[DOMAIN][entry.entry_id]
     await coordinator.async_request_refresh()
+
+
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Migrate old entry data to the new entry schema."""
+
+    data = config_entry.data.copy()
+
+    current_version = data.get("version", 1)
+
+    if current_version != CONFIG_VERSION:
+        _LOGGER.info(
+            "Migrating entry %s to version %s", config_entry.entry_id, CONFIG_VERSION
+        )
+        new_options = {**config_entry.options}
+
+        hass.config_entries.async_update_entry(
+            config_entry, options=new_options, version=CONFIG_VERSION
+        )
+
+        _LOGGER.info(
+            "Migration of entry %s to version %s successful",
+            config_entry.entry_id,
+            CONFIG_VERSION,
+        )
+
+    return True
 
 
 class EpexSpotDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):

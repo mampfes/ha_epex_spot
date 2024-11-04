@@ -13,6 +13,7 @@ ATTR_RANK = "rank"
 ATTR_QUANTILE = "quantile"
 ATTR_PRICE_PER_KWH = "price_per_kwh"
 
+CONFIG_VERSION = 2
 CONF_SOURCE = "source"
 CONF_MARKET_AREA = "market_area"
 CONF_TOKEN = "token"
