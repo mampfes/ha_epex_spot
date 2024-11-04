@@ -176,11 +176,9 @@ class SourceShell:
         if result is None:
             return EMPTY_EXTREME_PRICE_INTERVAL_RESP
 
-        _LOGGER.error(f"result: {result}")
-
         return {
             "start": result["start"],
             "end": result["start"] + duration,
-            "price_per_kwh": round(result["price_per_hour"] / 1000, 6),
-            "net_price_ct_per_kwh": self.to_net_price(result["price_per_hour"]),
+            "price_per_kwh": round(result["price_per_hour"], 6),
+            "net_price_per_kwh": self.to_net_price(result["price_per_hour"]),
         }

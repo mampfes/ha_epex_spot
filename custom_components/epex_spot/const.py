@@ -45,7 +45,7 @@ EMPTY_EXTREME_PRICE_INTERVAL_RESP = {
     "start": None,
     "end": None,
     "price_per_kwh": None,
-    "net_price_ct_per_kwh": None,
+    "net_price_per_kwh": None,
 }
 
 UOM_EUR_PER_KWH = "€/kWh"
