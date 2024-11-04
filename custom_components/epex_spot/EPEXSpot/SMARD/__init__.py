@@ -1,7 +1,11 @@
-import logging
+"""SMARD.de API."""
+
 from datetime import datetime, timedelta, timezone
+import logging
 
 import aiohttp
+
+from ...const import UOM_EUR_PER_KWH
 
 # from homeassistant.util import dt
 
@@ -27,7 +31,7 @@ MARKET_AREA_MAP = {
 
 
 class Marketprice:
-    UOM_EUR_PER_MWh = "EUR/MWh"
+    """Marketprice class for SMARD.de."""
 
     def __init__(self, data):
         self._start_time = datetime.fromtimestamp(data[0] / 1000, tz=timezone.utc)
@@ -35,10 +39,10 @@ class Marketprice:
             hours=1
         )  # TODO: this will not work for 1/2h updates
 
-        self._price_eur_per_mwh = float(data[1])
+        self._price_per_kwh = round(float(data[1]) / 1000.0, 6)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_eur_per_mwh} {self.UOM_EUR_PER_MWh})"  # noqa: E501
+        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_per_kwh} {UOM_EUR_PER_KWH})"  # noqa: E501
 
     @property
     def start_time(self):
@@ -49,12 +53,8 @@ class Marketprice:
         return self._end_time
 
     @property
-    def price_eur_per_mwh(self):
-        return self._price_eur_per_mwh
-
-    @property
-    def price_ct_per_kwh(self):
-        return round(self._price_eur_per_mwh / 10, 3)
+    def price_per_kwh(self):
+        return self._price_per_kwh
 
 
 class SMARD:
@@ -119,7 +119,7 @@ class SMARD:
             # thats yesterday and today
             self._marketdata = entries[
                 -48:
-            ]  # limit number of entries to protect HA recorder           
+            ]  # limit number of entries to protect HA recorder
         else:
             # latest data is tomorrow, return 72 entries
             # thats yesterday, today and tomorrow

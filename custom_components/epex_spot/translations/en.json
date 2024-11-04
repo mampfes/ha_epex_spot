@@ -21,7 +21,7 @@
         "description": "Configure surcharges and tax to calculate net price per kWh.",
         "data": {
           "percentage_surcharge": "Percentage Surcharge (%)",
-          "absolute_surcharge": "Absolute Surcharge (ct/kWh)",
+          "absolute_surcharge": "Absolute Surcharge (€/£ per kWh)",
           "tax": "Tax (%)"
         },
         "data_description": {
@@ -37,7 +37,7 @@
         "description": "Configure surcharges and tax to calculate net price per kWh.",
         "data": {
           "percentage_surcharge": "Percentage Surcharge (%)",
-          "absolute_surcharge": "Absolute Surcharge (ct/kWh)",
+          "absolute_surcharge": "Absolute Surcharge (€/£ per kWh)",
           "tax": "Tax (%)"
         },
         "data_description": {

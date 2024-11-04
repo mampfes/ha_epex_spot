@@ -1,5 +1,10 @@
-import aiohttp
+"""Tibber API."""
+
 from datetime import datetime, timedelta
+
+import aiohttp
+
+from ...const import UOM_EUR_PER_KWH
 
 TIBBER_QUERY = """
 {
@@ -30,17 +35,17 @@ TIBBER_QUERY = """
 
 
 class Marketprice:
-    UOM_CT_PER_kWh = "ct/kWh"
+    """Marketprice class for Tibber."""
 
     def __init__(self, data):
         self._start_time = datetime.fromisoformat(data["startsAt"])
         self._end_time = self._start_time + timedelta(hours=1)
         # Tibber already returns the actual net price for the customer
         # so we can use that
-        self._price_ct_per_kwh = round(float(data["total"]) * 100, 3)
+        self._price_per_kwh = round(float(data["total"]), 6)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_ct_per_kwh} {self.UOM_CT_PER_kWh})"  # noqa: E501
+        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_per_kwh} {UOM_EUR_PER_KWH})"  # noqa: E501
 
     @property
     def start_time(self):
@@ -51,12 +56,8 @@ class Marketprice:
         return self._end_time
 
     @property
-    def price_eur_per_mwh(self):
-        return round(self._price_ct_per_kwh * 10, 2)
-
-    @property
-    def price_ct_per_kwh(self):
-        return self._price_ct_per_kwh
+    def price_per_kwh(self):
+        return self._price_per_kwh
 
 
 class Tibber:
