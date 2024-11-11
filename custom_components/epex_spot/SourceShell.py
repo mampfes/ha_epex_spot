@@ -141,18 +141,26 @@ class SourceShell:
     def to_net_price(self, price_per_kwh):
         net_p = price_per_kwh
 
-        # Tibber already reaturns the net price for the customer
-        if "Tibber API" not in self.name:
-            surcharge_pct = self._config_entry.options.get(
-                CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
-            )
-            surcharge_abs = self._config_entry.options.get(
-                CONF_SURCHARGE_ABS, DEFAULT_SURCHARGE_ABS
-            )
-            tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
+        # Retrieve tax and surcharge values from config
+        surcharge_abs = self._config_entry.options.get(
+            CONF_SURCHARGE_ABS, DEFAULT_SURCHARGE_ABS
+        )
+        tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
+
+        surcharge_pct = self._config_entry.options.get(
+            CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
+        )
+
+        # Custom calculation for SMARTENERGY
+        if self.name == "smartENERGY API V1":
+            net_p *= 1.0 + (tax / 100.0)
+            net_p += surcharge_abs
+            net_p *= 1.0 + (surcharge_pct / 100.0)
+        # Standard calculation for other cases
+        elif "Tibber API" not in self.name:
             net_p = net_p + abs(net_p) * surcharge_pct / 100
             net_p += surcharge_abs
-            net_p *= 1 + (tax / 100)
+            net_p *= 1 + (tax / 100.0)
 
         return round(net_p, 6)
 
