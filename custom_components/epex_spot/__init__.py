@@ -210,6 +210,8 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
         )
         new_options = {**config_entry.options}
 
+        new_options[CONF_SURCHARGE_ABS] *= 0.01
+
         hass.config_entries.async_update_entry(
             config_entry, options=new_options, version=CONFIG_VERSION
         )
