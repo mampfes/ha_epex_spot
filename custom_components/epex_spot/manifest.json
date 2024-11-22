@@ -8,5 +8,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/mampfes/ha_epex_spot/issues",
   "requirements": ["beautifulsoup4"],
-  "version": "2.3.8"
+  "version": "2.3.9"
 }
