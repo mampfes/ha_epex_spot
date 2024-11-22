@@ -70,7 +70,7 @@ class Marketprice:
 
 
 class EPEXSpotWeb:
-    URL = "https://www.epexspot.com/en/market-data"
+    URL = "https://www.epexspot.com/en/market-results"
 
     MARKET_AREAS = (
         "AT",
@@ -197,7 +197,7 @@ class EPEXSpotWeb:
         }
 
         async with self._session.post(
-            self.URL, headers=headers, params=params, data=data, verify_ssl=False
+            self.URL, headers=headers, params=params, data=data, verify_ssl=True
         ) as resp:
             resp.raise_for_status()
             return await resp.json()
