@@ -36,15 +36,10 @@ class Marketprice:
     def price_per_kwh(self):
         return self._price_per_kwh
 
-
-def toEpochMilliSec(dt: datetime) -> int:
-    return int(dt.timestamp() * 1000)
-
-
 class Energyforecast:
     URL = "https://www.energyforecast.de/api/v1/predictions/next_96_hours"
 
-    MARKET_AREAS = ("de")
+    MARKET_AREAS = ("de",)
 
     def __init__(self, market_area, token: str, session: aiohttp.ClientSession):
         self._token = token
