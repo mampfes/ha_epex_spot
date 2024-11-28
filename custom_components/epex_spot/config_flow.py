@@ -27,7 +27,7 @@ from .const import (
     DEFAULT_TAX,
     DOMAIN,
 )
-from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, Tibber, smartENERGY
+from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, Tibber, smartENERGY, Energyforecast
 
 CONF_SOURCE_LIST = (
     CONF_SOURCE_AWATTAR,
@@ -83,6 +83,7 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             )
         # Energyforecast API requires a token
         elif self._source_name == CONF_SOURCE_ENERGYFORECAST:
+            areas = Energyforecast.Energyforecast.MARKET_AREAS
             data_schema = vol.Schema(
                 {
                     vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas)),
