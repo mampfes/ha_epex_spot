@@ -16,13 +16,12 @@ class Marketprice:
     """Marketprice class for Energyforecast."""
 
     def __init__(self, data):
-        assert data["unit"].lower() == EUR_PER_MWH.lower()
         self._start_time = datetime.fromisoformat(data["start"])
         self._end_time = datetime.fromisoformat(data["end"])
         self._price_per_kwh = round(float(data["price"]), 6)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, price: {self._price_per_kwh} {UOM_EUR_PER_KWH})" 
+        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_per_kwh} {UOM_EUR_PER_KWH})" 
 
     @property
     def start_time(self):
