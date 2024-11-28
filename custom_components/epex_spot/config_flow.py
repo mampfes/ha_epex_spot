@@ -84,7 +84,10 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
         # Energyforecast API requires a token
         elif self._source_name == CONF_SOURCE_ENERGYFORECAST:
             data_schema = vol.Schema(
-                {vol.Required(CONF_TOKEN): vol.Coerce(str)}
+                {
+                    vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas)),
+                    vol.Required(CONF_TOKEN): vol.Coerce(str)
+                }
             )
         else:
             if self._source_name == CONF_SOURCE_AWATTAR:

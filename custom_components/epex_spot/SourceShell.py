@@ -71,7 +71,9 @@ class SourceShell:
             )
         elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_ENERGYFORECAST:
             self._source = Energyforecast.Energyforecast(
-                token=self._config_entry.data[CONF_TOKEN], session=session
+                market_area=config_entry.data[CONF_MARKET_AREA],
+                token=self._config_entry.data[CONF_TOKEN],
+                session=session
             )
 
     @property

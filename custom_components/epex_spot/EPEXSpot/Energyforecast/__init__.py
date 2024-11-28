@@ -44,9 +44,12 @@ def toEpochMilliSec(dt: datetime) -> int:
 class Energyforecast:
     URL = "https://www.energyforecast.de/api/v1/predictions/next_96_hours"
 
-    def __init__(self, token: str, session: aiohttp.ClientSession):
+    MARKET_AREAS = ("de")
+
+    def __init__(self, market_area, token: str, session: aiohttp.ClientSession):
         self._token = token
         self._session = session
+        self._market_area = market_area
         self._marketdata = []
 
     @property
