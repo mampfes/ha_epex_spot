@@ -24,6 +24,7 @@ CONF_SOURCE_EPEX_SPOT_WEB = "EPEX Spot Web Scraper"
 CONF_SOURCE_SMARD_DE = "SMARD.de"
 CONF_SOURCE_SMARTENERGY = "smartENERGY.at"
 CONF_SOURCE_TIBBER = "Tibber"
+CONF_SOURCE_ENERGYFORECAST = "Energyforecast.de"
 
 # configuration options for net price calculation
 CONF_SURCHARGE_PERC = "percentage_surcharge"
