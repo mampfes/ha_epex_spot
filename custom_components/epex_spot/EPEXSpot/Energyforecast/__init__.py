@@ -36,7 +36,7 @@ class Marketprice:
         return self._price_per_kwh
 
 class Energyforecast:
-    URL = "https://www.energyforecast.de/api/v1/predictions/next_96_hours"
+    URL = "https://www.energyforecast.de/api/v1/predictions/prices_for_ha"
 
     MARKET_AREAS = ("de",)
 
@@ -68,7 +68,7 @@ class Energyforecast:
 
     async def fetch(self):
         data = await self._fetch_data(self.URL)
-        self._marketdata = self._extract_marketdata(data)
+        self._marketdata = self._extract_marketdata(data["forecast"]["data"])
 
     async def _fetch_data(self, url):
         async with self._session.get(
