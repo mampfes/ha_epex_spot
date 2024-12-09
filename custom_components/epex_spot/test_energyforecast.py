@@ -6,12 +6,11 @@ import asyncio
 from .EPEXSpot import Energyforecast
 from .const import UOM_EUR_PER_KWH
 
-DEMO_TOKEN = "test"
-
+DEMO_TOKEN = "demo_token" # The "demo_token" token only provides up to 24 hours of forecast data into the future.
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        service = Energyforecast.Energyforecast(token=DEMO_TOKEN, session=session)
+        service = Energyforecast.Energyforecast(market_area="DE-LU", token=DEMO_TOKEN, session=session)
 
         await service.fetch()
         print(f"count = {len(service.marketdata)}")
