@@ -16,6 +16,7 @@ from .const import (
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
+    CONF_SOURCE_ENERGYFORECAST,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -26,7 +27,7 @@ from .const import (
     DEFAULT_TAX,
     DOMAIN,
 )
-from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, Tibber, smartENERGY
+from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, Tibber, smartENERGY, Energyforecast
 
 CONF_SOURCE_LIST = (
     CONF_SOURCE_AWATTAR,
@@ -34,6 +35,7 @@ CONF_SOURCE_LIST = (
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
+    CONF_SOURCE_ENERGYFORECAST,
 )
 
 
@@ -77,6 +79,15 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                 {
                     vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas)),
                     vol.Required(CONF_TOKEN): vol.Coerce(str),
+                }
+            )
+        # Energyforecast API requires a token
+        elif self._source_name == CONF_SOURCE_ENERGYFORECAST:
+            areas = Energyforecast.Energyforecast.MARKET_AREAS
+            data_schema = vol.Schema(
+                {
+                    vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas)),
+                    vol.Required(CONF_TOKEN): vol.Coerce(str)
                 }
             )
         else:
