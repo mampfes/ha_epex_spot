@@ -77,7 +77,4 @@ class Energyforecast:
             return await resp.json()
 
     def _extract_marketdata(self, data):
-        entries = []
-        for entry in data:
-            entries.append(Marketprice(entry))
-        return entries
+        return [Marketprice(entry) for entry in data]
