@@ -18,11 +18,11 @@ from .const import (
     CONF_MARKET_AREA,
     CONF_SOURCE,
     CONF_SOURCE_AWATTAR,
+    CONF_SOURCE_ENERGYFORECAST,
     CONF_SOURCE_EPEX_SPOT_WEB,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
-    CONF_SOURCE_ENERGYFORECAST,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -32,7 +32,7 @@ from .const import (
     DEFAULT_TAX,
     EMPTY_EXTREME_PRICE_INTERVAL_RESP,
 )
-from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, Tibber, smartENERGY, Energyforecast
+from .EPEXSpot import SMARD, Awattar, Energyforecast, EPEXSpotWeb, Tibber, smartENERGY
 from .extreme_price_interval import find_extreme_price_interval, get_start_times
 
 _LOGGER = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ class SourceShell:
             self._source = Energyforecast.Energyforecast(
                 market_area=config_entry.data[CONF_MARKET_AREA],
                 token=self._config_entry.data[CONF_TOKEN],
-                session=session
+                session=session,
             )
 
     @property
