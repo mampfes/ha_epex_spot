@@ -27,7 +27,7 @@ You can choose between multiple sources:
    [smartENERGY.at](https://www.smartenergy.at/api-schnittstellen) provides a free of charge service for their customers. Market price data is available for Austria. So far no user identifiation is required.
 
 5. Energyforecast.de
-   [Energyforecast.de](https://www.energyforecast.de/api-docs/index.html) provides services to get Market price data forecasts for Germany up to 96 hours into the future. A api token is required.
+   [Energyforecast.de](https://www.energyforecast.de/api-docs/index.html) provides services to get market price data forecasts for Germany up to 96 hours into the future. An API token is required.
 
 If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
 
