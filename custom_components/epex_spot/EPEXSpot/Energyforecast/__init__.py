@@ -5,7 +5,6 @@ import logging
 
 import aiohttp
 
-from homeassistant.util import dt as dt_util
 
 from ...const import UOM_EUR_PER_KWH
 
