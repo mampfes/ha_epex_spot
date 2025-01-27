@@ -87,7 +87,7 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             data_schema = vol.Schema(
                 {
                     vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas)),
-                    vol.Required(CONF_TOKEN): vol.Coerce(str)
+                    vol.Required(CONF_TOKEN): vol.Coerce(str),
                 }
             )
         else:
@@ -124,6 +124,7 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                 title=title,
                 data=data,
             )
+        return None
 
     @staticmethod
     @callback
