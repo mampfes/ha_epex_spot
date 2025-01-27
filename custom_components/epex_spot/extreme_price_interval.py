@@ -91,8 +91,6 @@ def find_extreme_price_interval(marketdata, start_times, duration: timedelta, cm
     if interval_start_time is None:
         return None
 
-    _LOGGER.error("interval_price: %s", interval_price)
-
     interval_price = round(interval_price, 6)
 
     return {
