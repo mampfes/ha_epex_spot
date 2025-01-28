@@ -242,7 +242,7 @@ Notes:
 Service Call Examples:
 
 ```yaml
-service: epex_spot.get_lowest_price_interval
+action: epex_spot.get_lowest_price_interval
 data:
   device_id: 9d44d8ce9b19e0863cf574c2763749ac
   earliest_start: "14:00:00"
@@ -254,7 +254,7 @@ data:
 ```
 
 ```yaml
-service: epex_spot.get_lowest_price_interval
+action: epex_spot.get_lowest_price_interval
 data:
   earliest_start: "14:00:00"
   latest_end: "16:00:00"
@@ -262,20 +262,20 @@ data:
 ```
 
 ```yaml
-service: epex_spot.get_lowest_price_interval
+action: epex_spot.get_lowest_price_interval
 data:
   duration: "00:30" # 30 minutes
 ```
 
 ```yaml
-service: epex_spot.get_lowest_price_interval
+action: epex_spot.get_lowest_price_interval
 data:
   duration: 120 # in seconds -> 2 minutes
 ```
 
 ```yaml
 # get the lowest price all day tomorrow:
-service: epex_spot.get_lowest_price_interval
+action: epex_spot.get_lowest_price_interval
 data:
   earliest_start: "00:00:00"
   earliest_start_post: 1
@@ -303,11 +303,11 @@ With Home Assistant release >= 2023.9 you can use the [Template Integration](htt
 
 ```yaml
 template:
-  - trigger:
-      - platform: time
+  - triggers:
+      - trigger: time
         at: "00:00:00"
-    action:
-      - service: epex_spot.get_lowest_price_interval
+    actions:
+      - action: epex_spot.get_lowest_price_interval
         data:
           earliest_start: "20:00:00"
           latest_end: "23:00:00"
@@ -324,11 +324,11 @@ template:
 This sensor can be used to trigger automations:
 
 ```yaml
-trigger:
-  - platform: time
+triggers:
+  - trigger: time
     at: sensor.start_appliance
-condition: []
-action: []
+conditions: []
+actions: []
 ```
 
 ### 2. Fetch Data
