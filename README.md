@@ -1,3 +1,4 @@
+
 # EPEX Spot
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
@@ -395,7 +396,7 @@ If you are using a different source, you will need to first update `sensor.epex_
 
 It might be an interesting use case to know what the hours with lowest consecutive prices during the day are. This might be of value when looking for the most optimum time to start your washing machine, dishwasher, dryer, etc. The most convenient way to do this would be to install and configure the [EPEX Spot Sensor](https://github.com/mampfes/ha_epex_spot_sensor "EPEX Spot Sensor") (via HACS).
 
-#### Example
+#### Example 1: Manually starting / scheduling a "dumb" dishwasher**
 
 - Your dishwasher cycle takes 3 hours and 15 minutes to run
 - You want to run a full, continuous cycle in the time-window when power is the cheapest for those 3 hours & 15 minutes
@@ -413,11 +414,11 @@ This creates a binary sensor `binary_sensor.dishwasher_cheapest_window` with the
 
 Depending on your implementation use-case, there are two ways to proceed:
 
-**Case 1: Automating the dishwasher**
-If the dishwasher can be controlled via Home Assistant, or you can use some kind of smart-device to start the dishwasher cycle, you could create an automations that triggers when `binary_sensor.dishwasher_cheapest_window` turns on.
+**Case 1: Automating the dishwasher with a smart-plug**
+If the dishwasher resumes it's wash cycle after a power loss, you can use a smart-plug to cut power the to the dishwasher as soon as it starts and then restore power to it when `binary_sensor.dishwasher_cheapest_window` turns on.
 
 **Case 2: Manually starting / scheduling the dishwasher**
-If your dishwasher cannot be automated, you can create a card on your dashboard that tells you either what time, or in how much time you should should manually start your dishwasher or schedule it to start.
+If you don't have a smart-plug or if your dishwasher won't resume after a power loss, you can create a card on your dashboard that tells you either what time, or in how much time you should should manually start your dishwasher or schedule it to start.
 
 _What time should I start the dishwasher?_
 Create a Template Sensor by going to Settings → Devices & Services → Helpers → Create Helper → Template → Template a sensor. Give it a Friendly name, for example "Next Dishwasher Start (Time)" and under "State Template", enter
@@ -466,6 +467,62 @@ Finally, create Entity Cards on your dashboard with the sensors you want to disp
 ![Dishwasher Card Examples](/images/dishwasher-card-examples.png)
 
 See [this Show & Tell post](https://github.com/mampfes/ha_epex_spot/discussions/111) for a fancier, more elaborate version of this card that can show several appliances at once, auto hide ones that don't have data, and even hide itself when there is no data at all.
+
+#### Example 2: Automating a Home-Assitant-Connected Washer/Dryer
+- The appliance reports how long each cycle takes to Home Assistant
+- The appliance can be remote-controlled via Home Assistant 
+- You want to run a full, continuous cycle in the time-window when power is the cheapest.
+- You don't want a cycle to end after 11 pm.
+
+Let's say that the entity that tells Home Assistant how long the current cycle is going to take is called `aeg_washer_dryer_timetoend`. You could create a Home Assistant automation that, triggers, for example, as soon as the appliance starts, pauses the appliance, uses a service call to find out when the appliance should be resumed, and then resumes the appliance at the right time.
+Here's what such an automation may look like:
+
+```yaml
+mode: single
+triggers:
+  - trigger: state
+    entity_id:
+      #Replace this with whatever entity reports the appliance's state to HA.
+      - sensor.aeg_washer_dryer_appliancestate
+    from: Ready To Start
+    to: Running
+conditions: []
+actions:
+  - action: button.press
+    metadata: {}
+    data: {}
+    target:
+      #Replace this with your appliance's Pause command.
+      entity_id: button.aeg_washer_dryer_executecommand_pause
+  - data:
+      #Replace this with your EPEX Spot Sensor's Device ID.
+      device_id: 586b828bc8000a04c65aec0c9cc76503
+      duration:
+         #Replace the sensor with whichever one your appliance has to report the duration of the cycle.
+         #The sensor in this example reports the duration only in minutes.
+        hours: 0
+        minutes: "{{ states('sensor.aeg_washer_dryer_timetoend') | int }}" 
+        seconds: 0
+    #You can name this variable whatever you want.
+    #Just make sure you use the same variable name in the rest of the automation.    
+    response_variable: cheapest_window 
+    action: epex_spot.get_lowest_price_interval
+  - wait_template: >-
+      {{ cheapest_window is defined and as_timestamp(cheapest_window.start) |
+      int > 0 }}
+    continue_on_timeout: true
+  - delay:
+      seconds: >
+        {% set wait = as_timestamp(cheapest_window.start) - as_timestamp(now())
+        %} {{ [wait, 0] | max | int }}
+  - action: button.press
+    metadata: {}
+    data: {}
+    target:
+      #Replace this with your appliance's Pause command.
+      entity_id: button.aeg_washer_dryer_executecommand_resume 
+```
+See [this Show & Tell post](https://github.com/mampfes/ha_epex_spot/discussions/206) for a fancier, more elaborate version of this automation that has logging, notifications, manual overrides, etc.
 
 ### 3. I want to combine and view everything
 
