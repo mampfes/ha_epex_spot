@@ -23,6 +23,7 @@ from .const import (
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
+    CONF_SOURCE_HOFER_GRUENSTROM,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -32,7 +33,15 @@ from .const import (
     DEFAULT_TAX,
     EMPTY_EXTREME_PRICE_INTERVAL_RESP,
 )
-from .EPEXSpot import SMARD, Awattar, Energyforecast, EPEXSpotWeb, Tibber, smartENERGY
+from .EPEXSpot import (
+    SMARD,
+    Awattar,
+    Energyforecast,
+    EPEXSpotWeb,
+    Tibber,
+    smartENERGY,
+    HoferGruenstrom,
+)
 from .extreme_price_interval import find_extreme_price_interval, get_start_times
 
 _LOGGER = logging.getLogger(__name__)
@@ -74,6 +83,10 @@ class SourceShell:
                 market_area=config_entry.data[CONF_MARKET_AREA],
                 token=self._config_entry.data[CONF_TOKEN],
                 session=session,
+            )
+        elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_HOFER_GRUENSTROM:
+            self._source = HoferGruenstrom.HoferGruenstrom(
+                market_area=config_entry.data[CONF_MARKET_AREA], session=session
             )
 
     @property

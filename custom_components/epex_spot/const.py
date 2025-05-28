@@ -25,6 +25,7 @@ CONF_SOURCE_SMARD_DE = "SMARD.de"
 CONF_SOURCE_SMARTENERGY = "smartENERGY.at"
 CONF_SOURCE_TIBBER = "Tibber"
 CONF_SOURCE_ENERGYFORECAST = "Energyforecast.de"
+CONF_SOURCE_HOFER_GRUENSTROM = "Hofer Gruenstrom"
 
 # configuration options for net price calculation
 CONF_SURCHARGE_PERC = "percentage_surcharge"
@@ -48,6 +49,8 @@ EMPTY_EXTREME_PRICE_INTERVAL_RESP = {
     "price_per_kwh": None,
     "net_price_per_kwh": None,
 }
+
+TIMEZONE_HOFER_GRUENSTROM = "Europe/Vienna"
 
 UOM_EUR_PER_KWH = "€/kWh"
 UOM_MWH = "MWh"

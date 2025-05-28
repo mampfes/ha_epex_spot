@@ -17,6 +17,7 @@ from .const import (
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
     CONF_SOURCE_ENERGYFORECAST,
+    CONF_SOURCE_HOFER_GRUENSTROM,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -27,7 +28,7 @@ from .const import (
     DEFAULT_TAX,
     DOMAIN,
 )
-from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, Tibber, smartENERGY, Energyforecast
+from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, Tibber, smartENERGY, Energyforecast, HoferGruenstrom
 
 CONF_SOURCE_LIST = (
     CONF_SOURCE_AWATTAR,
@@ -36,6 +37,7 @@ CONF_SOURCE_LIST = (
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
     CONF_SOURCE_ENERGYFORECAST,
+    CONF_SOURCE_HOFER_GRUENSTROM,
 )
 
 
@@ -99,7 +101,8 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                 areas = SMARD.SMARD.MARKET_AREAS
             elif self._source_name == CONF_SOURCE_SMARTENERGY:
                 areas = smartENERGY.smartENERGY.MARKET_AREAS
-
+            elif self._source_name == CONF_SOURCE_HOFER_GRUENSTROM:
+                areas = HoferGruenstrom.HoferGruenstrom.MARKET_AREAS
             data_schema = vol.Schema(
                 {vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas))}
             )
