@@ -39,6 +39,9 @@ You can choose between multiple sources:
    [Energy-Charts](https://energy-charts.info) provides a publicly accessible API offering real-time electricity market prices for many European bidding zones.  
    No registration or API token is required.
 
+6. Hofer Grünstrom
+   [Hofer Grünstrom](https://www.hofer-grünstrom.at/tarife-zum-geld-sparen#spot) has an open API for accessing market data for Austria. So far no user identifiation is required. (This API is not officially documented, but was discovered by reverse engineering the Hofer Grünstrom website.)
+
 If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
 
 ## Installation
