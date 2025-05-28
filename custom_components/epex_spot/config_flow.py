@@ -19,6 +19,7 @@ from .const import (
     CONF_SOURCE_TIBBER,
     CONF_SOURCE_ENERGYFORECAST,
     CONF_SOURCE_ENERGYCHARTS,
+    CONF_SOURCE_HOFER_GRUENSTROM,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -39,6 +40,7 @@ from .EPEXSpot import (
     Energyforecast,
     ENTSOE,
     EnergyCharts,
+	HoferGruenstrom
 )
 
 CONF_SOURCE_LIST = (
@@ -49,6 +51,7 @@ CONF_SOURCE_LIST = (
     CONF_SOURCE_TIBBER,
     CONF_SOURCE_ENERGYFORECAST,
     CONF_SOURCE_ENERGYCHARTS,
+    CONF_SOURCE_HOFER_GRUENSTROM,
 )
 
 
@@ -234,5 +237,6 @@ def getParametersForSource(
             EnergyCharts.EnergyCharts.SUPPORTED_DURATIONS,
             False,
         )
+    // TODO: Re-add Hofer Gruenstrom
 
     return ([], [], False)
