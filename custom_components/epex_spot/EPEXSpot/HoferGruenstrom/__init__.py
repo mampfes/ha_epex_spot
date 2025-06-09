@@ -102,10 +102,6 @@ class HoferGruenstrom:
                 continue
             # extract market data
             for item in data:
-                if not item.get("from") or not item.get("to") or not item.get("price"):
-                    _LOGGER.warning("Skipping item with missing fields: %s", item)
-                    continue
-                # create Marketprice instance
                 marketdata.append(Marketprice(item))
 
         self._marketdata = marketdata
