@@ -1,17 +1,18 @@
 """Tibber API."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import aiohttp
 
 from ...const import UOM_EUR_PER_KWH
+from ...common import Marketprice
 
 TIBBER_QUERY = """
 {
   viewer {
     homes {
-      currentSubscription{
-        priceInfo{
+      currentSubscription {
+        priceInfo(resolution: {resolution}) {
           today {
             total
             energy
@@ -34,44 +35,24 @@ TIBBER_QUERY = """
 """
 
 
-class Marketprice:
-    """Marketprice class for Tibber."""
-
-    def __init__(self, data):
-        self._start_time = datetime.fromisoformat(data["startsAt"])
-        self._end_time = self._start_time + timedelta(hours=1)
-        # Tibber already returns the actual net price for the customer
-        # so we can use that
-        self._price_per_kwh = round(float(data["total"]), 6)
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_per_kwh} {UOM_EUR_PER_KWH})"  # noqa: E501
-
-    @property
-    def start_time(self):
-        return self._start_time
-
-    @property
-    def end_time(self):
-        return self._end_time
-
-    @property
-    def price_per_kwh(self):
-        return self._price_per_kwh
-
-
 class Tibber:
-    # DEMO_TOKEN = "5K4MVS-OjfWhK_4yrjOlFe1F6kJXPVf7eQYggo8ebAE"
-    #               123456789.123456789.123456789.123456789.123
+    DEMO_TOKEN = "3A77EECF61BD445F47241A5A36202185C35AF3AF58609E19B53F3A8872AD7BE1-1"
     URL = "https://api.tibber.com/v1-beta/gql"
 
     MARKET_AREAS = ("de", "nl", "no", "se")
+    SUPPORTED_DURATIONS = (15, 60)
 
-    def __init__(self, market_area, token: str, session: aiohttp.ClientSession):
+    def __init__(
+        self,
+        market_area: str,
+        duration: int,
+        token: str,
+        session: aiohttp.ClientSession,
+    ):
         self._session = session
-        self._token = token
+        self._token = token if token != "demo" else self.DEMO_TOKEN
         self._market_area = market_area
-        self._duration = 60
+        self._duration = duration
         self._marketdata = []
 
     @property
@@ -102,9 +83,14 @@ class Tibber:
 
     async def _fetch_data(self, url):
         async with self._session.post(
-            self.URL,
-            data={"query": TIBBER_QUERY},
-            headers={"Authorization": "Bearer {}".format(self._token)},
+            url,
+            json={
+                "query": TIBBER_QUERY.replace(
+                    "{resolution}",
+                    "QUARTER_HOURLY" if self._duration == 15 else "HOURLY",
+                )
+            },
+            headers={"Authorization": f"Bearer {self._token}"},
         ) as resp:
             resp.raise_for_status()
             return await resp.json()
@@ -112,7 +98,21 @@ class Tibber:
     def _extract_marketdata(self, data):
         entries = []
         for entry in data["today"]:
-            entries.append(Marketprice(entry))
+            entries.append(
+                Marketprice(
+                    duration=self._duration,
+                    start_time=datetime.fromisoformat(entry["startsAt"]),
+                    price=round(float(entry["total"]), 6),
+                    unit=UOM_EUR_PER_KWH,
+                )
+            )
         for entry in data["tomorrow"]:
-            entries.append(Marketprice(entry))
+            entries.append(
+                Marketprice(
+                    duration=self._duration,
+                    start_time=datetime.fromisoformat(entry["startsAt"]),
+                    price=round(float(entry["total"]), 6),
+                    unit=UOM_EUR_PER_KWH,
+                )
+            )
         return entries

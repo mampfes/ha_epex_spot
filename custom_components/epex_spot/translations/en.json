@@ -13,6 +13,7 @@
       "market_area": {
         "data": {
           "market_area": "Select market area",
+          "duration": "Slot duration",
           "token": "API Token"
         }
       },

@@ -27,6 +27,7 @@ from .const import (
     CONF_SURCHARGE_PERC,
     CONF_TAX,
     CONF_TOKEN,
+    DEFAULT_DURATION,
     DEFAULT_SURCHARGE_ABS,
     DEFAULT_SURCHARGE_PERC,
     DEFAULT_TAX,
@@ -49,29 +50,39 @@ class SourceShell:
         # create source object
         if config_entry.data[CONF_SOURCE] == CONF_SOURCE_AWATTAR:
             self._source = Awattar.Awattar(
-                market_area=config_entry.data[CONF_MARKET_AREA], session=session
+                market_area=config_entry.data[CONF_MARKET_AREA],
+                duration=config_entry.data.get(CONF_DURATION, DEFAULT_DURATION),
+                session=session,
             )
         elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_EPEX_SPOT_WEB:
             self._source = EPEXSpotWeb.EPEXSpotWeb(
-                market_area=config_entry.data[CONF_MARKET_AREA], session=session
+                market_area=config_entry.data[CONF_MARKET_AREA],
+                duration=config_entry.data.get(CONF_DURATION, DEFAULT_DURATION),
+                session=session,
             )
         elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_SMARD_DE:
             self._source = SMARD.SMARD(
-                market_area=config_entry.data[CONF_MARKET_AREA], session=session
+                market_area=config_entry.data[CONF_MARKET_AREA],
+                duration=config_entry.data.get(CONF_DURATION, DEFAULT_DURATION),
+                session=session,
             )
         elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_SMARTENERGY:
             self._source = smartENERGY.smartENERGY(
-                market_area=config_entry.data[CONF_MARKET_AREA], session=session
+                market_area=config_entry.data[CONF_MARKET_AREA],
+                duration=config_entry.data.get(CONF_DURATION, DEFAULT_DURATION),
+                session=session,
             )
         elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_TIBBER:
             self._source = Tibber.Tibber(
                 market_area=config_entry.data[CONF_MARKET_AREA],
+                duration=config_entry.data.get(CONF_DURATION, DEFAULT_DURATION),
                 token=self._config_entry.data[CONF_TOKEN],
                 session=session,
             )
         elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_ENERGYFORECAST:
             self._source = Energyforecast.Energyforecast(
                 market_area=config_entry.data[CONF_MARKET_AREA],
+                duration=config_entry.data.get(CONF_DURATION, DEFAULT_DURATION),
                 token=self._config_entry.data[CONF_TOKEN],
                 session=session,
             )
