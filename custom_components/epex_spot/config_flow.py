@@ -4,6 +4,7 @@ Used by UI to setup integration.
 """
 
 import voluptuous as vol
+from typing import List, Tuple
 
 from homeassistant import config_entries
 from homeassistant.core import callback
@@ -74,48 +75,24 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
     async def async_step_source(self, user_input=None):
         self._source_name = user_input[CONF_SOURCE]
 
-        # Tibber API requires a token
-        if self._source_name == CONF_SOURCE_TIBBER:
-            areas = Tibber.Tibber.MARKET_AREAS
-            durations = Tibber.Tibber.SUPPORTED_DURATIONS
-            data_schema = vol.Schema(
-                {
-                    vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas)),
-                    vol.Required(CONF_DURATION): vol.In(sorted(durations)),
-                    vol.Required(CONF_TOKEN): vol.Coerce(str),
-                }
-            )
-        # Energyforecast API requires a token
-        elif self._source_name == CONF_SOURCE_ENERGYFORECAST:
-            areas = Energyforecast.Energyforecast.MARKET_AREAS
-            durations = Energyforecast.Energyforecast.SUPPORTED_DURATIONS
-            data_schema = vol.Schema(
-                {
-                    vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas)),
-                    vol.Required(CONF_DURATION): vol.In(sorted(durations)),
-                    vol.Required(CONF_TOKEN): vol.Coerce(str),
-                }
-            )
-        else:
-            if self._source_name == CONF_SOURCE_AWATTAR:
-                areas = Awattar.Awattar.MARKET_AREAS
-                durations = Awattar.Awattar.SUPPORTED_DURATIONS
-            elif self._source_name == CONF_SOURCE_EPEX_SPOT_WEB:
-                areas = EPEXSpotWeb.EPEXSpotWeb.MARKET_AREAS
-                durations = EPEXSpotWeb.EPEXSpotWeb.SUPPORTED_DURATIONS
-            elif self._source_name == CONF_SOURCE_SMARD_DE:
-                areas = SMARD.SMARD.MARKET_AREAS
-                durations = SMARD.SMARD.SUPPORTED_DURATIONS
-            elif self._source_name == CONF_SOURCE_SMARTENERGY:
-                areas = smartENERGY.smartENERGY.MARKET_AREAS
-                durations = smartENERGY.smartENERGY.SUPPORTED_DURATIONS
+        areas, durations, requires_token = getParametersForSource(self._source_name)
 
-            data_schema = vol.Schema(
+        data_schema = (
+            vol.Schema(
                 {
-                    vol.Required(CONF_MARKET_AREA): vol.In(sorted(areas)),
-                    vol.Required(CONF_DURATION): vol.In(sorted(durations)),
+                    vol.Required(CONF_MARKET_AREA): vol.In(areas),
+                    vol.Required(CONF_DURATION): vol.In(durations),
+                    vol.Required(CONF_TOKEN): vol.Coerce(str),
+                }
+            )
+            if requires_token
+            else vol.Schema(
+                {
+                    vol.Required(CONF_MARKET_AREA): vol.In(areas),
+                    vol.Required(CONF_DURATION): vol.In(durations),
                 },
             )
+        )
 
         return self.async_show_form(step_id="market_area", data_schema=data_schema)
 
@@ -132,14 +109,14 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             data = {CONF_SOURCE: self._source_name, CONF_MARKET_AREA: market_area}
             if CONF_TOKEN in user_input:
                 data[CONF_TOKEN] = user_input[CONF_TOKEN]
+            options = {CONF_DURATION: DEFAULT_DURATION}
             if CONF_DURATION in user_input:
-                data[CONF_DURATION] = user_input[CONF_DURATION]
-            else:
-                data[CONF_DURATION] = DEFAULT_DURATION
+                options[CONF_DURATION] = options[CONF_DURATION]
 
             return self.async_create_entry(
                 title=title,
                 data=data,
+                options=options,
             )
         return None
 
@@ -164,6 +141,10 @@ class EpexSpotOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
+        _, durations, _ = getParametersForSource(
+            self.config_entry.data.get(CONF_SOURCE)
+        )
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
@@ -184,6 +165,59 @@ class EpexSpotOptionsFlow(config_entries.OptionsFlow):
                         CONF_TAX,
                         default=self.config_entry.options.get(CONF_TAX, DEFAULT_TAX),
                     ): vol.Coerce(float),
+                    vol.Required(
+                        CONF_DURATION,
+                        default=self.config_entry.options.get(
+                            CONF_DURATION, DEFAULT_DURATION
+                        ),
+                    ): vol.In(durations),
                 }
             ),
         )
+
+
+def getParametersForSource(
+    source_name: str,
+) -> Tuple[List[str], List[int], bool]:
+    """
+    returns sorted market areas, durations and if given source requires a token
+    """
+    # market areas and durations are generally sorted in classes so no need to sort
+    if source_name == CONF_SOURCE_AWATTAR:
+        return (
+            Awattar.Awattar.MARKET_AREAS,
+            Awattar.Awattar.SUPPORTED_DURATIONS,
+            False,
+        )
+    if source_name == CONF_SOURCE_ENERGYFORECAST:
+        return (
+            Energyforecast.Energyforecast.MARKET_AREAS,
+            Energyforecast.Energyforecast.SUPPORTED_DURATIONS,
+            True,
+        )
+    if source_name == CONF_SOURCE_EPEX_SPOT_WEB:
+        return (
+            EPEXSpotWeb.EPEXSpotWeb.MARKET_AREAS,
+            EPEXSpotWeb.EPEXSpotWeb.SUPPORTED_DURATIONS,
+            False,
+        )
+    if source_name == CONF_SOURCE_TIBBER:
+        return (
+            Tibber.Tibber.MARKET_AREAS,
+            Tibber.Tibber.SUPPORTED_DURATIONS,
+            True,
+        )
+    if source_name == CONF_SOURCE_SMARD_DE:
+        return (
+            sorted(SMARD.SMARD.MARKET_AREAS),  # not sorted so sort here
+            SMARD.SMARD.SUPPORTED_DURATIONS,
+            False,
+        )
+    if source_name == CONF_SOURCE_SMARTENERGY:
+        return (
+            smartENERGY.smartENERGY.MARKET_AREAS,
+            smartENERGY.smartENERGY.SUPPORTED_DURATIONS,
+            False,
+        )
+
+    return ([], [], False)

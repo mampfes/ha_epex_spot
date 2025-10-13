@@ -37,6 +37,7 @@
         "title": "Net Price Options",
         "description": "Configure surcharges and tax to calculate net price per kWh.",
         "data": {
+          "duration": "Slot duration",
           "percentage_surcharge": "Percentage Surcharge (%)",
           "absolute_surcharge": "Absolute Surcharge (€/£ per kWh)",
           "tax": "Tax (%)"
