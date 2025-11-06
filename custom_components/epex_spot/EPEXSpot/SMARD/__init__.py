@@ -1,11 +1,13 @@
 """SMARD.de API."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 import logging
+from typing import List
 
 import aiohttp
 
 from ...const import UOM_EUR_PER_KWH
+from ...common import Marketprice
 
 # from homeassistant.util import dt
 
@@ -30,70 +32,45 @@ MARKET_AREA_MAP = {
 }
 
 
-class Marketprice:
-    """Marketprice class for SMARD.de."""
-
-    def __init__(self, data):
-        self._start_time = datetime.fromtimestamp(data[0] / 1000, tz=timezone.utc)
-        self._end_time = self._start_time + timedelta(
-            hours=1
-        )  # TODO: this will not work for 1/2h updates
-
-        self._price_per_kwh = round(float(data[1]) / 1000.0, 6)
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._price_per_kwh} {UOM_EUR_PER_KWH})"  # noqa: E501
-
-    @property
-    def start_time(self):
-        return self._start_time
-
-    @property
-    def end_time(self):
-        return self._end_time
-
-    @property
-    def price_per_kwh(self):
-        return self._price_per_kwh
-
-
 class SMARD:
     URL = "https://www.smard.de/app/chart_data"
 
     MARKET_AREAS = MARKET_AREA_MAP.keys()
+    SUPPORTED_DURATIONS = (15, 60)
 
-    def __init__(self, market_area, session: aiohttp.ClientSession):
+    def __init__(self, market_area: str, duration: int, session: aiohttp.ClientSession):
         self._session = session
         self._market_area = market_area
         self._marketdata = []
+        self._duration = duration
+        self._resolution = "hour" if duration == 60 else "quarterhour"
 
     @property
     def name(self):
         return "SMARD.de"
 
     @property
-    def market_area(self):
+    def market_area(self) -> str:
         return self._market_area
 
     @property
-    def duration(self):
-        return 60
+    def duration(self) -> int:
+        return self._duration
 
     @property
-    def currency(self):
+    def currency(self) -> str:
         return "EUR"
 
     @property
-    def marketdata(self):
+    def marketdata(self) -> List[Marketprice]:
         return self._marketdata
 
     async def fetch(self):
         smard_filter = MARKET_AREA_MAP[self._market_area]
         smard_region = self._market_area
-        smard_resolution = "hour"
 
         # get available timestamps for given market area
-        url = f"{self.URL}/{smard_filter}/{smard_region}/index_{smard_resolution}.json"
+        url = f"{self.URL}/{smard_filter}/{smard_region}/index_{self._resolution}.json"
         async with self._session.get(url) as resp:
             resp.raise_for_status()
             j = await resp.json()
@@ -102,36 +79,43 @@ class SMARD:
         # and then some data is missing
         latest_timestamp = j["timestamps"][-2:]
 
-        entries = []
+        entries: List[Marketprice] = []
 
         for lt in latest_timestamp:
             # get available data
             data = await self._fetch_data(
-                lt, smard_filter, smard_region, smard_resolution
+                lt, smard_filter, smard_region, self._resolution
             )
 
             for entry in data["series"]:
                 if entry[1] is not None:
-                    entries.append(Marketprice(entry))
+                    entries.append(
+                        Marketprice(
+                            start_time=datetime.fromtimestamp(
+                                entry[0] / 1000, tz=timezone.utc
+                            ),
+                            duration=self._duration,
+                            price=round(float(entry[1]) / 1000.0, 6),
+                            unit=UOM_EUR_PER_KWH,
+                        )
+                    )
 
         if entries[-1].start_time.date() == datetime.today().date():
             # latest data is on the same day, only return 48 entries
-            # thats yesterday and today
+            # that's yesterday and today
             self._marketdata = entries[
-                -48:
+                -2 * 24 * 60 // self._duration :
             ]  # limit number of entries to protect HA recorder
         else:
             # latest data is tomorrow, return 72 entries
-            # thats yesterday, today and tomorrow
+            # that's yesterday, today and tomorrow
             self._marketdata = entries[
-                -72:
+                -3 * 24 * 60 // self._duration :
             ]  # limit number of entries to protect HA recorder
 
-    async def _fetch_data(
-        self, latest_timestamp, smard_filter, smard_region, smard_resolution
-    ):
+    async def _fetch_data(self, timestamp, market, region, resolution):
         # get available data
-        url = f"{self.URL}/{smard_filter}/{smard_region}/{smard_filter}_{smard_region}_{smard_resolution}_{latest_timestamp}.json"  # noqa: E501
+        url = f"{self.URL}/{market}/{region}/{market}_{region}_{resolution}_{timestamp}.json"  # noqa: E501
         async with self._session.get(url) as resp:
             resp.raise_for_status()
             return await resp.json()

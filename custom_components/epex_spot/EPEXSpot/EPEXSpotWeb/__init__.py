@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta, timezone
 import logging
 from zoneinfo import ZoneInfo
+from typing import List
 
 import aiohttp
 from bs4 import BeautifulSoup
@@ -12,11 +13,11 @@ from ...const import UOM_EUR_PER_KWH, UOM_MWH
 _LOGGER = logging.getLogger(__name__)
 
 
-def _to_float(v):
+def _to_float(v: str) -> float:
     return float(v.replace(",", ""))
 
 
-def _as_date(v):
+def _as_date(v: datetime) -> str:
     return v.strftime("%Y-%m-%d")
 
 
@@ -31,7 +32,13 @@ class Marketprice:
     """Marketprice class for EPEX Spot Web."""
 
     def __init__(
-        self, start_time, end_time, buy_volume_mwh, sell_volume_mwh, volume_mwh, price
+        self,
+        start_time: datetime,
+        end_time: datetime,
+        buy_volume_mwh: str,
+        sell_volume_mwh: str,
+        volume_mwh: str,
+        price: str,
     ):
         self._start_time = start_time
         self._end_time = end_time
@@ -44,7 +51,7 @@ class Marketprice:
         return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, buy_volume_mwh: {self._buy_volume_mwh} {UOM_MWH}, sell_volume_mwh: {self._sell_volume_mwh} {UOM_MWH}, volume_mwh: {self._volume_mwh} {UOM_MWH}, marketprice: {self._price_per_kwh} {UOM_EUR_PER_KWH})"  # noqa: E501
 
     @property
-    def start_time(self):
+    def start_time(self) -> datetime:
         return self._start_time
 
     @property
@@ -94,15 +101,16 @@ class EPEXSpotWeb:
         "SE3",
         "SE4",
     )
+    SUPPORTED_DURATIONS = (15, 60)
 
-    def __init__(self, market_area, session: aiohttp.ClientSession):
+    def __init__(self, market_area: str, duration: int, session: aiohttp.ClientSession):
         self._session = session
 
         self._market_area = market_area
         item = MARKET_AREA_MAP.get(market_area)
         if item is None:
             self._int_market_area = market_area
-            self._duration = 60
+            self._duration = duration
             self._auction = "MRC"
         else:
             self._int_market_area = item["market_area"]
@@ -112,23 +120,23 @@ class EPEXSpotWeb:
         self._marketdata = []
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "EPEX Spot Web Scraper"
 
     @property
-    def market_area(self):
+    def market_area(self) -> str:
         return self._market_area
 
     @property
-    def duration(self):
+    def duration(self) -> int:
         return self._duration
 
     @property
-    def currency(self):
+    def currency(self) -> str:
         return "GBP" if self._market_area.startswith("GB") else "EUR"
 
     @property
-    def marketdata(self):
+    def marketdata(self) -> List[Marketprice]:
         return self._marketdata
 
     async def fetch(self):
@@ -141,7 +149,7 @@ class EPEXSpotWeb:
         # overwrite cached marketdata only on success
         self._marketdata = marketdata
 
-    async def _fetch_day(self, delivery_date):
+    async def _fetch_day(self, delivery_date: datetime) -> List[Marketprice]:
         data = await self._fetch_data(delivery_date)
         invokes = self._extract_invokes(data)
 
@@ -153,7 +161,7 @@ class EPEXSpotWeb:
             return []
         return self._extract_table_data(delivery_date, table_data)
 
-    async def _fetch_data(self, delivery_date):
+    async def _fetch_data(self, delivery_date: datetime):
         trading_date = delivery_date - timedelta(days=1)
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0"  # noqa
@@ -215,7 +223,7 @@ class EPEXSpotWeb:
                 invokes[entry["selector"]] = entry
         return invokes
 
-    def _extract_table_data(self, delivery_date, data):
+    def _extract_table_data(self, delivery_date: datetime, data) -> List[Marketprice]:
         """Extract table with results from response.
 
         The response contains HTML data. The wanted information is stored in
@@ -239,7 +247,7 @@ class EPEXSpotWeb:
         # convert timezone to UTC (and adjust timestamp)
         start_time = start_time.astimezone(timezone.utc)
 
-        marketdata = []
+        marketdata: List[Marketprice] = []
         for row in rows:
             end_time = start_time + timedelta(minutes=self._duration)
             buy_volume_col = row.td
