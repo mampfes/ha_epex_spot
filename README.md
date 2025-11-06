@@ -554,8 +554,9 @@ series:
     show:
       extremas: true
     data_generator: >
-      return entity.attributes.data.map((entry, index) => { return [new
-      Date(entry.start_time).getTime(), entry.price_per_kwh]; }).slice(0,24);
+      return entity.attributes.data.map((entry/*, index*/) => (
+        [new Date(entry.start_time).getTime(), entry.price_per_kwh]
+      )).slice(0, 24);
     color_threshold:
       - value: 0
         color: "#186ddc"
@@ -582,8 +583,9 @@ series:
     show:
       extremas: true
     data_generator: >
-      return entity.attributes.data.map((entry, index) => { return [new
-      Date(entry.start_time).getTime(), entry.price_per_kwh]; }).slice(23,47);
+      return entity.attributes.data.map((entry/*, index*/) => (
+        [new Date(entry.start_time).getTime(), entry.price_per_kwh]
+      )).slice(23, 47);
     color_threshold:
       - value: 0
         color: "#186ddc"
@@ -609,9 +611,9 @@ series:
     curve: stepline
     extend_to: false
     data_generator: >
-      return entity.attributes.data.map((entry, index) => { return [new
-      Date(entry.start_time).getTime(), entry.price_per_kwh];}).slice(parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0,2)),parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0,2))+4);
-
+      return entity.attributes.data.map((entry/*, index*/) => (
+        [new Date(entry.start_time).getTime(), entry.price_per_kwh]
+      )).slice(parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0, 2)), parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0, 2)) + 4);
 experimental:
   color_threshold: true
 yaxis:
