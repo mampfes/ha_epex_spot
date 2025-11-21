@@ -1,4 +1,3 @@
-
 # EPEX Spot
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
@@ -74,28 +73,28 @@ NOTE: For GB data, the prices will be shown in GBP instead of EUR. The sensor at
 
 ### 1. Net Market Price Sensor
 
-The sensor value reports the net market price in €/£/kWh. The price value will be updated every hour to reflect the current net market price.
+The sensor value reports the gross market price in €/£/kWh. The price value will be updated every hour to reflect the current gross market price.
 
-The sensor attributes contains a list of all available net market prices (for today and tomorrow if available) in €/£/kWh.
+The sensor attributes contains a list of all available gross market prices (for today and tomorrow if available) in €/£/kWh.
 
 ```yaml
 data:
   - start_time: "2022-12-15T23:00:00+00:00"
     end_time: "2022-12-16T00:00:00+00:00"
-    price_per_kwh: 0.12485
+    gross_price_per_kwh: 0.12485
   - start_time: "2022-12-16T00:00:00+00:00"
     end_time: "2022-12-16T01:00:00+00:00"
-    price_per_kwh: 0.12235
+    gross_price_per_kwh: 0.12235
   - start_time: "2022-12-16T01:00:00+00:00"
     end_time: "2022-12-16T02:00:00+00:00"
-    price_per_kwh: 0.12247
+    gross_price_per_kwh: 0.12247
 ```
 
-The net market price will be calculated as follows:
-`<Net Price>` = `<Market Price>` + `<Surcharges>` + `<Tax>`
+The gross market price will be calculated as follows:
+`<Gross Price>` = `<Net Price>` + `<Surcharges>` + `<Tax>`
 
-- Net market price is the price you have to pay at the end, including taxes, surcharges and VAT.
-- Market price is the energy price from EPEX Spot excluding taxes, surcharges, VAT.
+- Gross market price is the price you have to pay at the end, including taxes, surcharges and VAT.
+- Net price is the energy price from EPEX Spot excluding taxes, surcharges, VAT.
 - 2 different types of surcharges can be adjusted:
   1. Percentage Surcharge, stated in % of the EPEX Spot market price.
   2. Absolute Surcharge, stated in €/£/kWh, excluding VAT.
@@ -110,50 +109,48 @@ Percentage Surchage = 3%
 Absolute Surcharge = 0.012 €/£/kWh
 Tax = 19%
 
-Net Price = ((Market Price * 1.03) + 0.012) * 1.19
+Gross Price = ((Net Price * 1.03) + 0.012) * 1.19
 ```
 
 #### Note about smartENERGY.at
 
 As of Feb 2024, even though smartENERGY says that the prices reported by the API already include 20% tax (meaning users would configure the sensor to add a static €0.0144 to every price value from the API), [this is incorrect, and the API reports pricing without Tax](https://github.com/mampfes/ha_epex_spot/issues/108#issuecomment-1951423366 "this is incorrect, and the API reports pricing without Tax").
 
-To get the actual, current Net Price [listed by smartENERGY on their website](https://www.smartenergy.at/smartcontrol#:~:text=Aktueller%20Stundenpreis "listed by smartENERGY on their website"), configure:
+To get the actual, current gross price [listed by smartENERGY on their website](https://www.smartenergy.at/smartcontrol#:~:text=Aktueller%20Stundenpreis "listed by smartENERGY on their website"), configure:
 
 - Absolute surcharge = €0.012
 - Tax = 20%
 
-### 2. Market Price Sensor
+### 2. Net Market Price Sensor
 
-The sensor value reports the EPEX Spot market price in €/£/kWh. The market price doesn't include taxes, surcharges, VAT. The price value will be updated every hour to reflect the current market price.
+The sensor value reports the EPEX Spot net market price in €/£/kWh. The net market price doesn't include taxes, surcharges, VAT. The price value will be updated every hour to reflect the current market price.
 
 The sensor attributes contains additional values:
 
-- The market price in €/£/kWh.
-- A list of all available market prices (for today and tomorrow if available) in  €/£/kWh.
+- The net market price in €/£/kWh.
+- A list of all available market prices (for today and tomorrow if available) in €/£/kWh.
 
 ```yaml
-price_per_kwh: 0.089958
+net_price_per_kwh: 0.089958
 data:
   - start_time: "2022-12-15T23:00:00+00:00"
     end_time: "2022-12-16T00:00:00+00:00"
-    price_per_kwh: 0.092042
+    net_price_per_kwh: 0.092042
   - start_time: "2022-12-16T00:00:00+00:00"
     end_time: "2022-12-16T01:00:00+00:00"
-    price_per_kwh: 0.090058
+    net_price_per_kwh: 0.090058
   - start_time: "2022-12-16T01:00:00+00:00"
     end_time: "2022-12-16T02:00:00+00:00"
-    price_per_kwh: 0.126067
+    net_price_per_kwh: 0.126067
 ```
 
 ### 3. Average Market Price Sensor
 
 The sensor value reports the average EPEX Spot market price during the day. The sensor value reports the market price in €/£/kWh.
 
-
 ### 4. Median Market Price Sensor
 
 The sensor value reports the median EPEX Spot market price during the day. The sensor value reports the market price in €/£/kWh.
-
 
 ### 5. Lowest Market Price Sensor
 
@@ -162,7 +159,7 @@ The sensor value reports the lowest EPEX Spot market price during the day. The s
 The sensor attributes contains the start and endtime of the lowest market price timeframe.
 
 ```yaml
-price_per_kwh: 0.09
+net_price_per_kwh: 0.09
 start_time: "2023-02-15T22:00:00+00:00"
 end_time: "2023-02-15T23:00:00+00:00"
 ```
@@ -294,8 +291,8 @@ Example:
 ```yaml
 start: "2024-11-04T23:00:00+01:00"
 end: "2024-11-05T00:00:00+01:00"
-price_per_kwh: 0.098192
-net_price_per_kwh: 0.13223
+net_price_per_kwh: 0.098192
+gross_price_per_kwh: 0.13223
 ```
 
 With Home Assistant release >= 2023.9 you can use the [Template Integration](https://www.home-assistant.io/integrations/template/) to create a sensor (in your `configuration.yaml` file) that shows the start time:
@@ -372,13 +369,13 @@ now:
   show: true
   label: Now
 series:
-  - entity: sensor.epex_spot_data_net_price
+  - entity: sensor.epex_spot_data_gross_price
     name: Electricity Price
     type: column
     extend_to: end
     data_generator: |
       return entity.attributes.data.map((entry) => {
-        return [new Date(entry.start_time), entry.price_per_kwh];
+        return [new Date(entry.start_time), entry.net_price_per_kwh];
       });
 ```
 
@@ -386,17 +383,17 @@ See [this Show & Tell post](https://github.com/mampfes/ha_epex_spot/discussions/
 
 **Assumptions:**
 
-This example assumes that you are using smartENERGY.at as a source and want to display the Net Price in €/kWh for the next 48 hours. The value for `entity` and the `entry` being processed by the `data_generator` are specific to this data source:
+This example assumes that you are using smartENERGY.at as a source and want to display the Gross Price in €/kWh for the next 48 hours. The value for `entity` and the `entry` being processed by the `data_generator` are specific to this data source:
 
 ![Apex Chart Data Source Example](/images/apexcharts-entities-example.png)
 
-If you are using a different source, you will need to first update `sensor.epex_spot_data_net_price` to use the correct sensor for your configuration (check which Entities you have available under Devices → Integrations → EPEX Spot → `#` Entities) and then change `entry.price_per_kwh` to the attribute that you want to use from your sensor of choice. If your data source does not report prices for the next day, you can change the `graph_span` to `24h` to get rid of the empty space that this configuration would create.
+If you are using a different source, you will need to first update `sensor.epex_spot_data_gross_price` to use the correct sensor for your configuration (check which Entities you have available under Devices → Integrations → EPEX Spot → `#` Entities) and then change `entry.net_price_per_kwh` to the attribute that you want to use from your sensor of choice. If your data source does not report prices for the next day, you can change the `graph_span` to `24h` to get rid of the empty space that this configuration would create.
 
 ### 2. How can I optimise the best moment to start appliances?
 
 It might be an interesting use case to know what the hours with lowest consecutive prices during the day are. This might be of value when looking for the most optimum time to start your washing machine, dishwasher, dryer, etc. The most convenient way to do this would be to install and configure the [EPEX Spot Sensor](https://github.com/mampfes/ha_epex_spot_sensor "EPEX Spot Sensor") (via HACS).
 
-#### Example 1: Manually starting / scheduling a "dumb" dishwasher**
+#### Example 1: Manually starting / scheduling a "dumb" dishwasher\*\*
 
 - Your dishwasher cycle takes 3 hours and 15 minutes to run
 - You want to run a full, continuous cycle in the time-window when power is the cheapest for those 3 hours & 15 minutes
@@ -469,8 +466,9 @@ Finally, create Entity Cards on your dashboard with the sensors you want to disp
 See [this Show & Tell post](https://github.com/mampfes/ha_epex_spot/discussions/111) for a fancier, more elaborate version of this card that can show several appliances at once, auto hide ones that don't have data, and even hide itself when there is no data at all.
 
 #### Example 2: Automating a Home-Assitant-Connected Washer/Dryer
+
 - The appliance reports how long each cycle takes to Home Assistant
-- The appliance can be remote-controlled via Home Assistant 
+- The appliance can be remote-controlled via Home Assistant
 - You want to run a full, continuous cycle in the time-window when power is the cheapest.
 - You don't want a cycle to end after 11 pm.
 
@@ -498,14 +496,14 @@ actions:
       #Replace this with your EPEX Spot Sensor's Device ID.
       device_id: 586b828bc8000a04c65aec0c9cc76503
       duration:
-         #Replace the sensor with whichever one your appliance has to report the duration of the cycle.
-         #The sensor in this example reports the duration only in minutes.
+        #Replace the sensor with whichever one your appliance has to report the duration of the cycle.
+        #The sensor in this example reports the duration only in minutes.
         hours: 0
-        minutes: "{{ states('sensor.aeg_washer_dryer_timetoend') | int }}" 
+        minutes: "{{ states('sensor.aeg_washer_dryer_timetoend') | int }}"
         seconds: 0
     #You can name this variable whatever you want.
-    #Just make sure you use the same variable name in the rest of the automation.    
-    response_variable: cheapest_window 
+    #Just make sure you use the same variable name in the rest of the automation.
+    response_variable: cheapest_window
     action: epex_spot.get_lowest_price_interval
   - wait_template: >-
       {{ cheapest_window is defined and as_timestamp(cheapest_window.start) |
@@ -520,8 +518,9 @@ actions:
     data: {}
     target:
       #Replace this with your appliance's Pause command.
-      entity_id: button.aeg_washer_dryer_executecommand_resume 
+      entity_id: button.aeg_washer_dryer_executecommand_resume
 ```
+
 See [this Show & Tell post](https://github.com/mampfes/ha_epex_spot/discussions/206) for a fancier, more elaborate version of this automation that has logging, notifications, manual overrides, etc.
 
 ### 3. I want to combine and view everything
@@ -555,7 +554,7 @@ series:
       extremas: true
     data_generator: >
       return entity.attributes.data.map((entry/*, index*/) => (
-        [new Date(entry.start_time).getTime(), entry.price_per_kwh]
+        [new Date(entry.start_time).getTime(), entry.net_price_per_kwh]
       )).slice(0, 24);
     color_threshold:
       - value: 0
@@ -584,7 +583,7 @@ series:
       extremas: true
     data_generator: >
       return entity.attributes.data.map((entry/*, index*/) => (
-        [new Date(entry.start_time).getTime(), entry.price_per_kwh]
+        [new Date(entry.start_time).getTime(), entry.net_price_per_kwh]
       )).slice(23, 47);
     color_threshold:
       - value: 0
@@ -612,7 +611,7 @@ series:
     extend_to: false
     data_generator: >
       return entity.attributes.data.map((entry/*, index*/) => (
-        [new Date(entry.start_time).getTime(), entry.price_per_kwh]
+        [new Date(entry.start_time).getTime(), entry.net_price_per_kwh]
       )).slice(parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0, 2)), parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0, 2)) + 4);
 experimental:
   color_threshold: true

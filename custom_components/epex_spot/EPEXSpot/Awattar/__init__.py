@@ -25,7 +25,7 @@ class AwattarMarketprice(Marketprice):
         self._end_time = datetime.fromtimestamp(
             data["end_timestamp"] / 1000, tz=timezone.utc
         )
-        self._price_per_kwh = round(float(data["marketprice"]) / 1000.0, 6)
+        self._net_price_per_kwh = round(float(data["marketprice"]) / 1000.0, 6)
         self._unit = UOM_EUR_PER_KWH
 
 

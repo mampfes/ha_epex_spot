@@ -11,7 +11,7 @@ ATTR_SELL_VOLUME_MWH = "sell_volume_mwh"
 ATTR_VOLUME_MWH = "volume_mwh"
 ATTR_RANK = "rank"
 ATTR_QUANTILE = "quantile"
-ATTR_PRICE_PER_KWH = "price_per_kwh"
+ATTR_NET_PRICE_PER_KWH = "net_price_per_kwh"
 
 CONFIG_VERSION = 2
 CONF_SOURCE = "source"
@@ -46,8 +46,8 @@ DEFAULT_DURATION = 60
 EMPTY_EXTREME_PRICE_INTERVAL_RESP = {
     "start": None,
     "end": None,
-    "price_per_kwh": None,
     "net_price_per_kwh": None,
+    "gross_price_per_kwh": None,
 }
 
 UOM_EUR_PER_KWH = "€/kWh"
@@ -55,3 +55,6 @@ UOM_MWH = "MWh"
 
 EUR_PER_MWH = "EUR/MWh"
 CT_PER_KWH = "ct/kWh"
+
+
+TIBBER_DEMO_TOKEN = "3A77EECF61BD445F47241A5A36202185C35AF3AF58609E19B53F3A8872AD7BE1-1"

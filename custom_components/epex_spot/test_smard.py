@@ -10,13 +10,18 @@ from .EPEXSpot import SMARD
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        service = SMARD.SMARD(market_area="DE-LU", session=session)
-        # print(service.MARKET_AREAS)
+        durations = [15, 60]
 
-        await service.fetch()
-        print(f"count = {len(service.marketdata)}")
-        for e in service.marketdata:
-            print(f"{e.start_time}: {e.price_per_kwh} {UOM_EUR_PER_KWH}")
+        for duration in durations:
+            service = SMARD.SMARD(
+                market_area="DE-LU", session=session, duration=duration
+            )
+            # print(service.MARKET_AREAS)
+
+            await service.fetch()
+            print(f"duration={duration} count = {len(service.marketdata)}")
+            for e in service.marketdata:
+                print(f"{e.start_time}: {e.net_price_per_kwh} {UOM_EUR_PER_KWH}")
 
 
 asyncio.run(main())

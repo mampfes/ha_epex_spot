@@ -4,7 +4,7 @@ from datetime import datetime
 
 import aiohttp
 
-from ...const import UOM_EUR_PER_KWH
+from ...const import UOM_EUR_PER_KWH, TIBBER_DEMO_TOKEN
 from ...common import Marketprice
 
 TIBBER_QUERY = """
@@ -36,7 +36,6 @@ TIBBER_QUERY = """
 
 
 class Tibber:
-    DEMO_TOKEN = "3A77EECF61BD445F47241A5A36202185C35AF3AF58609E19B53F3A8872AD7BE1-1"
     URL = "https://api.tibber.com/v1-beta/gql"
 
     MARKET_AREAS = ("de", "nl", "no", "se")
@@ -50,7 +49,7 @@ class Tibber:
         session: aiohttp.ClientSession,
     ):
         self._session = session
-        self._token = token if token != "demo" else self.DEMO_TOKEN
+        self._token = token if token != "demo" else TIBBER_DEMO_TOKEN
         self._market_area = market_area
         self._duration = duration
         self._marketdata = []
@@ -77,6 +76,7 @@ class Tibber:
 
     async def fetch(self):
         data = await self._fetch_data(self.URL)
+        print(data)
         self._marketdata = self._extract_marketdata(
             data["data"]["viewer"]["homes"][0]["currentSubscription"]["priceInfo"]
         )
