@@ -47,11 +47,11 @@ class smartENERGY:
         data = await self._fetch_data(self.URL)
         duration = data["interval"]
         assert data["unit"].lower() == CT_PER_KWH.lower()
-        marketdata = self._extract_marketdata(data["data"], duration)
+        self._marketdata = self._extract_marketdata(data["data"], duration)
 
         # compress data if required
         if duration < self._duration:
-            self._marketdata = compress_marketdata(marketdata, self._duration)
+            self._marketdata = compress_marketdata(self.marketdata, self._duration)
 
     async def _fetch_data(self, url):
         async with self._session.get(url) as resp:
