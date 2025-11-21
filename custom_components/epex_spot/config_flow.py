@@ -6,7 +6,7 @@ Used by UI to setup integration.
 import voluptuous as vol
 from typing import List, Tuple
 
-from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.core import callback
 
 from .const import (
@@ -42,7 +42,7 @@ CONF_SOURCE_LIST = (
 )
 
 
-class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore
+class EpexSpotConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore
     """Component config flow."""
 
     VERSION = CONFIG_VERSION
@@ -123,18 +123,17 @@ class EpexSpotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
     @staticmethod
     @callback
     def async_get_options_flow(
-        config_entry: config_entries.ConfigEntry,
-    ) -> config_entries.OptionsFlow:
+        config_entry: ConfigEntry,
+    ) -> OptionsFlow:
         """Create the options flow."""
-        return EpexSpotOptionsFlow(config_entry)
+        return EpexSpotOptionsFlow()
 
 
-class EpexSpotOptionsFlow(config_entries.OptionsFlow):
+class EpexSpotOptionsFlow(OptionsFlow):
     """Handle the start of the option flow."""
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+    def __init__(self) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
