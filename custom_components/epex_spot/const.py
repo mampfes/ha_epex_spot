@@ -11,7 +11,7 @@ ATTR_SELL_VOLUME_MWH = "sell_volume_mwh"
 ATTR_VOLUME_MWH = "volume_mwh"
 ATTR_RANK = "rank"
 ATTR_QUANTILE = "quantile"
-ATTR_NET_PRICE_PER_KWH = "net_price_per_kwh"
+ATTR_PRICE_PER_KWH = "price_per_kwh"
 
 CONFIG_VERSION = 2
 CONF_SOURCE = "source"
