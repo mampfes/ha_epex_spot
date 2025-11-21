@@ -152,12 +152,12 @@ class SourceShell:
             self.marketdata,
         )
         sorted_sorted_marketdata_today = sorted(
-            sorted_marketdata_today, key=lambda e: e.price_per_kwh
+            sorted_marketdata_today, key=lambda e: e.net_price_per_kwh
         )
         self._sorted_marketdata_today = sorted_sorted_marketdata_today
 
-    def to_net_price(self, price_per_kwh):
-        net_p = price_per_kwh
+    def to_gross_price(self, net_price_per_kwh):
+        net_p = net_price_per_kwh
 
         # Standard calculation for other cases
         if "Tibber API" not in self.name:
@@ -200,6 +200,6 @@ class SourceShell:
         return {
             "start": result["start"],
             "end": result["start"] + duration,
-            "price_per_kwh": round(result["price_per_hour"], 6),
-            "net_price_per_kwh": self.to_net_price(result["price_per_hour"]),
+            "net_price_per_kwh": round(result["net_price_per_hour"], 6),
+            "gross_price_per_kwh": self.to_gross_price(result["net_price_per_hour"]),
         }

@@ -45,10 +45,10 @@ class Marketprice:
         self._buy_volume_mwh = _to_float(buy_volume_mwh)
         self._sell_volume_mwh = _to_float(sell_volume_mwh)
         self._volume_mwh = _to_float(volume_mwh)
-        self._price_per_kwh = round(_to_float(price) / 1000.0, 6)
+        self._net_price_per_kwh = round(_to_float(price) / 1000.0, 6)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, buy_volume_mwh: {self._buy_volume_mwh} {UOM_MWH}, sell_volume_mwh: {self._sell_volume_mwh} {UOM_MWH}, volume_mwh: {self._volume_mwh} {UOM_MWH}, marketprice: {self._price_per_kwh} {UOM_EUR_PER_KWH})"  # noqa: E501
+        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, buy_volume_mwh: {self._buy_volume_mwh} {UOM_MWH}, sell_volume_mwh: {self._sell_volume_mwh} {UOM_MWH}, volume_mwh: {self._volume_mwh} {UOM_MWH}, marketprice: {self._net_price_per_kwh} {UOM_EUR_PER_KWH})"  # noqa: E501
 
     @property
     def start_time(self) -> datetime:
@@ -59,8 +59,8 @@ class Marketprice:
         return self._end_time
 
     @property
-    def price_per_kwh(self):
-        return self._price_per_kwh
+    def net_price_per_kwh(self):
+        return self._net_price_per_kwh
 
     @property
     def buy_volume_mwh(self):
