@@ -13,7 +13,6 @@ from .const import (
     CONF_MARKET_AREA,
     CONF_SOURCE,
     CONF_SOURCE_AWATTAR,
-    CONF_SOURCE_EPEX_SPOT_WEB,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
@@ -30,11 +29,10 @@ from .const import (
     DEFAULT_TAX,
     DOMAIN,
 )
-from .EPEXSpot import SMARD, Awattar, EPEXSpotWeb, Tibber, smartENERGY, Energyforecast
+from .EPEXSpot import SMARD, Awattar, Tibber, smartENERGY, Energyforecast
 
 CONF_SOURCE_LIST = (
     CONF_SOURCE_AWATTAR,
-    CONF_SOURCE_EPEX_SPOT_WEB,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
@@ -193,12 +191,6 @@ def getParametersForSource(
             Energyforecast.Energyforecast.MARKET_AREAS,
             Energyforecast.Energyforecast.SUPPORTED_DURATIONS,
             True,
-        )
-    if source_name == CONF_SOURCE_EPEX_SPOT_WEB:
-        return (
-            EPEXSpotWeb.EPEXSpotWeb.MARKET_AREAS,
-            EPEXSpotWeb.EPEXSpotWeb.SUPPORTED_DURATIONS,
-            False,
         )
     if source_name == CONF_SOURCE_TIBBER:
         return (

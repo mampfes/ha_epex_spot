@@ -4,6 +4,9 @@
 
 This component adds electricity prices from stock exchange [EPEX Spot](https://www.epexspot.com) to Home Assistant. [EPEX Spot](https://www.epexspot.com) does not provide free access to the data, so this component uses different ways to retrieve the data.
 
+> [!NOTE]
+> Disclaimer: This library is not affiliated with EPEX Spot. It is an independent project developed to provide access to the electricity price market data. Any trademarks or product names mentioned are the property of their respective owners.
+
 ---
 
 There is a companion integration which simplifies the use of EPEX Spot integration to switch on/off an application depending on the energy market prices:
@@ -17,16 +20,13 @@ You can choose between multiple sources:
 1. Awattar
    [Awattar](https://www.awattar.de/services/api) provides a free of charge service for their customers. Market price data is available for Germany and Austria. So far no user identifiation is required.
 
-2. EPEX Spot Web Scraper
-   This source uses web scraping technologies to retrieve publicly available data from its [website](https://www.epexspot.com/en/market-data).
-
-3. SMARD.de
+2. SMARD.de
    [SMARD.de](https://www.smard.de) provides a free of charge API to retrieve a lot of information about electricity market including market prices. SMARD.de is serviced by the Bundesnetzagentur, Germany.
 
-4. smartENERGY.at
+3. smartENERGY.at
    [smartENERGY.at](https://www.smartenergy.at/api-schnittstellen) provides a free of charge service for their customers. Market price data is available for Austria. So far no user identifiation is required.
 
-5. Energyforecast.de
+4. Energyforecast.de
    [Energyforecast.de](https://www.energyforecast.de/api-docs/index.html) provides services to get market price data forecasts for Germany up to 96 hours into the future. An API token is required.
 
 If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
@@ -55,19 +55,13 @@ In case you would like to install manually:
 This integration provides the following sensors:
 
 1. Net market price
-2. Market price
+2. Gross market price
 3. Average market price during the day
 4. Median market price during the day
 5. Lowest market price during the day
 6. Highest market price during the day
 7. Current market price quantile during the day
 8. Rank of the current market price during the day
-
-The _EPEX Spot Web Scraper_ provides some additional sensors:
-
-- Buy Volume
-- Sell Volume
-- Volume
 
 NOTE: For GB data, the prices will be shown in GBP instead of EUR. The sensor attribute names are adjusted accordingly.
 
@@ -112,7 +106,7 @@ Tax = 19%
 Gross Price = ((Net Price * 1.03) + 0.012) * 1.19
 ```
 
-#### Note about smartENERGY.at
+> [!NOTE] smartENERGY.at
 
 As of Feb 2024, even though smartENERGY says that the prices reported by the API already include 20% tax (meaning users would configure the sensor to add a static €0.0144 to every price value from the API), [this is incorrect, and the API reports pricing without Tax](https://github.com/mampfes/ha_epex_spot/issues/108#issuecomment-1951423366 "this is incorrect, and the API reports pricing without Tax").
 
@@ -633,7 +627,7 @@ apex_config:
 
 **Assumptions:**
 
-This example assumes that you are using the EPEX Spot Web Scraper as a source and want to display the Price in €/kWh for the next 48 hours, and highlight a 4-hour block where the electricity price is the lowest. As with the previous example, the `entity` and the `entry` being processed by the `data_generator` are specific to this data source, and you should update them to match your configuration.
+This example assumes that you want to display the Price in €/kWh for the next 48 hours, and highlight a 4-hour block where the electricity price is the lowest. As with the previous example, the `entity` and the `entry` being processed by the `data_generator` are specific to this data source, and you should update them to match your configuration.
 
 In case the electricity pricing in your market results in the entire sparkline having one static colour (for example, the line always appears magenta), you will need to fine-tune the `color_threshold` entries . You can do this by either editing the `value` entries in the example above, or you can also add more `value` and `color` pairs if you want additional colours.
 
