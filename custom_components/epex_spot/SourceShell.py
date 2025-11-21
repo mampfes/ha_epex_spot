@@ -19,7 +19,6 @@ from .const import (
     CONF_SOURCE,
     CONF_SOURCE_AWATTAR,
     CONF_SOURCE_ENERGYFORECAST,
-    CONF_SOURCE_EPEX_SPOT_WEB,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
@@ -33,7 +32,7 @@ from .const import (
     DEFAULT_TAX,
     EMPTY_EXTREME_PRICE_INTERVAL_RESP,
 )
-from .EPEXSpot import SMARD, Awattar, Energyforecast, EPEXSpotWeb, Tibber, smartENERGY
+from .EPEXSpot import SMARD, Awattar, Energyforecast, Tibber, smartENERGY
 from .extreme_price_interval import find_extreme_price_interval, get_start_times
 
 _LOGGER = logging.getLogger(__name__)
@@ -50,12 +49,6 @@ class SourceShell:
         # create source object
         if config_entry.data[CONF_SOURCE] == CONF_SOURCE_AWATTAR:
             self._source = Awattar.Awattar(
-                market_area=config_entry.data[CONF_MARKET_AREA],
-                duration=config_entry.options.get(CONF_DURATION, DEFAULT_DURATION),
-                session=session,
-            )
-        elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_EPEX_SPOT_WEB:
-            self._source = EPEXSpotWeb.EPEXSpotWeb(
                 market_area=config_entry.data[CONF_MARKET_AREA],
                 duration=config_entry.options.get(CONF_DURATION, DEFAULT_DURATION),
                 session=session,

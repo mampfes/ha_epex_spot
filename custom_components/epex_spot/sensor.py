@@ -19,7 +19,6 @@ from .const import (
     ATTR_START_TIME,
     ATTR_VOLUME_MWH,
     CONF_SOURCE,
-    CONF_SOURCE_EPEX_SPOT_WEB,
     DOMAIN,
 )
 from . import EpexSpotEntity, EpexSpotDataUpdateCoordinator as DataUpdateCoordinator
@@ -44,15 +43,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         EpexSpotAveragePriceSensorEntity(coordinator),
         EpexSpotMedianPriceSensorEntity(coordinator),
     ]
-
-    if config_entry.data[CONF_SOURCE] == CONF_SOURCE_EPEX_SPOT_WEB:
-        entities.extend(
-            [
-                EpexSpotBuyVolumeSensorEntity(coordinator),
-                EpexSpotSellVolumeSensorEntity(coordinator),
-                EpexSpotVolumeSensorEntity(coordinator),
-            ]
-        )
 
     async_add_entities(entities)
 
