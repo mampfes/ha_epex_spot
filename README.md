@@ -54,8 +54,8 @@ In case you would like to install manually:
 
 This integration provides the following sensors:
 
-1. Net market price
-2. Gross market price
+1. Gross market price
+2. Net market price
 3. Average market price during the day
 4. Median market price during the day
 5. Lowest market price during the day
@@ -65,7 +65,7 @@ This integration provides the following sensors:
 
 NOTE: For GB data, the prices will be shown in GBP instead of EUR. The sensor attribute names are adjusted accordingly.
 
-### 1. Net Market Price Sensor
+### 1. Gross Market Price Sensor
 
 The sensor value reports the gross market price in €/£/kWh. The price value will be updated every hour to reflect the current gross market price.
 
