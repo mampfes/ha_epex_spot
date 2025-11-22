@@ -75,13 +75,13 @@ The sensor attributes contains a list of all available gross market prices (for 
 data:
   - start_time: "2022-12-15T23:00:00+00:00"
     end_time: "2022-12-16T00:00:00+00:00"
-    gross_price_per_kwh: 0.12485
+    price_per_kwh: 0.12485
   - start_time: "2022-12-16T00:00:00+00:00"
     end_time: "2022-12-16T01:00:00+00:00"
-    gross_price_per_kwh: 0.12235
+    price_per_kwh: 0.12235
   - start_time: "2022-12-16T01:00:00+00:00"
     end_time: "2022-12-16T02:00:00+00:00"
-    gross_price_per_kwh: 0.12247
+    price_per_kwh: 0.12247
 ```
 
 The gross market price will be calculated as follows:
@@ -129,13 +129,13 @@ net_price_per_kwh: 0.089958
 data:
   - start_time: "2022-12-15T23:00:00+00:00"
     end_time: "2022-12-16T00:00:00+00:00"
-    net_price_per_kwh: 0.092042
+    price_per_kwh: 0.092042
   - start_time: "2022-12-16T00:00:00+00:00"
     end_time: "2022-12-16T01:00:00+00:00"
-    net_price_per_kwh: 0.090058
+    price_per_kwh: 0.090058
   - start_time: "2022-12-16T01:00:00+00:00"
     end_time: "2022-12-16T02:00:00+00:00"
-    net_price_per_kwh: 0.126067
+    price_per_kwh: 0.126067
 ```
 
 ### 3. Average Market Price Sensor
@@ -369,7 +369,7 @@ series:
     extend_to: end
     data_generator: |
       return entity.attributes.data.map((entry) => {
-        return [new Date(entry.start_time), entry.net_price_per_kwh];
+        return [new Date(entry.start_time), entry.price_per_kwh];
       });
 ```
 
@@ -381,7 +381,7 @@ This example assumes that you are using smartENERGY.at as a source and want to d
 
 ![Apex Chart Data Source Example](/images/apexcharts-entities-example.png)
 
-If you are using a different source, you will need to first update `sensor.epex_spot_data_gross_price` to use the correct sensor for your configuration (check which Entities you have available under Devices → Integrations → EPEX Spot → `#` Entities) and then change `entry.net_price_per_kwh` to the attribute that you want to use from your sensor of choice. If your data source does not report prices for the next day, you can change the `graph_span` to `24h` to get rid of the empty space that this configuration would create.
+If you are using a different source, you will need to first update `sensor.epex_spot_data_gross_price` to use the correct sensor for your configuration (check which Entities you have available under Devices → Integrations → EPEX Spot → `#` Entities) and then change `entry.price_per_kwh` to the attribute that you want to use from your sensor of choice. If your data source does not report prices for the next day, you can change the `graph_span` to `24h` to get rid of the empty space that this configuration would create.
 
 ### 2. How can I optimise the best moment to start appliances?
 
@@ -548,7 +548,7 @@ series:
       extremas: true
     data_generator: >
       return entity.attributes.data.map((entry/*, index*/) => (
-        [new Date(entry.start_time).getTime(), entry.net_price_per_kwh]
+        [new Date(entry.start_time).getTime(), entry.price_per_kwh]
       )).slice(0, 24);
     color_threshold:
       - value: 0
@@ -577,7 +577,7 @@ series:
       extremas: true
     data_generator: >
       return entity.attributes.data.map((entry/*, index*/) => (
-        [new Date(entry.start_time).getTime(), entry.net_price_per_kwh]
+        [new Date(entry.start_time).getTime(), entry.price_per_kwh]
       )).slice(23, 47);
     color_threshold:
       - value: 0
@@ -605,7 +605,7 @@ series:
     extend_to: false
     data_generator: >
       return entity.attributes.data.map((entry/*, index*/) => (
-        [new Date(entry.start_time).getTime(), entry.net_price_per_kwh]
+        [new Date(entry.start_time).getTime(), entry.price_per_kwh]
       )).slice(parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0, 2)), parseInt(hass.states['sensor.epex_start_low_period'].state.substring(0, 2)) + 4);
 experimental:
   color_threshold: true
