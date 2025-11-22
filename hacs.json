@@ -1,5 +1,5 @@
 {
   "name": "EPEX Spot",
   "render_readme": true,
-  "homeassistant": "2023.9.0"
+  "homeassistant": "2024.12.0"
 }
