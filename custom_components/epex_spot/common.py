@@ -1,14 +1,18 @@
 from datetime import datetime, timedelta
 from typing import List
 
-from .const import CT_PER_KWH
+from .const import UOM_EUR_PER_KWH
 
 
 class Marketprice:
     """Marketprice class"""
 
     def __init__(
-        self, start_time: datetime, duration: int, price: float, unit: str = CT_PER_KWH
+        self,
+        start_time: datetime,
+        duration: int,
+        price: float,
+        unit: str = UOM_EUR_PER_KWH,
     ):
         self._start_time = start_time
         self._end_time = self._start_time + timedelta(minutes=duration)

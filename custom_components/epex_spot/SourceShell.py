@@ -6,6 +6,7 @@ from typing import Any
 
 import aiohttp
 
+from custom_components.epex_spot.EPEXSpot import ENTSOE
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.util import dt
 
@@ -19,6 +20,7 @@ from .const import (
     CONF_SOURCE,
     CONF_SOURCE_AWATTAR,
     CONF_SOURCE_ENERGYFORECAST,
+    CONF_SOURCE_ENTSOE,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
@@ -79,6 +81,15 @@ class SourceShell:
                 token=self._config_entry.data[CONF_TOKEN],
                 session=session,
             )
+        elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_ENTSOE:
+            self._source = ENTSOE.EntsoeTransparency(
+                market_area=config_entry.data[CONF_MARKET_AREA],
+                duration=config_entry.options.get(CONF_DURATION, DEFAULT_DURATION),
+                token=self._config_entry.data[CONF_TOKEN],
+                session=session,
+            )
+        else:
+            raise ValueError(f"Unsupported source: {config_entry.data[CONF_SOURCE]}")
 
     @property
     def unique_id(self):
