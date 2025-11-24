@@ -2,51 +2,77 @@
 
 from datetime import datetime, timedelta, timezone
 import enum
+from gettext import find
 import logging
 import aiohttp
 import xml.etree.ElementTree as ET
 from typing import List
 
 # Replace this import with your actual Marketprice & compress_marketdata implementations
-from ...common import Marketprice, compress_marketdata
+from ...common import Marketprice, average_marketdata
 
 _LOGGER = logging.getLogger(__name__)
 
 MARKET_AREA_MAP = {
-    "BE": "10YBE----------2",
-    "BG": "10YBG----------L",
-    "CZ": "10YCZ----------N",
-    "DK_W": "10YDK-1--------W",
-    "DK_E": "10YDK-2--------M",
-    "EE": "10YEE----------2",
-    "FI": "10YFI----------P",
-    "FR": "10YFR-RTE-----C",
-    "DE_ENBW": "10YDE-ENBW-----N",
-    "DE_RWE": "10YDE-RWE------C",
-    "DE_TSO": "10YDE-TSO-----T",
-    "DE_VATTEN": "10YDE-VATTEN---L",
-    "DE_TRANSNETBW": "10YDE-VE-------2",
-    "GR": "10YGR-HTSO-----Y",
-    "HU": "10YHU-MAVIR----U",
-    "IE": "10YIE----------1",
-    "IT": "10YIT-GRTN-----B",
-    "IT_N": "10YIT-NORD-----T",
-    "IT_S": "10YIT-SUD-----H",
-    "LT": "10YLT-1001A0008Q",
-    "LV": "10YLV-1001A00074",
     "NL": "10YNL----------L",
-    "NO_S": "10YNOS---------T",
-    "PL": "10YPL-AREA-----S",
-    "PT": "10YPT-TSO-----S",
-    "RO": "10YRO-TEL------P",
-    "SE_1": "10YSE-1--------K",
-    "SE_2": "10YSE-2--------K",
-    "SE_3": "10YSE-3--------J",
-    "SE_4": "10YSE-4--------K",
-    "SI": "10YSI-ELES-----O",
-    "GB": "10YGB----------A",
-    "CH": "10YCH-SWISSGRIDZ",
+    "FR": "10YFR-RTE------C",
+    "BE": "10YBE----------2",
     "AT": "10YAT-APG------L",
+    "DE-LU": "10YCB-GERMANY--8",
+    "BRNN": "10Y1001A1001A699",
+    "LRI": "43YLRI--------04",
+    "MO": "10YMA-ONE------O",
+    "ES": "10YES-REE------0",
+    "NO3": "10YNO-3--------J",
+    "CORS": "10Y1001A1001A893",
+    "AUST": "10Y1001A1001A80L",
+    "NIR": "10Y1001A1001A016",
+    "FOGN": "10Y1001A1001A72K",
+    "SE1": "10Y1001A1001A44P",
+    "HR": "10YHR-HEP------M",
+    "NO1A": "10Y1001A1001A64J",
+    "LBE": "10Y1001A1001A56I",
+    "NO5": "10Y1001A1001A48H",
+    "PRGP": "10Y1001A1001A76C",
+    "BSP": "10YSI-ELES-----O",
+    "SVIZ": "10Y1001A1001A68B",
+    "SUD": "10Y1001A1001A788",
+    "BG": "10YCA-BULGARIA-R",
+    "ERI": "38YNPSRUIMP----S",
+    "LRE": "43YLRE-------008",
+    "FRAN": "10Y1001A1001A81J",
+    "NORD": "10Y1001A1001A73I",
+    "SE2": "10Y1001A1001A45N",
+    "GB1": "10Y1001A1001A57G",
+    "ROSN": "10Y1001A1001A77A",
+    "CNOR": "10Y1001A1001A70O",
+    "DK1": "10YDK-1--------W",
+    "MALT": "10Y1001A1001A877",
+    "NO4": "10YNO-4--------9",
+    "MFTV": "10Y1001A1001A90I",
+    "NO1": "10YNO-1--------2",
+    "SARD": "10Y1001A1001A74G",
+    "SE3": "10Y1001A1001A46L",
+    "GREC": "10Y1001A1001A66F",
+    "LV": "10YLV-1001A00074",
+    "GB2": "10Y1001A1001A58E",
+    "PT": "10YPT-REN------W",
+    "FI": "10YFI-1--------U",
+    "CSUD": "10Y1001A1001A71M",
+    "COAC": "10Y1001A1001A885",
+    "ROI": "10YIE-1001A00010",
+    "LBI": "10Y1001A1001A55K",
+    "PLA": "10YDOM-PL-SE-LT2",
+    "SICI": "10Y1001A1001A75E",
+    "SE4": "10Y1001A1001A47J",
+    "LT": "10YLT-1001A0008Q",
+    "EE": "10Y1001A1001A39I",
+    "SLOV": "10Y1001A1001A67D",
+    "NO2": "10YNO-2--------T",
+    "PL": "10YPL-AREA-----S",
+    "FRE": "10YDOM-1001A084H",
+    "DK2": "10YDK-2--------M",
+    "DK1A": "10YDK-1-------AA",
 }
 
 
@@ -105,8 +131,9 @@ class EntsoeTransparency:
         self._marketdata = sorted(day_ahead_data, key=lambda x: x.start_time)
 
         # Compress if needed
-        if self._duration != 60:
-            self._marketdata = compress_marketdata(self._marketdata, self._duration)
+        if self._duration != 15:
+            logging.debug("Averaging market data... from 15 to", self._duration)
+            self._marketdata = average_marketdata(self._marketdata, self._duration)
 
     async def _fetch_day_ahead(self) -> List[Marketprice]:
         """Fetch day-ahead electricity prices (A44)."""
@@ -125,6 +152,7 @@ class EntsoeTransparency:
         }
 
         xml_text = await self._fetch_data(self.URL, params)
+
         return self._extract_marketdata(xml_text)
 
     async def _fetch_data(self, url, params):
@@ -141,7 +169,29 @@ class EntsoeTransparency:
 
         resolution_map = {"PT15M": 15, "PT60M": 60, "PT30M": 30}
 
-        for timeseries in root.findall("ns:TimeSeries", ns):
+        all_timeseries = root.findall("ns:TimeSeries", ns)
+
+        sequences = []
+        for ts in all_timeseries:
+            seq = ts.find(
+                "ns:classificationSequence_AttributeInstanceComponent.position", ns
+            )
+            if seq is not None:
+                sequences.append(seq.text)
+
+        if sequences:
+            filtered_timeseries = []
+            for ts in all_timeseries:
+                seq_el = ts.find(
+                    "ns:classificationSequence_AttributeInstanceComponent.position", ns
+                )
+                if seq_el is not None and seq_el.text == "1":  # SDAC
+                    filtered_timeseries.append(ts)
+            timeseries_list = filtered_timeseries
+        else:
+            timeseries_list = all_timeseries
+
+        for timeseries in timeseries_list:
             for period in timeseries.findall("ns:Period", ns):
                 time_interval = period.find("ns:timeInterval", ns)
                 start_str = time_interval.find("ns:start", ns).text
@@ -165,4 +215,5 @@ class EntsoeTransparency:
                             price=round(price_kwh, 6),
                         )
                     )
+
         return entries

@@ -25,7 +25,7 @@ async def main():
             print(f"\n=== Testing ENTSO-E Duration: {duration} minutes ===")
 
             service = ENTSOE.EntsoeTransparency(
-                market_area="AT",
+                market_area="FR",
                 duration=duration,
                 session=session,
                 token=token,

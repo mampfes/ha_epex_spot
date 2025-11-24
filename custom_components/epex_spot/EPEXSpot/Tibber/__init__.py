@@ -76,7 +76,6 @@ class Tibber:
 
     async def fetch(self):
         data = await self._fetch_data(self.URL)
-        print(data)
         self._marketdata = self._extract_marketdata(
             data["data"]["viewer"]["homes"][0]["currentSubscription"]["priceInfo"]
         )
