@@ -1,14 +1,18 @@
 from datetime import datetime, timedelta
 from typing import List
 
-from .const import CT_PER_KWH
+from .const import UOM_EUR_PER_KWH
 
 
 class Marketprice:
     """Marketprice class"""
 
     def __init__(
-        self, start_time: datetime, duration: int, price: float, unit: str = CT_PER_KWH
+        self,
+        start_time: datetime,
+        duration: int,
+        price: float,
+        unit: str = UOM_EUR_PER_KWH,
     ):
         self._start_time = start_time
         self._end_time = self._start_time + timedelta(minutes=duration)
@@ -46,7 +50,7 @@ def compress_marketdata(data: List[Marketprice], duration: int) -> List[Marketpr
         max_start_time = start.start_time + timedelta(minutes=duration)
         is_same_interval = entry.start_time < max_start_time
 
-        if is_price_equal & is_continuation & is_same_interval:
+        if is_price_equal and is_continuation and is_same_interval:
             start.set_end_time(entry.end_time)
         else:
             entries.append(start)
@@ -54,3 +58,28 @@ def compress_marketdata(data: List[Marketprice], duration: int) -> List[Marketpr
     if start is not None:
         entries.append(start)
     return entries
+
+
+def average_marketdata(
+    data: List[Marketprice], target_duration: int
+) -> List[Marketprice]:
+    if not data:
+        return []
+
+    entry_duration = int((data[0]._end_time - data[0]._start_time).total_seconds() / 60)
+
+    group_size = target_duration // entry_duration
+
+    result: List[Marketprice] = []
+
+    for i in range(0, len(data), group_size):
+        group = data[i : i + group_size]
+
+        avg_price = round(sum(e._net_price_per_kwh for e in group) / len(group), 5)
+        start = group[0]._start_time
+
+        result.append(
+            Marketprice(start_time=start, duration=target_duration, price=avg_price)
+        )
+
+    return result

@@ -13,6 +13,7 @@ from .const import (
     CONF_MARKET_AREA,
     CONF_SOURCE,
     CONF_SOURCE_AWATTAR,
+    CONF_SOURCE_ENTSOE,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
@@ -29,10 +30,18 @@ from .const import (
     DEFAULT_TAX,
     DOMAIN,
 )
-from .EPEXSpot import SMARD, Awattar, Tibber, smartENERGY, Energyforecast
+from .EPEXSpot import (
+    SMARD,
+    Awattar,
+    Tibber,
+    smartENERGY,
+    Energyforecast,
+    ENTSOE,
+)
 
 CONF_SOURCE_LIST = (
     CONF_SOURCE_AWATTAR,
+    CONF_SOURCE_ENTSOE,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
@@ -209,6 +218,12 @@ def getParametersForSource(
             smartENERGY.smartENERGY.MARKET_AREAS,
             smartENERGY.smartENERGY.SUPPORTED_DURATIONS,
             False,
+        )
+    if source_name == CONF_SOURCE_ENTSOE:
+        return (
+            sorted(ENTSOE.EntsoeTransparency.MARKET_AREAS),
+            ENTSOE.EntsoeTransparency.SUPPORTED_DURATIONS,
+            True,
         )
 
     return ([], [], False)
