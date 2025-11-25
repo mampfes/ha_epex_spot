@@ -118,7 +118,7 @@ class EpexSpotConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore
                 data[CONF_TOKEN] = user_input[CONF_TOKEN]
             options = {CONF_DURATION: DEFAULT_DURATION}
             if CONF_DURATION in user_input:
-                options[CONF_DURATION] = options[CONF_DURATION]
+                options[CONF_DURATION] = user_input[CONF_DURATION]
 
             return self.async_create_entry(
                 title=title,
