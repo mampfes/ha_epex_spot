@@ -162,7 +162,7 @@ class EntsoeTransparency:
             return await resp.text()
 
     def _extract_marketdata(self, xml_text) -> List[Marketprice]:
-        """Extract prices (€/MWh → €/kWh) from XML."""
+        """Extract prices (€/MWh → €/kWh) from XML, filling missing positions."""
         entries: List[Marketprice] = []
         root = ET.fromstring(xml_text)
         ns = {"ns": "urn:iec62325.351:tc57wg16:451-3:publicationdocument:7:3"}
@@ -179,13 +179,14 @@ class EntsoeTransparency:
             if seq is not None:
                 sequences.append(seq.text)
 
+        # Filter SDAC sequence==1 if present
         if sequences:
             filtered_timeseries = []
             for ts in all_timeseries:
                 seq_el = ts.find(
                     "ns:classificationSequence_AttributeInstanceComponent.position", ns
                 )
-                if seq_el is not None and seq_el.text == "1":  # SDAC
+                if seq_el is not None and seq_el.text == "1":
                     filtered_timeseries.append(ts)
             timeseries_list = filtered_timeseries
         else:
@@ -202,10 +203,27 @@ class EntsoeTransparency:
                 resolution = period.find("ns:resolution", ns).text
                 duration = resolution_map.get(resolution, 60)
 
+                prev_price_kwh = None
+                prev_position = None
+
                 for point in period.findall("ns:Point", ns):
                     position = int(point.find("ns:position", ns).text) - 1
                     price_mwh = float(point.find("ns:price.amount", ns).text)
                     price_kwh = price_mwh / 1000.0
+
+                    if prev_position is not None and position > prev_position + 1:
+                        for missing_pos in range(prev_position + 1, position):
+                            logging.debug(
+                                f"Filling missing position {missing_pos} using previous price {prev_price_kwh} €/kWh"
+                            )
+                            entries.append(
+                                Marketprice(
+                                    start_time=start_dt
+                                    + timedelta(minutes=missing_pos * duration),
+                                    duration=duration,
+                                    price=round(prev_price_kwh, 6),
+                                )
+                            )
 
                     entries.append(
                         Marketprice(
@@ -215,5 +233,8 @@ class EntsoeTransparency:
                             price=round(price_kwh, 6),
                         )
                     )
+
+                    prev_price_kwh = price_kwh
+                    prev_position = position
 
         return entries
