@@ -85,8 +85,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    entry.async_on_unload(entry.add_update_listener(on_update_options_listener))
-
     entry.async_on_unload(
         async_track_time_change(
             hass, coordinator.on_refresh, hour=None, minute=0, second=0
@@ -188,13 +186,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
     return unload_ok
-
-
-async def on_update_options_listener(hass, entry):
-    """Handle options update."""
-    # update all sensors immediately
-    coordinator = hass.data[DOMAIN][entry.entry_id]
-    await coordinator.async_request_refresh()
 
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
