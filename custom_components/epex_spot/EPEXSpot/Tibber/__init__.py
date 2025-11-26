@@ -14,18 +14,12 @@ TIBBER_QUERY = """
       currentSubscription {
         priceInfo(resolution: {resolution}) {
           today {
-            total
             energy
-            tax
             startsAt
-            currency
           }
           tomorrow {
-            total
             energy
-            tax
             startsAt
-            currency
           }
         }
       }
@@ -101,7 +95,7 @@ class Tibber:
                 Marketprice(
                     duration=self._duration,
                     start_time=datetime.fromisoformat(entry["startsAt"]),
-                    price=round(float(entry["total"]), 6),
+                    price=round(float(entry["energy"]), 6),
                     unit=UOM_EUR_PER_KWH,
                 )
             )
@@ -110,7 +104,7 @@ class Tibber:
                 Marketprice(
                     duration=self._duration,
                     start_time=datetime.fromisoformat(entry["startsAt"]),
-                    price=round(float(entry["total"]), 6),
+                    price=round(float(entry["energy"]), 6),
                     unit=UOM_EUR_PER_KWH,
                 )
             )
