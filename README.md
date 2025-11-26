@@ -32,7 +32,7 @@ You can choose between multiple sources:
 5. Tibber
    [Tibber](https://developer.tibber.com) is a digital energy supplier that offers an API to access real-time electricity data (prices, consumption, devices, etc.). An API token is required.
 
-6. ENTSO‑E Transparency Platform\*\*  
+6. ENTSO‑E Transparency Platform  
    [ENTSO‑E](https://transparency.entsoe.eu/) operates a Transparency Platform providing a RESTful API for electricity market data (prices, load forecasts, generation, cross-border flows, etc.). An API token is required ([How to get security token?](https://transparencyplatform.zendesk.com/hc/en-us/articles/12845911031188-How-to-get-security-token)).
 
 If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
