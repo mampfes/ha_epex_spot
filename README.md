@@ -121,6 +121,31 @@ To get the actual, current gross price [listed by smartENERGY on their website](
 - Absolute surcharge = €0.012
 - Tax = 20%
 
+> [!NOTE] Tibber
+
+Before version 3.1.0 the integration pulled gross prices only from Tibber. The net price value was also set to the gross price, and settings for surcharges and tax were ignored.
+
+Since version 3.1.0 ony the net price is fetched from Tibber, to align the behavior of this service with the other providers. Hence individual surcharges and tax values have to be configured individually, and - as breaking change - the use of the former sensors `price` and `net_price` in automations, scripts, templates, and dashboards that reference these sensors will need to be updated accordingly to reflect the new names. This step has to be taken anyway to reflect the general change from `net_price` to `gross_price` and `price` to `net_price`.
+
+Setting of surcharge and tax is required for the correct calculation of the gross price. Tibber charges no percentual surcharge, set this value to "0". You can summarize the absolute surcharges from your monthly bill. The PDF version of the bill lists these values on page 2. From the table presented there add all items except the first line ("Strom-Börsenpreis" in german) and use the result as surcharge in €/kWh. As tax please add your local VAT.
+
+Example from the bill, page 2 (german):
+
+| Stromeinkauf |  |  |
+|---|---:|---:|
+| Strom-Börsenpreis | 5,64 ct/kWh | 0,50 € |
+| Weitere Beschaffungskosten (s. §4 AGB) | 1,81 ct/kWh | 0,16 € |
+| Netz |  |  |
+| Netznutzungsentgelt (variabel) | 6,05 ct/kWh | 0,54 € |
+| Steuern, Abgaben & Umlagen |  |  |
+| Konzessionsabgabe | 2,39 ct/kWh | 0,21 € |
+| Stromsteuer | 2,05 ct/kWh | 0,19 € |
+| Offshore Wind Umlage | 0,816 ct/kWh | 0,08 € |
+| KWK Umlage | 0,277 ct/kWh | 0,03 € |
+| Strom NEV Umlage | 1,56 ct/kWh | 0,13 € |
+
+In this example add `1,81 + 6,05 + 2,39 + 2,05 + 0,816 + 0,277 + 1,56`, get `14.953` as result and enter `0.14953` as absolute surcharge in €/kWh.
+
 ### 2. Net Market Price Sensor
 
 The sensor value reports the EPEX Spot net market price in €/£/kWh. The net market price doesn't include taxes, surcharges, VAT. The price value will be updated every hour to reflect the current market price.
