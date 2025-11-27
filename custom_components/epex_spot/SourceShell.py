@@ -163,21 +163,19 @@ class SourceShell:
     def to_gross_price(self, net_price_per_kwh):
         net_p = net_price_per_kwh
 
-        # Standard calculation for other cases
-        if "Tibber API" not in self.name:
-            # Retrieve tax and surcharge values from config
-            surcharge_abs = self._config_entry.options.get(
-                CONF_SURCHARGE_ABS, DEFAULT_SURCHARGE_ABS
-            )
-            tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
+        # Retrieve tax and surcharge values from config
+        surcharge_abs = self._config_entry.options.get(
+            CONF_SURCHARGE_ABS, DEFAULT_SURCHARGE_ABS
+        )
+        tax = self._config_entry.options.get(CONF_TAX, DEFAULT_TAX)
 
-            surcharge_pct = self._config_entry.options.get(
-                CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
-            )
+        surcharge_pct = self._config_entry.options.get(
+            CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
+        )
 
-            net_p = net_p + abs(net_p) * surcharge_pct / 100
-            net_p += surcharge_abs
-            net_p *= 1 + (tax / 100.0)
+        net_p = net_p + abs(net_p) * surcharge_pct / 100
+        net_p += surcharge_abs
+        net_p *= 1 + (tax / 100.0)
 
         return round(net_p, 6)
 
