@@ -18,6 +18,7 @@ from .const import (
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
     CONF_SOURCE_ENERGYFORECAST,
+    CONF_SOURCE_ENERGYCHARTS,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -37,6 +38,7 @@ from .EPEXSpot import (
     smartENERGY,
     Energyforecast,
     ENTSOE,
+    EnergyCharts,
 )
 
 CONF_SOURCE_LIST = (
@@ -46,6 +48,7 @@ CONF_SOURCE_LIST = (
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
     CONF_SOURCE_ENERGYFORECAST,
+    CONF_SOURCE_ENERGYCHARTS,
 )
 
 
@@ -224,6 +227,12 @@ def getParametersForSource(
             sorted(ENTSOE.EntsoeTransparency.MARKET_AREAS),
             ENTSOE.EntsoeTransparency.SUPPORTED_DURATIONS,
             True,
+        )
+    if source_name == CONF_SOURCE_ENERGYCHARTS:
+        return (
+            sorted(EnergyCharts.EnergyCharts.MARKET_AREAS),
+            EnergyCharts.EnergyCharts.SUPPORTED_DURATIONS,
+            False,
         )
 
     return ([], [], False)
