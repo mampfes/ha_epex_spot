@@ -170,12 +170,12 @@ class SourceShell:
             self.marketdata,
         )
         sorted_sorted_marketdata_today = sorted(
-            sorted_marketdata_today, key=lambda e: e.net_price_per_kwh
+            sorted_marketdata_today, key=lambda e: e.market_price_per_kwh
         )
         self._sorted_marketdata_today = sorted_sorted_marketdata_today
 
-    def to_gross_price(self, net_price_per_kwh):
-        gross_price = net_price_per_kwh
+    def to_total_price(self, market_price_per_kwh):
+        total_price = market_price_per_kwh
 
         # Standard calculation for other cases
         if "Tibber API" not in self.name:
@@ -189,11 +189,11 @@ class SourceShell:
                 CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
             )
 
-            gross_price = gross_price + abs(gross_price) * surcharge_pct / 100
-            gross_price += surcharge_abs
-            gross_price *= 1 + (tax / 100.0)
+            total_price = total_price + abs(total_price) * surcharge_pct / 100
+            total_price += surcharge_abs
+            total_price *= 1 + (tax / 100.0)
 
-        return round(gross_price, 6)
+        return round(total_price, 6)
 
     def find_extreme_price_interval(self, call_data, cmp):
         duration: timedelta = call_data[CONF_DURATION]
@@ -218,6 +218,6 @@ class SourceShell:
         return {
             "start": result["start"],
             "end": result["start"] + duration,
-            "net_price_per_kwh": round(result["net_price_per_hour"], 6),
-            "gross_price_per_kwh": self.to_gross_price(result["net_price_per_hour"]),
+            "market_price_per_kwh": round(result["market_price_per_hour"], 6),
+            "total_price_per_kwh": self.to_total_price(result["market_price_per_hour"]),
         }
