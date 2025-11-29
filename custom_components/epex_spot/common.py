@@ -16,11 +16,11 @@ class Marketprice:
     ):
         self._start_time = start_time
         self._end_time = self._start_time + timedelta(minutes=duration)
-        self._net_price_per_kwh = price
+        self._market_price_per_kwh = price
         self._unit = unit
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._net_price_per_kwh} {self._unit})"  # noqa: E501
+        return f"{self.__class__.__name__}(start: {self._start_time.isoformat()}, end: {self._end_time.isoformat()}, marketprice: {self._market_price_per_kwh} {self._unit})"  # noqa: E501
 
     @property
     def start_time(self):
@@ -34,8 +34,8 @@ class Marketprice:
         self._end_time = end_time
 
     @property
-    def net_price_per_kwh(self):
-        return self._net_price_per_kwh
+    def market_price_per_kwh(self):
+        return self._market_price_per_kwh
 
 
 def compress_marketdata(data: List[Marketprice], duration: int) -> List[Marketprice]:
@@ -45,7 +45,7 @@ def compress_marketdata(data: List[Marketprice], duration: int) -> List[Marketpr
         if start is None:
             start = entry
             continue
-        is_price_equal = start.net_price_per_kwh == entry.net_price_per_kwh
+        is_price_equal = start.market_price_per_kwh == entry.market_price_per_kwh
         is_continuation = start.end_time == entry.start_time
         max_start_time = start.start_time + timedelta(minutes=duration)
         is_same_interval = entry.start_time < max_start_time
@@ -75,7 +75,7 @@ def average_marketdata(
     for i in range(0, len(data), group_size):
         group = data[i : i + group_size]
 
-        avg_price = round(sum(e._net_price_per_kwh for e in group) / len(group), 5)
+        avg_price = round(sum(e._market_price_per_kwh for e in group) / len(group), 5)
         start = group[0]._start_time
 
         result.append(

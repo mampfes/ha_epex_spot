@@ -27,7 +27,7 @@ CONF_SOURCE_ENERGYFORECAST = "Energyforecast.de"
 CONF_SOURCE_ENTSOE = "ENTSO-E-Transparency"
 CONF_SOURCE_ENERGYCHARTS = "Energy-Charts.info"
 
-# configuration options for net price calculation
+# configuration options for total price calculation
 CONF_SURCHARGE_PERC = "percentage_surcharge"
 CONF_SURCHARGE_ABS = "absolute_surcharge"
 CONF_TAX = "tax"
@@ -47,8 +47,8 @@ DEFAULT_DURATION = 60
 EMPTY_EXTREME_PRICE_INTERVAL_RESP = {
     "start": None,
     "end": None,
-    "net_price_per_kwh": None,
-    "gross_price_per_kwh": None,
+    "market_price_per_kwh": None,
+    "total_price_per_kwh": None,
 }
 
 UOM_EUR_PER_KWH = "€/kWh"

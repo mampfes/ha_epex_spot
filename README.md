@@ -64,8 +64,8 @@ In case you would like to install manually:
 
 This integration provides the following sensors:
 
-1. Gross market price
-2. Net market price
+1. Total price
+2. Market price
 3. Average market price during the day
 4. Median market price during the day
 5. Lowest market price during the day
@@ -75,11 +75,11 @@ This integration provides the following sensors:
 
 NOTE: For GB data, the prices will be shown in GBP instead of EUR. The sensor attribute names are adjusted accordingly.
 
-### 1. Gross Market Price Sensor
+### 1. Total Price Sensor
 
-The sensor value reports the gross market price in €/£/kWh. The price value will be updated every hour to reflect the current gross market price.
+The sensor value reports the total market price in €/£/kWh. The price value will be updated every hour to reflect the current total market price.
 
-The sensor attributes contains a list of all available gross market prices (for today and tomorrow if available) in €/£/kWh.
+The sensor attributes contains a list of all available total market prices (for today and tomorrow if available) in €/£/kWh.
 
 ```yaml
 data:
@@ -94,11 +94,11 @@ data:
     price_per_kwh: 0.12247
 ```
 
-The gross market price will be calculated as follows:
-`<Gross Price>` = `<Net Price>` + `<Surcharges>` + `<Tax>`
+The total market price will be calculated as follows:
+`<Total Price>` = `<Market Price>` + `<Surcharges>` + `<Tax>`
 
-- Gross market price is the price you have to pay at the end, including taxes, surcharges and VAT.
-- Net price is the energy price from EPEX Spot excluding taxes, surcharges, VAT.
+- Total price is the price you have to pay at the end, including taxes, surcharges and VAT.
+- Market price is the energy price from EPEX Spot excluding taxes, surcharges, VAT.
 - 2 different types of surcharges can be adjusted:
   1. Percentage Surcharge, stated in % of the EPEX Spot market price.
   2. Absolute Surcharge, stated in €/£/kWh, excluding VAT.
@@ -113,29 +113,29 @@ Percentage Surchage = 3%
 Absolute Surcharge = 0.012 €/£/kWh
 Tax = 19%
 
-Gross Price = ((Net Price * 1.03) + 0.012) * 1.19
+Total Price = ((Market Price * 1.03) + 0.012) * 1.19
 ```
 
 > [!NOTE] smartENERGY.at
 
 As of Feb 2024, even though smartENERGY says that the prices reported by the API already include 20% tax (meaning users would configure the sensor to add a static €0.0144 to every price value from the API), [this is incorrect, and the API reports pricing without Tax](https://github.com/mampfes/ha_epex_spot/issues/108#issuecomment-1951423366 "this is incorrect, and the API reports pricing without Tax").
 
-To get the actual, current gross price [listed by smartENERGY on their website](https://www.smartenergy.at/smartcontrol#:~:text=Aktueller%20Stundenpreis "listed by smartENERGY on their website"), configure:
+To get the actual, current total price [listed by smartENERGY on their website](https://www.smartenergy.at/smartcontrol#:~:text=Aktueller%20Stundenpreis "listed by smartENERGY on their website"), configure:
 
 - Absolute surcharge = €0.012
 - Tax = 20%
 
-### 2. Net Market Price Sensor
+### 2. Market Price Sensor
 
-The sensor value reports the EPEX Spot net market price in €/£/kWh. The net market price doesn't include taxes, surcharges, VAT. The price value will be updated every hour to reflect the current market price.
+The sensor value reports the EPEX Spot market price in €/£/kWh. The market price doesn't include taxes, surcharges, VAT. The price value will be updated every selected period to reflect the current market price.
 
 The sensor attributes contains additional values:
 
-- The net market price in €/£/kWh.
+- The market price in €/£/kWh.
 - A list of all available market prices (for today and tomorrow if available) in €/£/kWh.
 
 ```yaml
-net_price_per_kwh: 0.089958
+market_price_per_kwh: 0.089958
 data:
   - start_time: "2022-12-15T23:00:00+00:00"
     end_time: "2022-12-16T00:00:00+00:00"
@@ -163,7 +163,7 @@ The sensor value reports the lowest EPEX Spot market price during the day. The s
 The sensor attributes contains the start and endtime of the lowest market price timeframe.
 
 ```yaml
-net_price_per_kwh: 0.09
+market_price_per_kwh: 0.09
 start_time: "2023-02-15T22:00:00+00:00"
 end_time: "2023-02-15T23:00:00+00:00"
 ```
@@ -295,8 +295,8 @@ Example:
 ```yaml
 start: "2024-11-04T23:00:00+01:00"
 end: "2024-11-05T00:00:00+01:00"
-net_price_per_kwh: 0.098192
-gross_price_per_kwh: 0.13223
+market_price_per_kwh: 0.098192
+total_price_per_kwh: 0.13223
 ```
 
 With Home Assistant release >= 2023.9 you can use the [Template Integration](https://www.home-assistant.io/integrations/template/) to create a sensor (in your `configuration.yaml` file) that shows the start time:
@@ -355,7 +355,7 @@ A significantly easier, GUI-based method to achieve some of the results listed a
 
 ### 1. How can I show a chart of the next hours?
 
-With [ApexCharts](https://github.com/RomRider/apexcharts-card), you can easily show a chart like this to see the hourly net prices for today:
+With [ApexCharts](https://github.com/RomRider/apexcharts-card), you can easily show a chart like this to see the hourly market prices for today:
 
 ![apexchart](/images/apexcharts.png)
 
@@ -373,7 +373,7 @@ now:
   show: true
   label: Now
 series:
-  - entity: sensor.epex_spot_data_gross_price
+  - entity: sensor.epex_spot_data_total_price
     name: Electricity Price
     type: column
     extend_to: end
@@ -387,11 +387,11 @@ See [this Show & Tell post](https://github.com/mampfes/ha_epex_spot/discussions/
 
 **Assumptions:**
 
-This example assumes that you are using smartENERGY.at as a source and want to display the Gross Price in €/kWh for the next 48 hours. The value for `entity` and the `entry` being processed by the `data_generator` are specific to this data source:
+This example assumes that you are using smartENERGY.at as a source and want to display the Total Price in €/kWh for the next 48 hours. The value for `entity` and the `entry` being processed by the `data_generator` are specific to this data source:
 
 ![Apex Chart Data Source Example](/images/apexcharts-entities-example.png)
 
-If you are using a different source, you will need to first update `sensor.epex_spot_data_gross_price` to use the correct sensor for your configuration (check which Entities you have available under Devices → Integrations → EPEX Spot → `#` Entities) and then change `entry.price_per_kwh` to the attribute that you want to use from your sensor of choice. If your data source does not report prices for the next day, you can change the `graph_span` to `24h` to get rid of the empty space that this configuration would create.
+If you are using a different source, you will need to first update `sensor.epex_spot_data_total_price` to use the correct sensor for your configuration (check which Entities you have available under Devices → Integrations → EPEX Spot → `#` Entities) and then change `entry.price_per_kwh` to the attribute that you want to use from your sensor of choice. If your data source does not report prices for the next day, you can change the `graph_span` to `24h` to get rid of the empty space that this configuration would create.
 
 ### 2. How can I optimise the best moment to start appliances?
 
