@@ -116,7 +116,8 @@ Tax = 19%
 Total Price = ((Market Price * 1.03) + 0.012) * 1.19
 ```
 
-> [!NOTE] smartENERGY.at
+> [!NOTE]
+> smartENERGY.at
 
 As of Feb 2024, even though smartENERGY says that the prices reported by the API already include 20% tax (meaning users would configure the sensor to add a static €0.0144 to every price value from the API), [this is incorrect, and the API reports pricing without Tax](https://github.com/mampfes/ha_epex_spot/issues/108#issuecomment-1951423366 "this is incorrect, and the API reports pricing without Tax").
 
