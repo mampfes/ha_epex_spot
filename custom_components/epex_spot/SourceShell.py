@@ -6,11 +6,10 @@ from typing import Any
 
 import aiohttp
 
-from custom_components.epex_spot.EPEXSpot import ENTSOE
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.util import dt
 
-from .const import (
+from custom_components.epex_spot.const import (
     CONF_DURATION,
     CONF_EARLIEST_START_POST,
     CONF_EARLIEST_START_TIME,
@@ -21,6 +20,7 @@ from .const import (
     CONF_SOURCE_AWATTAR,
     CONF_SOURCE_ENERGYFORECAST,
     CONF_SOURCE_ENTSOE,
+    CONF_SOURCE_ENERGYCHARTS,
     CONF_SOURCE_SMARD_DE,
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
@@ -34,7 +34,15 @@ from .const import (
     DEFAULT_TAX,
     EMPTY_EXTREME_PRICE_INTERVAL_RESP,
 )
-from .EPEXSpot import SMARD, Awattar, Energyforecast, Tibber, smartENERGY
+from custom_components.epex_spot.EPEXSpot import (
+    SMARD,
+    Awattar,
+    Energyforecast,
+    Tibber,
+    smartENERGY,
+    ENTSOE,
+    EnergyCharts,
+)
 from .extreme_price_interval import find_extreme_price_interval, get_start_times
 
 _LOGGER = logging.getLogger(__name__)
@@ -86,6 +94,12 @@ class SourceShell:
                 market_area=config_entry.data[CONF_MARKET_AREA],
                 duration=config_entry.options.get(CONF_DURATION, DEFAULT_DURATION),
                 token=self._config_entry.data[CONF_TOKEN],
+                session=session,
+            )
+        elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_ENERGYCHARTS:
+            self._source = EnergyCharts.EnergyCharts(
+                market_area=config_entry.data[CONF_MARKET_AREA],
+                duration=config_entry.options.get(CONF_DURATION, DEFAULT_DURATION),
                 session=session,
             )
         else:
@@ -161,7 +175,7 @@ class SourceShell:
         self._sorted_marketdata_today = sorted_sorted_marketdata_today
 
     def to_gross_price(self, net_price_per_kwh):
-        net_p = net_price_per_kwh
+        gross_price = net_price_per_kwh
 
         # Standard calculation for other cases
         if "Tibber API" not in self.name:
@@ -175,11 +189,11 @@ class SourceShell:
                 CONF_SURCHARGE_PERC, DEFAULT_SURCHARGE_PERC
             )
 
-            net_p = net_p + abs(net_p) * surcharge_pct / 100
-            net_p += surcharge_abs
-            net_p *= 1 + (tax / 100.0)
+            gross_price = gross_price + abs(gross_price) * surcharge_pct / 100
+            gross_price += surcharge_abs
+            gross_price *= 1 + (tax / 100.0)
 
-        return round(net_p, 6)
+        return round(gross_price, 6)
 
     def find_extreme_price_interval(self, call_data, cmp):
         duration: timedelta = call_data[CONF_DURATION]
