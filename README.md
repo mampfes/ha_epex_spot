@@ -17,25 +17,25 @@ There is a companion integration which simplifies the use of EPEX Spot integrati
 
 You can choose between multiple sources:
 
-1. Awattar
+1. Awattar 
    [Awattar](https://www.awattar.de/services/api) provides a free of charge service for their customers. Market price data is available for Germany and Austria. So far no user identifiation is required.
 
-2. Energyforecast.de
+2. Energyforecast.de 
    [Energyforecast.de](https://www.energyforecast.de/api-docs/index.html) provides services to get market price data forecasts for Germany up to 96 hours into the future. An API token is required.
 
-3. SMARD.de
+3. SMARD.de 
    [SMARD.de](https://www.smard.de) provides a free of charge API to retrieve a lot of information about electricity market including market prices. SMARD.de is serviced by the Bundesnetzagentur, Germany.
 
-4. smartENERGY.at
+4. smartENERGY.at 
    [smartENERGY.at](https://www.smartenergy.at/api-schnittstellen) provides a free of charge service for their customers. Market price data is available for Austria. So far no user identifiation is required.
 
-5. Tibber
+5. Tibber 
    [Tibber](https://developer.tibber.com) is a digital energy supplier that offers an API to access real-time electricity data (prices, consumption, devices, etc.). An API token is required.
 
-6. ENTSO‑E Transparency Platform
+6. ENTSO‑E Transparency Platform 
    [ENTSO‑E](https://transparency.entsoe.eu/) operates a Transparency Platform providing a RESTful API for electricity market data (prices, load forecasts, generation, cross-border flows, etc.). An API token is required ([How to get security token?](https://transparencyplatform.zendesk.com/hc/en-us/articles/12845911031188-How-to-get-security-token)).
 
-7. Energy-Charts (Fraunhofer ISE)
+7. Energy-Charts (Fraunhofer ISE) 
    [Energy-Charts](https://energy-charts.info) provides a publicly accessible API real-time electricity market prices for many European bidding zones.  
    No registration or API token is required.
 
