@@ -35,7 +35,7 @@ You can choose between multiple sources:
 6. ENTSO‑E Transparency Platform  
    [ENTSO‑E](https://transparency.entsoe.eu/) operates a Transparency Platform providing a RESTful API for electricity market data (prices, load forecasts, generation, cross-border flows, etc.). An API token is required ([How to get security token?](https://transparencyplatform.zendesk.com/hc/en-us/articles/12845911031188-How-to-get-security-token)).
 
-7. Energy-Charts (Fraunhofer ISE)  
+7. Energy-Charts.info (Fraunhofer ISE)  
    [Energy-Charts](https://energy-charts.info) provides a publicly accessible API offering real-time electricity market prices for many European bidding zones.  
    No registration or API token is required.
 
