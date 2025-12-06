@@ -1,6 +1,6 @@
 """Energy-Charts API Client."""
 
-from datetime import datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta
 import logging
 import aiohttp
 from typing import List
@@ -139,8 +139,17 @@ class EnergyCharts:
     #
     # HTTP request
     #
+
     async def _fetch_data(self):
-        params = {"bzn": self._market_area}
+        # Compute start = today, end = tomorrow (daily format)
+        start_date = date.today()
+        end_date = start_date + timedelta(days=1)
+
+        params = {
+            "bzn": self._market_area,
+            "start": start_date.isoformat(),
+            "end": end_date.isoformat(),
+        }
 
         async with self._session.get(self.URL, params=params) as resp:
             resp.raise_for_status()
