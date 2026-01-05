@@ -10,7 +10,7 @@ from .EPEXSpot import HoferGruenstrom
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        service = HoferGruenstrom.HoferGruenstrom(market_area="at", session=session)
+        service = HoferGruenstrom.HoferGruenstrom(market_area="at", session=session, duration=15)
 
         await service.fetch()
         print(f"count = {len(service.marketdata)}")
