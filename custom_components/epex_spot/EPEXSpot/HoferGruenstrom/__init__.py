@@ -65,7 +65,7 @@ class HoferGruenstrom:
 
     async def fetch(self):
         # get todays and tomorrows date components
-        today = datetime.now()
+        today = datetime.now(ZoneInfo(TIMEZONE_HOFER_GRUENSTROM))
         tomorrow = today + timedelta(days=1)
         dates = [today, tomorrow]
 
@@ -126,7 +126,10 @@ class HoferGruenstrom:
             return await response.json()
 
     def _get_duration_from_data(self, data):
+        if not data:
+            _LOGGER.error("Empty data received in _get_duration_from_data")
+            raise ValueError("Cannot determine duration from empty data")
         start_date: datetime = datetime.fromisoformat(data[0]["from"])
         end_date: datetime = datetime.fromisoformat(data[0]["to"])
         duration: timedelta = end_date - start_date
-        return int(duration.seconds / 60)
+        return int(duration.total_seconds() / 60)
