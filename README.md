@@ -40,7 +40,9 @@ You can choose between multiple sources:
    No registration or API token is required.
 
 8. Hofer Grünstrom
-   [Hofer Grünstrom](https://www.hofer-grünstrom.at/tarife-zum-geld-sparen#spot) has an open API for accessing market data for Austria. So far no user identifiation is required. (This API is not officially documented, but was discovered by reverse engineering the Hofer Grünstrom website.)
+   [Hofer Grünstrom](https://www.hofer-grünstrom.at/tarife-zum-geld-sparen#spot) has an open API for accessing market data for Austria. So far no user identification is required. (This API is not officially documented, but was discovered by reverse engineering the Hofer Grünstrom website.)
+
+   ⚠️ **Note:** The SSL certificate used by the Hofer Grünstrom API is not trusted publicly. Therefore, when using this source, the integration will ignore SSL certificate verification. This is a potential security risk, so please be aware of this when using this source.
 
 If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
 
