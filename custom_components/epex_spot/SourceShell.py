@@ -106,7 +106,9 @@ class SourceShell:
             )
         elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_HOFER_GRUENSTROM:
             self._source = HoferGruenstrom.HoferGruenstrom(
-                market_area=config_entry.data[CONF_MARKET_AREA], session=session
+                market_area=config_entry.data[CONF_MARKET_AREA],
+                duration=config_entry.options.get(CONF_DURATION, DEFAULT_DURATION),
+                session=session,
             )
         else:
             raise ValueError(f"Unsupported source: {config_entry.data[CONF_SOURCE]}")

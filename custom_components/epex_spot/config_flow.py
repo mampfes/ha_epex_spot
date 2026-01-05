@@ -40,7 +40,7 @@ from .EPEXSpot import (
     Energyforecast,
     ENTSOE,
     EnergyCharts,
-	HoferGruenstrom
+	HoferGruenstrom,
 )
 
 CONF_SOURCE_LIST = (
@@ -237,6 +237,11 @@ def getParametersForSource(
             EnergyCharts.EnergyCharts.SUPPORTED_DURATIONS,
             False,
         )
-    // TODO: Re-add Hofer Gruenstrom
+    if source_name == CONF_SOURCE_HOFER_GRUENSTROM:
+        return (
+            HoferGruenstrom.HoferGruenstrom.MARKET_AREAS,
+            HoferGruenstrom.HoferGruenstrom.SUPPORTED_DURATIONS,
+            False,
+        )
 
     return ([], [], False)

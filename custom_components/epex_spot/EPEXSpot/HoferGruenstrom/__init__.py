@@ -6,13 +6,13 @@ import logging
 
 import aiohttp
 
+from ...common import Marketprice, compress_marketdata
 from ...const import TIMEZONE_HOFER_GRUENSTROM
-from custom_components.epex_spot import const
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def _set_tz_on_date(date):
+def _set_tz_on_date(date: datetime):
     """Set timezone on a date object."""
     timezone = ZoneInfo(TIMEZONE_HOFER_GRUENSTROM)
 
@@ -22,43 +22,25 @@ def _set_tz_on_date(date):
     return date.astimezone(timezone)
 
 
-class Marketprice:
-    """Marketprice class for Hofer Gruenstrom."""
-
-    def __init__(self, data):
-        self._from = datetime.fromisoformat(data["from"])
-        self._to = datetime.fromisoformat(data["to"])
-        # price does not include vat or other taxes, so it is already in the correct format
-        self._price = round(float(data["price"]) / 100, 6)
-
-    def __repr__(self):
-        return (
-            f"{self.__class__.__name__}(start: {self._from.isoformat()}, "
-            f"end: {self._to.isoformat()}, price: {self._price} {const.CT_PER_KWH})"
-        )
-
-    @property
-    def start_time(self):
-        return _set_tz_on_date(self._from)
-
-    @property
-    def end_time(self):
-        return _set_tz_on_date(self._to)
-
-    @property
-    def price_per_kwh(self):
-        return self._price
-
-
 class HoferGruenstrom:
     URL = "https://www.xn--hofer-grnstrom-nsb.at/service/energy-manager/spot-prices"
 
     MARKET_AREAS = ("at",)
+    SUPPORTED_DURATIONS = (
+        15,
+        60,
+    )
 
-    def __init__(self, market_area, session: aiohttp.ClientSession):
+    def __init__(self, market_area: str, duration: int, session: aiohttp.ClientSession):
+        if market_area not in self.MARKET_AREAS:
+            raise ValueError(f"Unsupported bidding zone: {market_area}")
+
+        if duration not in self.SUPPORTED_DURATIONS:
+            raise ValueError(f"Unsupported duration: {duration}")
+
         self._session = session
         self._market_area = market_area
-        self._duration = 15  # default value, can be overwritten by API response
+        self._duration = duration
         self._marketdata = []
 
     @property
@@ -89,7 +71,7 @@ class HoferGruenstrom:
 
         # fetch data for today and tomorrow
 
-        marketdata = []
+        marketdata: list[Marketprice] = []
         for date in dates:
             raw_data = await self._fetch_data_for_date(date)
             if raw_data is None:
@@ -100,16 +82,38 @@ class HoferGruenstrom:
             if not data:
                 _LOGGER.error("No data found in response for %s", date.isoformat())
                 continue
+
+            duration = self._get_duration_from_data(data)
             # extract market data
-            for item in data:
-                marketdata.append(Marketprice(item))
+            complete_marketdata = self._extract_marketdata(data, duration)
+            if duration < self.duration:
+                complete_marketdata = compress_marketdata(
+                    complete_marketdata, self.duration
+                )
+
+            marketdata += complete_marketdata
 
         self._marketdata = marketdata
+
+    def _extract_marketdata(self, data, duration):
+        entries: list[Marketprice] = []
+        for entry in data:
+            entries.append(
+                Marketprice(
+                    start_time=_set_tz_on_date(datetime.fromisoformat(entry["from"])),
+                    duration=duration,
+                    price=round(float(entry["price"]) / 100, 6),
+                )
+            )
+        return entries
 
     async def _fetch_data_for_date(self, date):
         """Fetch data for a specific date."""
         url = f"{self.URL}?year={date.year}&month={date.month}&day={date.day}"
-        async with self._session.get(url) as response:
+        # unfortunately it is required to set `ssl` to false since the certificate is not publicly trusted.
+        # the main reason for this might be that the API is not really meant to be used externally, but just from
+        # Hofer Grünstrom's website (https://www.hofer-grünstrom.at/tarife-zum-geld-sparen#spot).
+        async with self._session.get(url, ssl=False) as response:
             if response.status != 200:
                 if response.status == 204:
                     _LOGGER.debug("No data available for %s yet.", date.isoformat())
@@ -120,3 +124,9 @@ class HoferGruenstrom:
                 )
                 return None
             return await response.json()
+
+    def _get_duration_from_data(self, data):
+        start_date: datetime = datetime.fromisoformat(data[0]["from"])
+        end_date: datetime = datetime.fromisoformat(data[0]["to"])
+        duration: timedelta = end_date - start_date
+        return int(duration.seconds / 60)
