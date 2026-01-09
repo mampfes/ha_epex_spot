@@ -15,7 +15,8 @@
           "market_area": "Select market area",
           "duration": "Slot duration",
           "token": "API Token"
-        }
+        },
+        "description": "{ssl_warning}"
       },
       "options": {
         "title": "Total Price Options",

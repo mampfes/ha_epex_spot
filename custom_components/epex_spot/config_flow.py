@@ -19,6 +19,7 @@ from .const import (
     CONF_SOURCE_TIBBER,
     CONF_SOURCE_ENERGYFORECAST,
     CONF_SOURCE_ENERGYCHARTS,
+    CONF_SOURCE_HOFER_GRUENSTROM,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -39,6 +40,7 @@ from .EPEXSpot import (
     Energyforecast,
     ENTSOE,
     EnergyCharts,
+    HoferGruenstrom,
 )
 
 CONF_SOURCE_LIST = (
@@ -49,6 +51,7 @@ CONF_SOURCE_LIST = (
     CONF_SOURCE_TIBBER,
     CONF_SOURCE_ENERGYFORECAST,
     CONF_SOURCE_ENERGYCHARTS,
+    CONF_SOURCE_HOFER_GRUENSTROM,
 )
 
 
@@ -104,7 +107,18 @@ class EpexSpotConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore
             )
         )
 
-        return self.async_show_form(step_id="market_area", data_schema=data_schema)
+        # Add warning for HoferGruenstrom about disabled SSL
+        description_placeholders = {}
+        if self._source_name == CONF_SOURCE_HOFER_GRUENSTROM:
+            description_placeholders = {
+                "ssl_warning": "Warning: SSL certificate verification is disabled for this source."
+            }
+
+        return self.async_show_form(
+            step_id="market_area",
+            data_schema=data_schema,
+            description_placeholders=description_placeholders,
+        )
 
     async def async_step_market_area(self, user_input=None):
         if user_input is not None:
@@ -232,6 +246,12 @@ def getParametersForSource(
         return (
             sorted(EnergyCharts.EnergyCharts.MARKET_AREAS),
             EnergyCharts.EnergyCharts.SUPPORTED_DURATIONS,
+            False,
+        )
+    if source_name == CONF_SOURCE_HOFER_GRUENSTROM:
+        return (
+            HoferGruenstrom.HoferGruenstrom.MARKET_AREAS,
+            HoferGruenstrom.HoferGruenstrom.SUPPORTED_DURATIONS,
             False,
         )
 

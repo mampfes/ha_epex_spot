@@ -17,27 +17,32 @@ There is a companion integration which simplifies the use of EPEX Spot integrati
 
 You can choose between multiple sources:
 
-1. Awattar  
+1. Awattar
    [Awattar](https://www.awattar.de/services/api) provides a free of charge service for their customers. Market price data is available for Germany and Austria. So far no user identifiation is required.
 
-2. Energyforecast.de  
+2. Energyforecast.de
    [Energyforecast.de](https://www.energyforecast.de/api-docs/index.html) provides services to get market price data forecasts for Germany up to 96 hours into the future. An API token is required.
 
-3. SMARD.de  
+3. SMARD.de
    [SMARD.de](https://www.smard.de) provides a free of charge API to retrieve a lot of information about electricity market including market prices. SMARD.de is serviced by the Bundesnetzagentur, Germany.
 
-4. smartENERGY.at  
+4. smartENERGY.at
    [smartENERGY.at](https://www.smartenergy.at/api-schnittstellen) provides a free of charge service for their customers. Market price data is available for Austria. So far no user identifiation is required.
 
-5. Tibber  
+5. Tibber
    [Tibber](https://developer.tibber.com) is a digital energy supplier that offers an API to access real-time electricity data (prices, consumption, devices, etc.). An API token is required.
 
-6. ENTSO‑E Transparency Platform  
+6. ENTSO‑E Transparency Platform
    [ENTSO‑E](https://transparency.entsoe.eu/) operates a Transparency Platform providing a RESTful API for electricity market data (prices, load forecasts, generation, cross-border flows, etc.). An API token is required ([How to get security token?](https://transparencyplatform.zendesk.com/hc/en-us/articles/12845911031188-How-to-get-security-token)).
 
-7. Energy-Charts.info (Fraunhofer ISE)  
-   [Energy-Charts](https://energy-charts.info) provides a publicly accessible API offering real-time electricity market prices for many European bidding zones.  
+7. Energy-Charts.info (Fraunhofer ISE)
+   [Energy-Charts](https://energy-charts.info) provides a publicly accessible API offering real-time electricity market prices for many European bidding zones.
    No registration or API token is required.
+
+8. Hofer Grünstrom
+   [Hofer Grünstrom](https://www.hofer-grünstrom.at/tarife-zum-geld-sparen#spot) has an open API for accessing market data for Austria. So far no user identification is required. (This API is not officially documented, but was discovered by reverse engineering the Hofer Grünstrom website.)
+
+   ⚠️ **Note:** The SSL certificate used by the Hofer Grünstrom API is not trusted publicly. Therefore, when using this source, the integration will ignore SSL certificate verification. This is a potential security risk, so please be aware of this when using this source.
 
 If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
 
@@ -117,7 +122,7 @@ Total Price = ((Market Price * 1.03) + 0.012) * 1.19
 ```
 
 > [!NOTE]
-> smartENERGY.at  
+> smartENERGY.at
 > As of Feb 2024, even though smartENERGY says that the prices reported by the API already include 20% tax (meaning users would configure the sensor to add a static €0.0144 to every price value from the API), [this is incorrect, and the API reports pricing without Tax](https://github.com/mampfes/ha_epex_spot/issues/108#issuecomment-1951423366 "this is incorrect, and the API reports pricing without Tax").
 > To get the actual, current total price [listed by smartENERGY on their website](https://www.smartenergy.at/smartcontrol#:~:text=Aktueller%20Stundenpreis "listed by smartENERGY on their website"), configure:
 > - Absolute surcharge = €0.012
