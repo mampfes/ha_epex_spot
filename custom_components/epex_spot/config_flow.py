@@ -168,6 +168,10 @@ class EpexSpotOptionsFlow(OptionsFlowWithReload):
             self.config_entry.data.get(CONF_SOURCE)
         )
 
+        # Fallback to common durations if source is not recognized
+        if not durations:
+            durations = [15, 60]
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
