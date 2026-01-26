@@ -38,7 +38,7 @@ class Marketprice:
 class Energyforecast:
     URL = "https://www.energyforecast.de/api/v1/predictions/prices_for_ha"
 
-    MARKET_AREAS = ("de",)
+    MARKET_AREAS = ("de","be",)
     SUPPORTED_DURATIONS = (15, 60)
 
     def __init__(
