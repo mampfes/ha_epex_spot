@@ -38,7 +38,7 @@ class Marketprice:
 class Energyforecast:
     URL = "https://www.energyforecast.de/api/v1/predictions/prices_for_ha"
 
-    MARKET_AREA = {
+    MARKET_AREAS = {
     "de": "DE-LU",
     "be": "BE",
     "nl": "NL",
@@ -93,7 +93,7 @@ class Energyforecast:
                 "fixed_cost_cent": 0,
                 "vat": 0,
                 "resolution": self._resolution,
-                "market_zone": self.MARKET_AREA[self._market_area],
+                "market_zone": self.MARKET_AREAS[self._market_area],
             },
         ) as resp:
             resp.raise_for_status()
