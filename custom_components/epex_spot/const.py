@@ -27,6 +27,7 @@ CONF_SOURCE_ENERGYFORECAST = "Energyforecast.de"
 CONF_SOURCE_ENTSOE = "ENTSO-E-Transparency"
 CONF_SOURCE_ENERGYCHARTS = "Energy-Charts.info"
 CONF_SOURCE_HOFER_GRUENSTROM = "Hofer Gruenstrom"
+CONF_SOURCE_NEXTENERGY = "NextEnergy"
 
 # configuration options for total price calculation
 CONF_SURCHARGE_PERC = "percentage_surcharge"
