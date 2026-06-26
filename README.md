@@ -20,26 +20,29 @@ You can choose between multiple sources:
 1. Awattar
    [Awattar](https://www.awattar.de/services/api) provides a free of charge service for their customers. Market price data is available for Germany and Austria. So far no user identifiation is required.
 
-2. Energyforecast.de
+2. ELEX
+   [ELEX](https://elex.mk/api-docs) provides services to get day-ahead electricity price data for 49 European markets. An API token is required.
+
+3. Energyforecast.de
    [Energyforecast.de](https://www.energyforecast.de/api-docs/index.html) provides services to get market price data forecasts for Germany up to 96 hours into the future. An API token is required.
 
-3. SMARD.de
+4. SMARD.de
    [SMARD.de](https://www.smard.de) provides a free of charge API to retrieve a lot of information about electricity market including market prices. SMARD.de is serviced by the Bundesnetzagentur, Germany.
 
-4. smartENERGY.at
+5. smartENERGY.at
    [smartENERGY.at](https://www.smartenergy.at/api-schnittstellen) provides a free of charge service for their customers. Market price data is available for Austria. So far no user identifiation is required.
 
-5. Tibber
+6. Tibber
    [Tibber](https://developer.tibber.com) is a digital energy supplier that offers an API to access real-time electricity data (prices, consumption, devices, etc.). An API token is required.
 
-6. ENTSO‑E Transparency Platform
+7. ENTSO‑E Transparency Platform
    [ENTSO‑E](https://transparency.entsoe.eu/) operates a Transparency Platform providing a RESTful API for electricity market data (prices, load forecasts, generation, cross-border flows, etc.). An API token is required ([How to get security token?](https://transparencyplatform.zendesk.com/hc/en-us/articles/12845911031188-How-to-get-security-token)).
 
-7. Energy-Charts.info (Fraunhofer ISE)
+8. Energy-Charts.info (Fraunhofer ISE)
    [Energy-Charts](https://energy-charts.info) provides a publicly accessible API offering real-time electricity market prices for many European bidding zones.
    No registration or API token is required.
 
-8. Hofer Grünstrom
+9. Hofer Grünstrom
    [Hofer Grünstrom](https://www.hofer-grünstrom.at/tarife-zum-geld-sparen#spot) has an open API for accessing market data for Austria. So far no user identification is required. (This API is not officially documented, but was discovered by reverse engineering the Hofer Grünstrom website.)
 
    ⚠️ **Note:** The SSL certificate used by the Hofer Grünstrom API is not trusted publicly. Therefore, when using this source, the integration will ignore SSL certificate verification. This is a potential security risk, so please be aware of this when using this source.
