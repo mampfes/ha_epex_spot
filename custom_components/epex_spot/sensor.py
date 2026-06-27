@@ -19,6 +19,8 @@ from .const import (
     ATTR_START_TIME,
     ATTR_VOLUME_MWH,
     CONF_SOURCE,
+    CONF_TEMPLATE_IMPORT,
+    CONF_TEMPLATE_EXPORT,
     DOMAIN,
 )
 from . import EpexSpotEntity, EpexSpotDataUpdateCoordinator as DataUpdateCoordinator
@@ -43,6 +45,15 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         EpexSpotAveragePriceSensorEntity(coordinator),
         EpexSpotMedianPriceSensorEntity(coordinator),
     ]
+    
+    # Only add the Import/Export Sensor if the template is not empty
+    import_template = config_entry.options.get(CONF_TEMPLATE_IMPORT, "")
+    if import_template and import_template.strip() != "":
+        entities.append(EpexSpotImportPriceSensorEntity(coordinator))
+        
+    export_template = config_entry.options.get(CONF_TEMPLATE_EXPORT, "")
+    if export_template and export_template.strip() != "":
+        entities.append(EpexSpotExportPriceSensorEntity(coordinator))
 
     async_add_entities(entities)
 
@@ -118,6 +129,82 @@ class EpexSpotTotalPriceSensorEntity(EpexSpotEntity, SensorEntity):
 
         return {ATTR_DATA: data}
 
+class EpexSpotImportPriceSensorEntity(EpexSpotEntity, SensorEntity):
+    """Home Assistant sensor containing template-based import price."""
+
+    entity_description = SensorEntityDescription(
+        key="Import Price",
+        name="Import Price",
+        suggested_display_precision=6,
+        state_class=SensorStateClass.MEASUREMENT,
+    )
+
+    def __init__(self, coordinator: DataUpdateCoordinator):
+        super().__init__(coordinator, self.entity_description)
+        self._attr_icon = self._localized.icon
+        self._attr_native_unit_of_measurement = self._localized.uom_per_kwh
+
+    @property
+    def native_value(self) -> StateType:
+        return self._source.get_import_price(
+            self._source.marketdata_now.market_price_per_kwh,
+            self._source.marketdata_now.start_time
+        )
+
+    @property
+    def extra_state_attributes(self):
+        data = [
+            {
+                ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
+                ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
+                self._localized.attr_name_per_kwh: self._source.get_import_price(
+                    e.market_price_per_kwh,
+                    e.start_time
+                ),
+            }
+            for e in self._source.marketdata
+        ]
+
+        return {ATTR_DATA: data}
+
+
+class EpexSpotExportPriceSensorEntity(EpexSpotEntity, SensorEntity):
+    """Home Assistant sensor containing template-based export price."""
+
+    entity_description = SensorEntityDescription(
+        key="Export Price",
+        name="Export Price",
+        suggested_display_precision=6,
+        state_class=SensorStateClass.MEASUREMENT,
+    )
+
+    def __init__(self, coordinator: DataUpdateCoordinator):
+        super().__init__(coordinator, self.entity_description)
+        self._attr_icon = self._localized.icon
+        self._attr_native_unit_of_measurement = self._localized.uom_per_kwh
+
+    @property
+    def native_value(self) -> StateType:
+        return self._source.get_export_price(
+            self._source.marketdata_now.market_price_per_kwh,
+            self._source.marketdata_now.start_time
+        )
+
+    @property
+    def extra_state_attributes(self):
+        data = [
+            {
+                ATTR_START_TIME: dt_util.as_local(e.start_time).isoformat(),
+                ATTR_END_TIME: dt_util.as_local(e.end_time).isoformat(),
+                self._localized.attr_name_per_kwh: self._source.get_export_price(
+                    e.market_price_per_kwh,
+                    e.start_time
+                ),
+            }
+            for e in self._source.marketdata
+        ]
+
+        return {ATTR_DATA: data}
 
 class EpexSpotBuyVolumeSensorEntity(EpexSpotEntity, SensorEntity):
     """Home Assistant sensor containing all EPEX spot data."""

@@ -20,11 +20,13 @@
       },
       "options": {
         "title": "Total Price Options",
-        "description": "Configure surcharges and tax to calculate total price per kWh.",
+        "description": "Configure surcharges and tax to calculate total price per kWh, our use custom price templates. Check out our [ready-to-use energy provider templates]({docs_templates_url})!",
         "data": {
           "percentage_surcharge": "Percentage Surcharge (%)",
           "absolute_surcharge": "Absolute Surcharge (€/£ per kWh)",
-          "tax": "Tax (%)"
+          "tax": "Tax (%)",
+          "import_template": "Import price template",
+          "export_template": "Export price template"
         },
         "data_description": {
           "tax": "Like Value Added Tax (VAT)"
@@ -36,12 +38,14 @@
     "step": {
       "init": {
         "title": "Total Price Options",
-        "description": "Configure surcharges and tax to calculate total price per kWh.",
+        "description": "Configure surcharges and tax to calculate total price per kWh, our use custom price templates. Check out our [ready-to-use energy provider templates]({docs_templates_url})!",
         "data": {
           "duration": "Slot duration",
           "percentage_surcharge": "Percentage Surcharge (%)",
           "absolute_surcharge": "Absolute Surcharge (€/£ per kWh)",
-          "tax": "Tax (%)"
+          "tax": "Tax (%)",
+          "import_template": "Import price template",
+          "export_template": "Export price template"
         },
         "data_description": {
           "tax": "Like Value Added Tax (VAT)"

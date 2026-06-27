@@ -68,7 +68,7 @@ FETCH_DATA_SCHEMA = vol.Schema(
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up component from a config entry."""
 
-    source = SourceShell(entry, async_get_clientsession(hass))
+    source = SourceShell(hass, entry, async_get_clientsession(hass))
 
     try:
         await source.fetch()

@@ -31,6 +31,8 @@ CONF_SOURCE_HOFER_GRUENSTROM = "Hofer Gruenstrom"
 # configuration options for total price calculation
 CONF_SURCHARGE_PERC = "percentage_surcharge"
 CONF_SURCHARGE_ABS = "absolute_surcharge"
+CONF_TEMPLATE_IMPORT = "import_template"
+CONF_TEMPLATE_EXPORT = "export_template"
 CONF_TAX = "tax"
 
 # service call
