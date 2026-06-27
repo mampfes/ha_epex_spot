@@ -96,22 +96,27 @@ class Tibber:
 
     def _extract_marketdata(self, data):
         entries = []
-        for entry in data["today"]:
-            entries.append(
-                Marketprice(
-                    duration=self._duration,
-                    start_time=datetime.fromisoformat(entry["startsAt"]),
-                    price=round(float(entry["total"]), 6),
-                    unit=UOM_EUR_PER_KWH,
+
+        if "today" in data and data["today"] is not None:
+            for entry in data["today"]:
+                entries.append(
+                    Marketprice(
+                        duration=self._duration,
+                        start_time=datetime.fromisoformat(entry["startsAt"]),
+                        price=round(float(entry["total"]), 6),
+                        unit=UOM_EUR_PER_KWH,
+                    )
                 )
-            )
-        for entry in data["tomorrow"]:
-            entries.append(
-                Marketprice(
-                    duration=self._duration,
-                    start_time=datetime.fromisoformat(entry["startsAt"]),
-                    price=round(float(entry["total"]), 6),
-                    unit=UOM_EUR_PER_KWH,
+
+        if "tomorrow" in data and data["tomorrow"] is not None:
+            for entry in data["tomorrow"]:
+                entries.append(
+                    Marketprice(
+                        duration=self._duration,
+                        start_time=datetime.fromisoformat(entry["startsAt"]),
+                        price=round(float(entry["total"]), 6),
+                        unit=UOM_EUR_PER_KWH,
+                    )
                 )
-            )
+
         return entries
