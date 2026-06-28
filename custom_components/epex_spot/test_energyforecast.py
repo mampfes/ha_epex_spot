@@ -11,14 +11,19 @@ DEMO_TOKEN = "demo_token"  # The "demo_token" token only provides up to 24 hours
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        service = Energyforecast.Energyforecast(
-            market_area="DE-LU", token=DEMO_TOKEN, session=session
-        )
+        durations = [15, 60]
 
-        await service.fetch()
-        print(f"count = {len(service.marketdata)}")
-        for e in service.marketdata:
-            print(f"{e.start_time}: {e.market_price_per_kwh} {UOM_EUR_PER_KWH}")
+        for duration in durations:
+            print(f"\n=== Testing Energyforecast: {duration} minutes ===")
+
+            service = Energyforecast.Energyforecast(
+                market_area="DE-LU", duration=duration, token=DEMO_TOKEN, session=session
+            )
+
+            await service.fetch()
+            print(f"count = {len(service.marketdata)}")
+            for e in service.marketdata:
+                print(f"{e.start_time}: {e.market_price_per_kwh} {UOM_EUR_PER_KWH}")
 
 
 asyncio.run(main())

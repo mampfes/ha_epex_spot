@@ -21,7 +21,7 @@ You can choose between multiple sources:
    [Awattar](https://www.awattar.de/services/api) provides a free of charge service for their customers. Market price data is available for Germany and Austria. So far no user identifiation is required.
 
 2. Energyforecast.de
-   [Energyforecast.de](https://www.energyforecast.de/api-docs/index.html) provides services to get market price data forecasts for Germany up to 96 hours into the future. An API token is required.
+   [Energyforecast.de](https://www.energyforecast.de/api-docs/index.html) provides services to get market price data forecasts for multiple market areas (AT, BE, DE-LU, DK1, DK2, FR, NL, PL) up to 96 hours into the future. An API token is required.
 
 3. SMARD.de
    [SMARD.de](https://www.smard.de) provides a free of charge API to retrieve a lot of information about electricity market including market prices. SMARD.de is serviced by the Bundesnetzagentur, Germany.
