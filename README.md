@@ -44,6 +44,9 @@ You can choose between multiple sources:
 
    ⚠️ **Note:** The SSL certificate used by the Hofer Grünstrom API is not trusted publicly. Therefore, when using this source, the integration will ignore SSL certificate verification. This is a potential security risk, so please be aware of this when using this source.
 
+9. EnergyZero
+   [EnergyZero](https://external.docs.api.staging.energyzero.nl/docs/api/rest/public/energy-market-service-get-prices) provides a public API that offers EPEX Spot market prices for the Netherlands. EnergyZero acts as the back-end platform and price provider for various dynamic energy labels, including **ANWB Energie**, **Greenchoice**, **Energie van Ons**, **Mijndomein Energie**, and **Vrijopnaam**. No registration or API token is required.
+   
 If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
 
 ## Installation

@@ -20,6 +20,7 @@ from .const import (
     CONF_SOURCE_ENERGYFORECAST,
     CONF_SOURCE_ENERGYCHARTS,
     CONF_SOURCE_HOFER_GRUENSTROM,
+    CONF_SOURCE_ENERGYZERO,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -41,6 +42,7 @@ from .EPEXSpot import (
     ENTSOE,
     EnergyCharts,
     HoferGruenstrom,
+    EnergyZero,
 )
 
 CONF_SOURCE_LIST = (
@@ -52,6 +54,7 @@ CONF_SOURCE_LIST = (
     CONF_SOURCE_ENERGYFORECAST,
     CONF_SOURCE_ENERGYCHARTS,
     CONF_SOURCE_HOFER_GRUENSTROM,
+    CONF_SOURCE_ENERGYZERO,
 )
 
 
@@ -252,5 +255,10 @@ def getParametersForSource(
             HoferGruenstrom.HoferGruenstrom.SUPPORTED_DURATIONS,
             False,
         )
-
+    if source_name == CONF_SOURCE_ENERGYZERO:
+        return (
+            EnergyZero.EnergyZero.MARKET_AREAS,
+            EnergyZero.EnergyZero.SUPPORTED_DURATIONS,
+            False,
+        )
     return ([], [], False)
