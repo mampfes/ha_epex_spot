@@ -26,6 +26,7 @@ CONF_SOURCE_TIBBER = "Tibber"
 CONF_SOURCE_ENERGYFORECAST = "Energyforecast.de"
 CONF_SOURCE_ENTSOE = "ENTSO-E-Transparency"
 CONF_SOURCE_ENERGYCHARTS = "Energy-Charts.info"
+CONF_SOURCE_NORDPOOL = "Nord Pool"
 CONF_SOURCE_HOFER_GRUENSTROM = "Hofer Gruenstrom"
 
 # configuration options for total price calculation

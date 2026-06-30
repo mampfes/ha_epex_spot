@@ -4,3 +4,9 @@ __pycache__
 .vscode/
 .mypy_cache/
 venv/
+/.idea/.gitignore
+/.idea/ha_epex_spot.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/vcs.xml
