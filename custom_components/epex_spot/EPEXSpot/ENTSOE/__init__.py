@@ -167,14 +167,14 @@ class EntsoeTransparency:
             if seq is not None:
                 sequences.append(seq.text)
 
-        # Filter SDAC sequence==1 if present
+        # Filter SDAC sequence==2 if present
         if sequences:
             filtered_timeseries = []
             for ts in all_timeseries:
                 seq_el = ts.find(
                     "ns:classificationSequence_AttributeInstanceComponent.position", ns
                 )
-                if seq_el is not None and seq_el.text == "1":
+                if seq_el is not None and seq_el.text == "2":
                     filtered_timeseries.append(ts)
             timeseries_list = filtered_timeseries
         else:
