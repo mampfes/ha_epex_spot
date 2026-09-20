@@ -24,6 +24,9 @@ def _calc_interval_price(marketdata, start_time: datetime, duration: timedelta):
     while start_time < stop_time:
         mp = _find_market_price(marketdata, start_time)
 
+        if mp is None:
+            return None
+
         if mp.end_time > stop_time:
             active_duration_in_this_segment = stop_time - start_time
         else:
@@ -54,7 +57,7 @@ def _calc_start_times(
     for md in marketdata:
         # add start times for market data segment start
         if md.start_time >= earliest_start and md.start_time + duration <= latest_end:
-            start_times.add(earliest_start)
+            start_times.add(md.start_time)
 
         # add start times for market data segment end
         start_time = md.end_time - duration
@@ -82,7 +85,7 @@ def find_extreme_price_interval(marketdata, start_times, duration: timedelta, cm
         ip = _calc_interval_price(marketdata, start_time, duration)
 
         if ip is None:
-            return None
+            continue
 
         if interval_price is None or cmp(ip, interval_price):
             interval_price = ip
