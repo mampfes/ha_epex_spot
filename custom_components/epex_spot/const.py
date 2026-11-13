@@ -27,6 +27,7 @@ CONF_SOURCE_ENERGYFORECAST = "Energyforecast.de"
 CONF_SOURCE_ENTSOE = "ENTSO-E-Transparency"
 CONF_SOURCE_ENERGYCHARTS = "Energy-Charts.info"
 CONF_SOURCE_HOFER_GRUENSTROM = "Hofer Gruenstrom"
+CONF_SOURCE_SPOTTY = "Spotty"
 
 # configuration options for total price calculation
 CONF_SURCHARGE_PERC = "percentage_surcharge"
@@ -53,6 +54,7 @@ EMPTY_EXTREME_PRICE_INTERVAL_RESP = {
 }
 
 TIMEZONE_HOFER_GRUENSTROM = "Europe/Vienna"
+TIMEZONE_SPOTTY = "Europe/Vienna"
 
 UOM_EUR_PER_KWH = "€/kWh"
 UOM_MWH = "MWh"

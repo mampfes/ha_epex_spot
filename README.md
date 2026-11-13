@@ -44,6 +44,11 @@ You can choose between multiple sources:
 
    ⚠️ **Note:** The SSL certificate used by the Hofer Grünstrom API is not trusted publicly. Therefore, when using this source, the integration will ignore SSL certificate verification. This is a potential security risk, so please be aware of this when using this source.
 
+9. Spotty Energie
+   [Spotty Energie](https://www.spottyenergie.at) provides the Austrian day-ahead prices in 15 minute resolution through a per-customer API, documented in the [Spotty help center](https://hilfe.spotty.app/kb/article/96-schnittstelle-marktpreis-api/). A contract id is required; it is shown in the Spotty customer portal under *Contract → Edit* next to the market price API.
+
+   ⚠️ **Note:** The integration uses the `MARKET` series, the net price without the Spotty service fee and without taxes, consistent with the other sources. The contract id is part of the request URL and must be treated as a secret. Please do not poll the API more than once per hour.
+
 If you like this component, please give it a star on [github](https://github.com/mampfes/hacs_epex_spot).
 
 ## Installation

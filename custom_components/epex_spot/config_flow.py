@@ -4,7 +4,9 @@ Used by UI to setup integration.
 """
 
 import voluptuous as vol
+from hashlib import sha256
 from typing import List, Tuple
+from uuid import UUID
 
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlowWithReload
 from homeassistant.core import callback
@@ -20,6 +22,7 @@ from .const import (
     CONF_SOURCE_ENERGYFORECAST,
     CONF_SOURCE_ENERGYCHARTS,
     CONF_SOURCE_HOFER_GRUENSTROM,
+    CONF_SOURCE_SPOTTY,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -41,6 +44,7 @@ from .EPEXSpot import (
     ENTSOE,
     EnergyCharts,
     HoferGruenstrom,
+    Spotty,
 )
 
 CONF_SOURCE_LIST = (
@@ -52,7 +56,16 @@ CONF_SOURCE_LIST = (
     CONF_SOURCE_ENERGYFORECAST,
     CONF_SOURCE_ENERGYCHARTS,
     CONF_SOURCE_HOFER_GRUENSTROM,
+    CONF_SOURCE_SPOTTY,
 )
+
+
+def normalize_spotty_token(value: str) -> str:
+    """Validate and normalize the Spotty contract id (a UUID)."""
+    try:
+        return str(UUID(str(value).strip()))
+    except (AttributeError, TypeError, ValueError) as err:
+        raise ValueError("invalid Spotty contract id") from err
 
 
 class EpexSpotConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore
@@ -85,27 +98,29 @@ class EpexSpotConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore
             step_id="source", data_schema=data_schema, last_step=False
         )
 
+    @staticmethod
+    def _market_area_schema(areas, durations, requires_token, defaults=None):
+        defaults = defaults or {}
+        data_schema = {
+            vol.Required(
+                CONF_MARKET_AREA,
+                default=defaults.get(CONF_MARKET_AREA, vol.UNDEFINED),
+            ): vol.In(areas),
+            vol.Required(
+                CONF_DURATION,
+                default=defaults.get(CONF_DURATION, vol.UNDEFINED),
+            ): vol.All(vol.Coerce(int), vol.In(durations)),
+        }
+        if requires_token:
+            data_schema[vol.Required(CONF_TOKEN)] = vol.Coerce(str)
+        return vol.Schema(data_schema)
+
     async def async_step_source(self, user_input=None):
         self._source_name = user_input[CONF_SOURCE]
 
         areas, durations, requires_token = getParametersForSource(self._source_name)
 
-        data_schema = (
-            vol.Schema(
-                {
-                    vol.Required(CONF_MARKET_AREA): vol.In(areas),
-                    vol.Required(CONF_DURATION): vol.All(vol.Coerce(int), vol.In(durations)),
-                    vol.Required(CONF_TOKEN): vol.Coerce(str),
-                }
-            )
-            if requires_token
-            else vol.Schema(
-                {
-                    vol.Required(CONF_MARKET_AREA): vol.In(areas),
-                    vol.Required(CONF_DURATION): vol.All(vol.Coerce(int), vol.In(durations)),
-                },
-            )
-        )
+        data_schema = self._market_area_schema(areas, durations, requires_token)
 
         # Add warning for HoferGruenstrom about disabled SSL
         description_placeholders = {"ssl_warning": ""}
@@ -120,11 +135,42 @@ class EpexSpotConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore
 
     async def async_step_market_area(self, user_input=None):
         if user_input is not None:
+            if self._source_name == CONF_SOURCE_SPOTTY:
+                try:
+                    user_input[CONF_TOKEN] = normalize_spotty_token(
+                        user_input[CONF_TOKEN]
+                    )
+                except ValueError:
+                    areas, durations, requires_token = getParametersForSource(
+                        self._source_name
+                    )
+                    return self.async_show_form(
+                        step_id="market_area",
+                        data_schema=self._market_area_schema(
+                            areas,
+                            durations,
+                            requires_token,
+                            defaults={
+                                CONF_MARKET_AREA: user_input.get(CONF_MARKET_AREA),
+                                CONF_DURATION: user_input.get(CONF_DURATION),
+                            },
+                        ),
+                        errors={CONF_TOKEN: "invalid_spotty_token"},
+                    )
+
             # create an entry for this configuration
             market_area = user_input[CONF_MARKET_AREA]
             title = f"{self._source_name} ({market_area})"
 
             unique_id = f"{DOMAIN} {self._source_name} {market_area}"
+            if self._source_name == CONF_SOURCE_SPOTTY:
+                # The contract id allows multiple Spotty contracts, so it has
+                # to be part of the unique id and the title. Only a digest is
+                # stored and shown, never the id itself.
+                digest = sha256(user_input[CONF_TOKEN].encode()).hexdigest()
+                unique_id = f"{unique_id} {digest[:8]}"
+                title = f"{title} #{digest[:4]}"
+
             await self.async_set_unique_id(unique_id)
             self._abort_if_unique_id_configured()
 
@@ -251,6 +297,12 @@ def getParametersForSource(
             HoferGruenstrom.HoferGruenstrom.MARKET_AREAS,
             HoferGruenstrom.HoferGruenstrom.SUPPORTED_DURATIONS,
             False,
+        )
+    if source_name == CONF_SOURCE_SPOTTY:
+        return (
+            Spotty.Spotty.MARKET_AREAS,
+            Spotty.Spotty.SUPPORTED_DURATIONS,
+            True,
         )
 
     return ([], [], False)

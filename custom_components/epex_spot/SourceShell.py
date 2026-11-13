@@ -25,6 +25,7 @@ from custom_components.epex_spot.const import (
     CONF_SOURCE_SMARTENERGY,
     CONF_SOURCE_TIBBER,
     CONF_SOURCE_HOFER_GRUENSTROM,
+    CONF_SOURCE_SPOTTY,
     CONF_SURCHARGE_ABS,
     CONF_SURCHARGE_PERC,
     CONF_TAX,
@@ -44,6 +45,7 @@ from custom_components.epex_spot.EPEXSpot import (
     ENTSOE,
     EnergyCharts,
     HoferGruenstrom,
+    Spotty,
 )
 from .extreme_price_interval import find_extreme_price_interval, get_start_times
 
@@ -109,6 +111,13 @@ class SourceShell:
                 market_area=config_entry.data[CONF_MARKET_AREA],
                 duration=config_entry.options.get(CONF_DURATION, DEFAULT_DURATION),
                 session=session,
+            )
+        elif config_entry.data[CONF_SOURCE] == CONF_SOURCE_SPOTTY:
+            self._source = Spotty.Spotty(
+                market_area=config_entry.data[CONF_MARKET_AREA],
+                duration=config_entry.options.get(CONF_DURATION, DEFAULT_DURATION),
+                session=session,
+                token=config_entry.data[CONF_TOKEN],
             )
         else:
             raise ValueError(f"Unsupported source: {config_entry.data[CONF_SOURCE]}")
