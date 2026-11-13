@@ -4,6 +4,9 @@
       "already_configured": "This market area is already configured.",
       "fetch_failed": "Failed to fetch data."
     },
+    "error": {
+      "invalid_spotty_token": "The Spotty contract id must be a UUID. You can find it in the Spotty customer portal under Contract → Edit next to the market price API."
+    },
     "step": {
       "source": {
         "data": {
